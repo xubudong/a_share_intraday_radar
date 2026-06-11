@@ -8,6 +8,9 @@ from pathlib import Path
 
 import uvicorn
 
+from .config import ROOT_DIR
+from .instance import APP_ID, root_fingerprint
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Launch A Share Intraday Radar.")
@@ -20,9 +23,11 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     record = {
+        "app_id": APP_ID,
         "pid": os.getpid(),
         "host": args.host,
         "port": args.port,
+        "root_fingerprint": root_fingerprint(ROOT_DIR),
         "start_time_utc": datetime.now(timezone.utc).isoformat(),
     }
     args.pid_file.write_text(json.dumps(record, indent=2), encoding="ascii")

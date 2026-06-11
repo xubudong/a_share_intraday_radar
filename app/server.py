@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+import os
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
@@ -8,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .config import ROOT_DIR
+from .instance import APP_ID, root_fingerprint
 from .service import radar_service
 
 
@@ -28,6 +30,15 @@ class ToggleStarRequest(BaseModel):
 @app.get("/")
 def index() -> FileResponse:
     return FileResponse(ROOT_DIR / "static" / "index.html")
+
+
+@app.get("/api/instance")
+def instance() -> dict:
+    return {
+        "app_id": APP_ID,
+        "pid": os.getpid(),
+        "root_fingerprint": root_fingerprint(ROOT_DIR),
+    }
 
 
 @app.get("/api/dashboard")
