@@ -1,0 +1,70 @@
+from __future__ import annotations
+
+import threading
+
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+
+from .config import ROOT_DIR
+from .service import radar_service
+
+
+app = FastAPI(title="A Share Intraday Radar", version="1.0.0")
+app.mount("/static", StaticFiles(directory=ROOT_DIR / "static"), name="static")
+
+
+class ToggleStarRequest(BaseModel):
+    code: str
+
+
+@app.on_event("startup")
+def startup_refresh() -> None:
+    thread = threading.Thread(target=radar_service.refresh, kwargs={"force_history": False}, daemon=True)
+    thread.start()
+
+
+@app.get("/")
+def index() -> FileResponse:
+    return FileResponse(ROOT_DIR / "static" / "index.html")
+
+
+@app.get("/api/dashboard")
+def dashboard() -> dict:
+    return radar_service.dashboard()
+
+
+@app.get("/api/stocks")
+def stocks() -> dict:
+    return radar_service.stocks_payload()
+
+
+@app.post("/api/refresh")
+def refresh(force_history: bool = False) -> dict:
+    return radar_service.refresh(force_history=force_history)
+
+
+@app.post("/api/toggle-star")
+def toggle_star(req: ToggleStarRequest) -> dict:
+    new_state = radar_service.toggle_star(req.code)
+    return {"code": req.code, "star": new_state}
+
+
+@app.get("/api/snapshots")
+def list_snapshots() -> list:
+    return radar_service.list_snapshots()
+
+
+@app.get("/api/snapshots/{snapshot_id}")
+def get_snapshot(snapshot_id: str) -> dict:
+    data = radar_service.load_snapshot(snapshot_id)
+    if data is None:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Snapshot not found")
+    return data
+
+
+@app.get("/api/health")
+def health() -> dict:
+    return radar_service.health()

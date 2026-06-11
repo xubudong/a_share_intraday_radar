@@ -1,0 +1,116 @@
+groups:
+  - name: MLCC（被动元件）
+    stocks:
+      - { code: "000636", name: "风华高科", star: true, tier: 1 }
+      - { code: "300408", name: "三环集团", star: true, tier: 1 }
+      - { code: "002859", name: "洁美科技", tier: 2 }
+      - { code: "603678", name: "火炬电子", tier: 2 }
+      - { code: "603267", name: "鸿远电子", tier: 2 }
+
+  - name: 玻璃基板
+    stocks:
+      - { code: "603773", name: "沃格光电", star: true, tier: 1 }
+      - { code: "600552", name: "凯盛科技", star: true, tier: 1 }
+      - { code: "002962", name: "五方光电", watch: true, tier: 3 }
+      - { code: "600707", name: "彩虹股份", tier: 2 }
+
+  - name: 玻璃玻纤 / 电子布
+    stocks:
+      - { code: "603256", name: "宏和科技", star: true, tier: 1 }
+      - { code: "600176", name: "中国巨石", star: true, tier: 1 }
+      - { code: "002080", name: "中材科技", tier: 2 }
+      - { code: "605006", name: "山东玻纤", tier: 2 }
+
+  - name: PCB
+    stocks:
+      - { code: "002463", name: "沪电股份", star: true, tier: 1 }
+      - { code: "002916", name: "深南电路", star: true, tier: 1 }
+      - { code: "603228", name: "景旺电子", tier: 2 }
+
+  - name: 光纤
+    stocks:
+      - { code: "601869", name: "长飞光纤", star: true, tier: 1 }
+      - { code: "600487", name: "亨通光电", star: true, tier: 1 }
+      - { code: "600522", name: "中天科技", tier: 2 }
+      - { code: "600498", name: "烽火通信", tier: 2 }
+      - { code: "002491", name: "通鼎互联", tier: 3 }
+
+  - name: 工业气体
+    stocks:
+      - { code: "688146", name: "中船特气", star: true, tier: 1 }
+      - { code: "002549", name: "凯美特气", tier: 2 }
+      - { code: "002971", name: "和远气体", tier: 2 }
+      - { code: "002430", name: "杭氧股份", tier: 2 }
+
+  - name: 铜箔
+    stocks:
+      - { code: "301217", name: "铜冠铜箔", star: true, tier: 1 }
+      - { code: "301511", name: "德福科技", star: true, tier: 1 }
+      - { code: "600110", name: "诺德股份", tier: 2 }
+      - { code: "002992", name: "宝明科技", watch: true, tier: 3 }
+      - { code: "002203", name: "海亮股份", tier: 2 }
+
+  - name: 覆铜板
+    stocks:
+      - { code: "600183", name: "生益科技", star: true, tier: 1 }
+      - { code: "603186", name: "华正新材", star: true, tier: 1 }
+      - { code: "002636", name: "金安国纪", tier: 2 }
+      - { code: "603002", name: "宏昌电子", tier: 2 }
+
+  - name: 存储芯片
+    stocks:
+      - { code: "603986", name: "兆易创新", star: true, tier: 1 }
+      - { code: "301308", name: "江波龙", star: true, tier: 1 }
+      - { code: "688525", name: "佰维存储", star: true, tier: 1 }
+      - { code: "000021", name: "深科技", tier: 2 }
+      - { code: "001309", name: "德明利", tier: 2 }
+
+  - name: 半导体材料-硅片
+    stocks:
+      - { code: "688126", name: "沪硅产业", tier: 1 }
+      - { code: "002129", name: "TCL中环", tier: 2 }
+      - { code: "605358", name: "立昂微", tier: 2 }
+      - { code: "688233", name: "神工股份", tier: 2 }
+
+  - name: 半导体材料-光刻胶
+    stocks:
+      - { code: "603650", name: "彤程新材", tier: 2 }
+      - { code: "300655", name: "晶瑞电材", tier: 2 }
+      - { code: "300346", name: "南大光电", star: true, tier: 1 }
+      - { code: "300576", name: "容大感光", tier: 2 }
+
+  - name: 半导体材料-溅射靶材
+    stocks:
+      - { code: "300666", name: "江丰电子", star: true, tier: 1 }
+      - { code: "600206", name: "有研新材", tier: 2 }
+
+  - name: 半导体材料-电子特气
+    stocks:
+      - { code: "688268", name: "华特气体", tier: 1 }
+      - { code: "688106", name: "金宏气体", tier: 2 }
+      - { code: "002409", name: "雅克科技", tier: 2 }
+
+  - name: 半导体材料-封装材料
+    stocks:
+      - { code: "688535", name: "华海诚科", star: true, tier: 1 }
+      - { code: "688300", name: "联瑞新材", star: true, tier: 1 }
+      - { code: "300398", name: "飞凯材料", tier: 2 }
+      - { code: "002119", name: "康强电子", tier: 2 }
+
+  - name: 半导体材料-碳化硅/氮化镓
+    stocks:
+      - { code: "688234", name: "天岳先进", tier: 1 }
+      - { code: "600703", name: "三安光电", tier: 1 }
+      - { code: "002617", name: "露笑科技", tier: 3 }
+
+  - name: 半导体材料-湿电子
+    stocks:
+      - { code: "603078", name: "江化微", tier: 2 }
+      - { code: "300655", name: "晶瑞电材", note: "兼光刻胶", tier: 2 }
+      - { code: "600141", name: "兴发集团", tier: 2 }
+
+  - name: 先进封装
+    stocks:
+      - { code: "600584", name: "长电科技", tier: 1 }
+      - { code: "002156", name: "通富微电", tier: 1 }
+      - { code: "002185", name: "华天科技", tier: 2 }

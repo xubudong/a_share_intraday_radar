@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>A股个股盘中买点雷达</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>A股个股盘中买点雷达</h1>
+        <div class="meta">
+          <span id="sessionBadge" class="badge neutral">状态</span>
+          <span id="lastUpdated">等待刷新</span>
+          <span id="dataStatus">数据源：--</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="refreshBtn" class="icon-btn" title="刷新行情" aria-label="刷新行情">↻</button>
+        <button id="historyBtn" class="text-btn">刷新日K</button>
+        <button id="snapshotBtn" class="text-btn" title="查看历史快照">历史快照</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="summary-grid" id="summaryGrid"></section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>今日买点雷达</h2>
+          <span id="radarCount" class="muted"></span>
+        </div>
+        <div id="radarList" class="radar-list"></div>
+      </section>
+
+      <section class="toolbar">
+        <div class="segmented" id="groupFilter"></div>
+        <div class="filters">
+          <label><input type="checkbox" id="starOnly" /> 星标</label>
+          <label><input type="checkbox" id="actionableOnly" /> 买点</label>
+          <label><input type="checkbox" id="overheatOnly" /> 过热</label>
+          <input id="searchInput" class="search" type="search" placeholder="代码 / 名称" />
+        </div>
+      </section>
+
+      <section class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>标的</th>
+              <th>分组</th>
+              <th data-sort="tier" class="sortable">梯度</th>
+              <th data-sort="price" class="sortable">价格</th>
+              <th data-sort="pct_chg" class="sortable">涨跌幅</th>
+              <th>走势</th>
+              <th data-sort="amount" class="sortable">成交额</th>
+              <th data-sort="main_net_inflow" class="sortable">主力净流入</th>
+              <th data-sort="dev_ma20" class="sortable">MA位置</th>
+              <th data-sort="rsi14" class="sortable">RSI</th>
+              <th data-sort="volume_ratio" class="sortable">量比</th>
+              <th data-sort="signal" class="sortable">信号</th>
+              <th>信号说明</th>
+              <th>动作</th>
+            </tr>
+          </thead>
+          <tbody id="stockBody"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <div id="snapshotOverlay" class="overlay hidden">
+      <div class="overlay-card">
+        <div class="overlay-head">
+          <h2>历史快照</h2>
+          <button id="snapshotClose" class="icon-btn" aria-label="关闭">✕</button>
+        </div>
+        <div id="snapshotList" class="snapshot-list"></div>
+      </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

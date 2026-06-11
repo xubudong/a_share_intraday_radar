@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+data/state_cache.json
+data/snapshots/
+.workbuddy/
+.radar.pid
+.radar.out.log
+.radar.err.log
