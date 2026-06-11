@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import threading
 import time
 from collections import Counter, defaultdict
@@ -377,13 +378,23 @@ class RadarService:
 
     def load_snapshot(self, snapshot_id: str) -> dict[str, Any] | None:
         """Load a snapshot by ID. Returns None if not found."""
-        path = SNAPSHOTS_DIR / f"{snapshot_id}.json"
+        path = snapshot_path(snapshot_id)
+        if path is None:
+            return None
         if not path.exists():
             return None
         try:
             return json.loads(path.read_text(encoding="utf-8"))
         except Exception:
             return None
+
+    def delete_snapshot(self, snapshot_id: str) -> bool:
+        """Delete a snapshot by ID. Returns False when it does not exist."""
+        path = snapshot_path(snapshot_id)
+        if path is None or not path.is_file():
+            return False
+        path.unlink()
+        return True
 
     def health(self) -> dict[str, Any]:
         has_quotes = len(self.quotes) >= len(self.pool)
@@ -409,6 +420,12 @@ def sample_sparkline(prices: list[float], n: int) -> list[float]:
         return prices
     step = len(prices) / n
     return [prices[int(i * step)] for i in range(n)]
+
+
+def snapshot_path(snapshot_id: str) -> Path | None:
+    if not re.fullmatch(r"\d{8}T\d{6}", snapshot_id):
+        return None
+    return SNAPSHOTS_DIR / f"{snapshot_id}.json"
 
 
 def merge_intraday_quote(rows: list[dict[str, Any]], quote: dict[str, Any]) -> list[dict[str, Any]]:

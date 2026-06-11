@@ -725,6 +725,11 @@ td:nth-child(13) {
   font-size: 13px;
 }
 
+.snapshot-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .snapshot-view-btn {
   height: 28px;
   padding: 0 14px;
@@ -741,6 +746,24 @@ td:nth-child(13) {
 .snapshot-view-btn:hover {
   border-color: var(--teal);
   background: #e6fffb;
+}
+
+.snapshot-delete-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fff;
+  color: #b91c1c;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.snapshot-delete-btn:hover {
+  border-color: #dc2626;
+  background: #fef2f2;
 }
 
 @media (max-width: 900px) {

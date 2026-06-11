@@ -3,7 +3,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -71,9 +71,15 @@ def list_snapshots() -> list:
 def get_snapshot(snapshot_id: str) -> dict:
     data = radar_service.load_snapshot(snapshot_id)
     if data is None:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Snapshot not found")
     return data
+
+
+@app.delete("/api/snapshots/{snapshot_id}")
+def delete_snapshot(snapshot_id: str) -> dict:
+    if not radar_service.delete_snapshot(snapshot_id):
+        raise HTTPException(status_code=404, detail="Snapshot not found")
+    return {"id": snapshot_id, "deleted": True}
 
 
 @app.get("/api/health")

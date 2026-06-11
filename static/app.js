@@ -580,7 +580,10 @@ async function openSnapshotPanel() {
             <span>走弱 ${sum.weak ?? "--"}</span>
             <span>${s.stock_count}只</span>
           </div>
-          <button class="snapshot-view-btn" data-id="${s.id}">${isActive ? "返回实时" : "查看"}</button>
+          <div class="snapshot-actions">
+            <button class="snapshot-view-btn" data-id="${s.id}">${isActive ? "返回实时" : "查看"}</button>
+            <button class="snapshot-delete-btn" data-id="${s.id}" data-created-at="${s.created_at}">删除</button>
+          </div>
         </div>
       `;
     }).join("");
@@ -591,8 +594,31 @@ async function openSnapshotPanel() {
         loadSnapshotView(btn.dataset.id);
       });
     });
+    listEl.querySelectorAll(".snapshot-delete-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteSnapshot(btn.dataset.id, btn.dataset.createdAt);
+      });
+    });
   } catch (err) {
     listEl.innerHTML = `<div class="empty">加载失败：${err.message}</div>`;
+  }
+}
+
+async function deleteSnapshot(snapshotId, createdAt) {
+  if (!window.confirm(`确定删除 ${formatTime(createdAt)} 的历史快照吗？此操作无法撤销。`)) {
+    return;
+  }
+  try {
+    const response = await fetch(`/api/snapshots/${snapshotId}`, { method: "DELETE" });
+    if (!response.ok) throw new Error(`${response.status}`);
+    if (state.viewingSnapshot === snapshotId) {
+      state.viewingSnapshot = null;
+      await loadData();
+    }
+    await openSnapshotPanel();
+  } catch (err) {
+    alert(`删除快照失败：${err.message}`);
   }
 }
 
