@@ -1,3 +1,6 @@
+import threading
+import time
+
 from app.config import load_stock_pool, star_store
 
 
@@ -108,6 +111,9 @@ def test_dashboard_counts_stock_in_each_of_its_groups():
     from app.service import RadarService
 
     service = RadarService.__new__(RadarService)
+    service._refresh_state_lock = threading.RLock()
+    service._refreshing = False
+    service._pending_force_history = False
     service.pool = [object()]
     service.stocks = [
         {
@@ -121,6 +127,7 @@ def test_dashboard_counts_stock_in_each_of_its_groups():
     service.errors = []
     service.last_refresh_at = None
     service.last_success_at = None
+    service.last_refresh_mode = "none"
 
     dashboard = service.dashboard()
 
@@ -128,3 +135,77 @@ def test_dashboard_counts_stock_in_each_of_its_groups():
     assert dashboard["group_stats"]["有色-钴"]["total"] == 1
     assert dashboard["group_stats"]["有色-镍"]["avg_pct"] == 2.5
     assert dashboard["group_stats"]["有色-钴"]["avg_pct"] == 2.5
+
+
+def test_background_refresh_coalesces_duplicate_requests():
+    from app.service import RadarService
+
+    service = RadarService()
+    entered = threading.Event()
+    release = threading.Event()
+    calls = []
+
+    def fake_refresh(force_history=False):
+        calls.append(force_history)
+        if len(calls) == 1:
+            entered.set()
+            assert release.wait(timeout=2)
+        return {}
+
+    service.refresh = fake_refresh
+
+    first = service.start_refresh(force_history=False)
+    assert entered.wait(timeout=2)
+    duplicate = service.start_refresh(force_history=False)
+    queued_history = service.start_refresh(force_history=True)
+
+    assert first["accepted"] is True
+    assert duplicate["accepted"] is False
+    assert queued_history["accepted"] is False
+    assert queued_history["pending_force_history"] is True
+
+    refresh_thread = service._refresh_thread
+    release.set()
+    refresh_thread.join(timeout=2)
+
+    assert calls == [False, True]
+    assert service.refresh_status()["refreshing"] is False
+    assert service.refresh_status()["pending_force_history"] is False
+
+
+def test_refresh_api_returns_immediately_while_worker_is_running(monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from app.server import app
+    from app.service import radar_service
+
+    entered = threading.Event()
+    release = threading.Event()
+
+    def fake_refresh(force_history=False):
+        entered.set()
+        assert release.wait(timeout=3)
+        return {}
+
+    monkeypatch.setattr(radar_service, "refresh", fake_refresh)
+    radar_service._refreshing = False
+    radar_service._pending_force_history = False
+    radar_service._refresh_thread = None
+
+    with TestClient(app) as client:
+        assert entered.wait(timeout=2)
+
+        started = time.perf_counter()
+        normal = client.post("/api/refresh?force_history=false")
+        normal_elapsed = time.perf_counter() - started
+        history = client.post("/api/refresh?force_history=true")
+
+        assert normal.status_code == 200
+        assert normal.json()["accepted"] is False
+        assert normal_elapsed < 1
+        assert history.status_code == 200
+        assert history.json()["pending_force_history"] is True
+
+        refresh_thread = radar_service._refresh_thread
+        release.set()
+        refresh_thread.join(timeout=3)

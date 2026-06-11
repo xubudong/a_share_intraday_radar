@@ -4,6 +4,7 @@ const state = {
   group: "全部",
   expanded: null,
   timer: null,
+  refreshPollTimer: null,
   sort: { key: "signal", direction: "desc" },
   viewingSnapshot: null,  // snapshot ID or null for live
 };
@@ -12,13 +13,13 @@ const actionableSignals = new Set(["可试仓", "二次确认", "突破观察"])
 
 document.addEventListener("DOMContentLoaded", () => {
   bindEvents();
-  refreshAll(false);
-  state.timer = window.setInterval(() => refreshAll(false), 60000);
+  bootstrap();
+  state.timer = window.setInterval(() => requestRefresh(false), 60000);
 });
 
 function bindEvents() {
-  document.getElementById("refreshBtn").addEventListener("click", () => refreshAll(false));
-  document.getElementById("historyBtn").addEventListener("click", () => refreshAll(true));
+  document.getElementById("refreshBtn").addEventListener("click", () => requestRefresh(false));
+  document.getElementById("historyBtn").addEventListener("click", () => requestRefresh(true));
   document.getElementById("snapshotBtn").addEventListener("click", openSnapshotPanel);
   document.getElementById("snapshotClose").addEventListener("click", closeSnapshotPanel);
   document.getElementById("snapshotOverlay").addEventListener("click", (e) => {
@@ -55,22 +56,76 @@ function bindEvents() {
   });
 }
 
-async function refreshAll(forceHistory) {
+async function bootstrap() {
+  try {
+    await loadData();
+  } catch (err) {
+    showRefreshError(err);
+  }
+  await requestRefresh(false);
+}
+
+async function loadData() {
+  const [dashboard, stocks] = await Promise.all([
+    fetchJson("/api/dashboard"),
+    fetchJson("/api/stocks"),
+  ]);
+  state.dashboard = dashboard;
+  state.stocks = stocks.stocks || [];
+  render();
+  return dashboard;
+}
+
+async function requestRefresh(forceHistory) {
+  if (!forceHistory && state.dashboard?.refresh?.refreshing) {
+    setBusy(true);
+    scheduleRefreshPoll();
+    return;
+  }
+
   setBusy(true);
   try {
-    await fetch(`/api/refresh?force_history=${forceHistory ? "true" : "false"}`, { method: "POST" });
-    const [dashboard, stocks] = await Promise.all([
-      fetchJson("/api/dashboard"),
-      fetchJson("/api/stocks"),
-    ]);
-    state.dashboard = dashboard;
-    state.stocks = stocks.stocks || [];
-    render();
+    const response = await fetch(
+      `/api/refresh?force_history=${forceHistory ? "true" : "false"}`,
+      { method: "POST" },
+    );
+    if (!response.ok) throw new Error(`${response.status}`);
+    const status = await response.json();
+    const dashboard = await loadData();
+    if (status.refreshing || dashboard.refresh?.refreshing) {
+      scheduleRefreshPoll();
+    } else {
+      setBusy(false);
+    }
   } catch (err) {
-    document.getElementById("dataStatus").textContent = `数据源：刷新失败 ${err.message}`;
-  } finally {
+    showRefreshError(err);
     setBusy(false);
   }
+}
+
+function scheduleRefreshPoll() {
+  window.clearTimeout(state.refreshPollTimer);
+  state.refreshPollTimer = window.setTimeout(pollRefresh, 1500);
+}
+
+async function pollRefresh() {
+  try {
+    const dashboard = await fetchJson("/api/dashboard");
+    state.dashboard = dashboard;
+    renderHeader();
+    if (dashboard.refresh?.refreshing) {
+      scheduleRefreshPoll();
+      return;
+    }
+    await loadData();
+  } catch (err) {
+    showRefreshError(err);
+  }
+  setBusy(false);
+}
+
+function showRefreshError(err) {
+  document.getElementById("dataStatus").textContent = `数据源：刷新失败 ${err.message}`;
 }
 
 async function fetchJson(url) {
@@ -101,9 +156,13 @@ function renderHeader() {
   badge.className = `badge ${session.is_open ? "open" : "closed"}`;
   document.getElementById("lastUpdated").textContent = `刷新：${formatTime(dashboard.updated_at)}`;
   const source = dashboard.data_source || {};
+  const refresh = dashboard.refresh || {};
   const errCount = (source.errors || []).length;
-  document.getElementById("dataStatus").textContent =
-    errCount > 0 ? `数据源：部分异常 ${errCount} 条` : "数据源：EastMoney 正常";
+  document.getElementById("dataStatus").textContent = refresh.refreshing
+    ? `数据源：后台刷新中${refresh.pending_force_history ? "，已排队历史刷新" : ""}`
+    : errCount > 0
+      ? `数据源：部分异常 ${errCount} 条`
+      : "数据源：EastMoney 正常";
 }
 
 function renderSummary() {
@@ -188,27 +247,45 @@ function renderGroups() {
   const allGroups = Array.from(new Set(
     state.stocks.flatMap((stock) => stock.groups?.length ? stock.groups : [stock.group])
   ));
-  const focusPrefixes = ["化工-", "有色-", "半导体芯片-", "光模块-", "半导体材料-"];
-  const focusGroups = focusPrefixes.flatMap((prefix) =>
-    allGroups.filter((group) => group.startsWith(prefix)).sort()
-  );
+  const groupFamilies = [
+    { prefix: "化工-", label: "化工" },
+    { prefix: "有色-", label: "有色" },
+    { prefix: "半导体芯片-", label: "芯片" },
+    { prefix: "光模块-", label: "光模块" },
+    { prefix: "半导体材料-", label: "半导体材料" },
+  ];
+  const focusPrefixes = groupFamilies.map((family) => family.prefix);
   const otherGroups = allGroups
     .filter((group) => !focusPrefixes.some((prefix) => group.startsWith(prefix)))
     .sort();
-  const orderedGroups = [...focusGroups, ...otherGroups];
-  const groups = ["全部", ...orderedGroups];
+  const groups = ["全部", ...allGroups];
   if (!groups.includes(state.group)) state.group = "全部";
 
-  let html = "";
-  for (const group of groups) {
+  const groupButton = (group, display = group) => {
     const gs = groupStats[group] || {};
     const avg = gs.avg_pct;
     const avgTag = avg !== undefined && avg !== null
       ? `<span class="group-pct ${avg > 0 ? 'pos' : avg < 0 ? 'neg' : 'muted'}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}%</span>`
       : "";
-    const matchedPrefix = focusPrefixes.find((prefix) => group.startsWith(prefix));
-    const display = matchedPrefix ? group.slice(matchedPrefix.length) : group;
-    html += `<button class="${group === state.group ? "active" : ""}" data-group="${group}" title="${group}">${display}${avgTag}</button>`;
+    return `<button class="${group === state.group ? "active" : ""}" data-group="${group}" title="${group}">${display}${avgTag}</button>`;
+  };
+
+  let html = groupButton("全部");
+  for (const family of groupFamilies) {
+    const familyGroups = allGroups
+      .filter((group) => group.startsWith(family.prefix))
+      .sort();
+    if (!familyGroups.length) continue;
+    html += `<div class="group-cluster"><span class="group-cluster-label">${family.label}</span>`;
+    html += familyGroups
+      .map((group) => groupButton(group, group.slice(family.prefix.length)))
+      .join("");
+    html += "</div>";
+  }
+  if (otherGroups.length) {
+    html += '<div class="group-cluster"><span class="group-cluster-label">其他</span>';
+    html += otherGroups.map((group) => groupButton(group)).join("");
+    html += "</div>";
   }
 
   document.getElementById("groupFilter").innerHTML = html;
@@ -528,7 +605,7 @@ async function loadSnapshotView(snapshotId) {
     if (state.viewingSnapshot === snapshotId) {
       // Exit snapshot view, reload live data
       state.viewingSnapshot = null;
-      await refreshAll(false);
+      await loadData();
       closeSnapshotPanel();
       return;
     }

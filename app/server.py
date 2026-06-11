@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import threading
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
@@ -11,18 +11,18 @@ from .config import ROOT_DIR
 from .service import radar_service
 
 
-app = FastAPI(title="A Share Intraday Radar", version="1.0.0")
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    radar_service.start_refresh(force_history=False)
+    yield
+
+
+app = FastAPI(title="A Share Intraday Radar", version="1.0.0", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=ROOT_DIR / "static"), name="static")
 
 
 class ToggleStarRequest(BaseModel):
     code: str
-
-
-@app.on_event("startup")
-def startup_refresh() -> None:
-    thread = threading.Thread(target=radar_service.refresh, kwargs={"force_history": False}, daemon=True)
-    thread.start()
 
 
 @app.get("/")
@@ -42,7 +42,7 @@ def stocks() -> dict:
 
 @app.post("/api/refresh")
 def refresh(force_history: bool = False) -> dict:
-    return radar_service.refresh(force_history=force_history)
+    return radar_service.start_refresh(force_history=force_history)
 
 
 @app.post("/api/toggle-star")

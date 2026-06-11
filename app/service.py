@@ -32,6 +32,10 @@ SPARKLINE_POINTS = 80  # Number of sampled points for sparkline
 class RadarService:
     def __init__(self) -> None:
         self._lock = threading.Lock()
+        self._refresh_state_lock = threading.RLock()
+        self._refreshing = False
+        self._pending_force_history = False
+        self._refresh_thread: threading.Thread | None = None
         self.pool = load_stock_pool()
         self.quotes: dict[str, dict[str, Any]] = {}
         self.klines: dict[str, list[dict[str, Any]]] = {}
@@ -43,6 +47,54 @@ class RadarService:
         self.last_success_at: str | None = None
         self.last_refresh_mode = "none"
         self.load_cache()
+
+    def start_refresh(self, force_history: bool = False) -> dict[str, Any]:
+        """Start one background refresh and coalesce duplicate requests."""
+        with self._refresh_state_lock:
+            if self._refreshing:
+                if force_history:
+                    self._pending_force_history = True
+                return self.refresh_status(accepted=False)
+
+            self._refreshing = True
+            thread = threading.Thread(
+                target=self._run_refresh_queue,
+                args=(force_history,),
+                daemon=True,
+            )
+            self._refresh_thread = thread
+            thread.start()
+            return self.refresh_status(accepted=True)
+
+    def _run_refresh_queue(self, force_history: bool) -> None:
+        current_force_history = force_history
+        while True:
+            try:
+                self.refresh(force_history=current_force_history)
+            except Exception as exc:  # pragma: no cover - last-resort worker protection
+                self.errors.append(
+                    {"scope": "refresh", "message": str(exc), "time": now_iso()}
+                )
+
+            with self._refresh_state_lock:
+                if self._pending_force_history:
+                    self._pending_force_history = False
+                    current_force_history = True
+                    continue
+                self._refreshing = False
+                self._refresh_thread = None
+                return
+
+    def refresh_status(self, accepted: bool | None = None) -> dict[str, Any]:
+        with self._refresh_state_lock:
+            status = {
+                "refreshing": self._refreshing,
+                "pending_force_history": self._pending_force_history,
+                "mode": self.last_refresh_mode,
+            }
+            if accepted is not None:
+                status["accepted"] = accepted
+            return status
 
     def load_cache(self) -> None:
         if not CACHE_PATH.exists():
@@ -209,6 +261,7 @@ class RadarService:
         return {
             "updated_at": self.last_refresh_at,
             "last_success_at": self.last_success_at,
+            "refresh": self.refresh_status(),
             "market_session": market_session(),
             "data_source": {
                 "realtime": "eastmoney",
@@ -325,6 +378,8 @@ class RadarService:
         has_indicators = sum(1 for stock in self.stocks if stock.get("indicators", {}).get("rsi14") is not None)
         return {
             "ok": bool(self.stocks) and has_quotes and has_indicators >= max(1, len(self.pool) // 2),
+            "refreshing": self._refreshing,
+            "pending_force_history": self._pending_force_history,
             "pool_size": len(self.pool),
             "quote_count": len(self.quotes),
             "kline_count": len(self.klines),

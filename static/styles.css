@@ -195,8 +195,9 @@ main {
   font-weight: 700;
 }
 
-.semi-cluster {
+.group-cluster {
   display: inline-flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 6px;
   padding: 6px 8px;
@@ -206,13 +207,20 @@ main {
   margin-left: 4px;
 }
 
-.semi-cluster button {
+.group-cluster-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 0 2px;
+}
+
+.group-cluster button {
   font-size: 12px;
   height: 26px;
   padding: 0 8px;
 }
 
-.semi-cluster button.active {
+.group-cluster button.active {
   border-color: var(--teal);
   background: #e6fffb;
   color: var(--teal);
