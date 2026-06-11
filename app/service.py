@@ -4,6 +4,7 @@ import json
 import threading
 import time
 from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -22,6 +23,7 @@ except Exception:  # Windows embeddable runtimes may not include IANA tzdata.
 CACHE_PATH = ROOT_DIR / "data" / "state_cache.json"
 SNAPSHOTS_DIR = ROOT_DIR / "data" / "snapshots"
 HISTORY_REFRESH_SECONDS = 30 * 60
+FETCH_WORKERS = 6
 
 
 SPARKLINE_POINTS = 80  # Number of sampled points for sparkline
@@ -78,10 +80,20 @@ class RadarService:
             except Exception as exc:
                 self.errors.append({"scope": "realtime", "message": str(exc), "time": now_iso()})
 
-            for stock in self.pool:
-                if force_history or self.history_is_stale(stock.code):
+            stale_stocks = [
+                stock
+                for stock in self.pool
+                if force_history or self.history_is_stale(stock.code)
+            ]
+            with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as executor:
+                futures = {
+                    executor.submit(fetch_daily_klines, stock.code): stock
+                    for stock in stale_stocks
+                }
+                for future in as_completed(futures):
+                    stock = futures[future]
                     try:
-                        rows = fetch_daily_klines(stock.code)
+                        rows = future.result()
                         if rows:
                             self.klines[stock.code] = rows
                             self.history_loaded_at[stock.code] = time.time()
@@ -151,8 +163,9 @@ class RadarService:
         signal_counts = Counter(stock["signal"]["signal"] for stock in self.stocks)
         group_stats: dict[str, dict[str, Any]] = defaultdict(lambda: {"total": 0, "signals": Counter()})
         for stock in self.stocks:
-            group_stats[stock["group"]]["total"] += 1
-            group_stats[stock["group"]]["signals"][stock["signal"]["signal"]] += 1
+            for group in stock.get("groups") or [stock["group"]]:
+                group_stats[group]["total"] += 1
+                group_stats[group]["signals"][stock["signal"]["signal"]] += 1
 
         radar = [
             stock
@@ -167,7 +180,7 @@ class RadarService:
         group_pcts: dict[str, list[float]] = defaultdict(list)
         for stock in self.stocks:
             pct = (stock.get("quote") or {}).get("pct_chg")
-            grp = stock.get("group", "")
+            groups = stock.get("groups") or [stock.get("group", "")]
             if pct is None:
                 flat += 1
             elif pct > 0:
@@ -186,8 +199,9 @@ class RadarService:
                     pcts_gem.append(pct)
                 else:
                     pcts_main.append(pct)
-                # Per-group pct
-                group_pcts[grp].append(pct)
+                for group in groups:
+                    if group:
+                        group_pcts[group].append(pct)
         avg_pct = sum(pcts) / len(pcts) if pcts else 0
         avg_pct_main = sum(pcts_main) / len(pcts_main) if pcts_main else 0
         avg_pct_gem = sum(pcts_gem) / len(pcts_gem) if pcts_gem else 0
@@ -248,13 +262,19 @@ class RadarService:
 
     def _refresh_intraday(self) -> None:
         """Fetch intraday minute prices for all stocks and store sampled series."""
-        for stock in self.pool:
-            try:
-                prices = fetch_intraday_trends(stock.code)
-                if prices:
-                    self.intraday[stock.code] = sample_sparkline(prices, SPARKLINE_POINTS)
-            except Exception:
-                pass  # Non-fatal: sparkline simply won't render
+        with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as executor:
+            futures = {
+                executor.submit(fetch_intraday_trends, stock.code): stock.code
+                for stock in self.pool
+            }
+            for future in as_completed(futures):
+                code = futures[future]
+                try:
+                    prices = future.result()
+                    if prices:
+                        self.intraday[code] = sample_sparkline(prices, SPARKLINE_POINTS)
+                except Exception:
+                    pass  # Non-fatal: sparkline simply won't render
 
 
     # ── Snapshots ──

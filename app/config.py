@@ -106,7 +106,12 @@ def load_stock_pool(path: Path = CONFIG_PATH) -> list[StockConfig]:
                 if item.get("note"):
                     notes = [n for n in [existing.get("note"), item.get("note")] if n]
                     existing["note"] = " / ".join(dict.fromkeys(notes))
-                existing["tier"] = max(existing.get("tier", 0), int(item.get("tier", 0)))
+                existing_tier = int(existing.get("tier", 0))
+                new_tier = int(item.get("tier", 0))
+                if existing_tier and new_tier:
+                    existing["tier"] = min(existing_tier, new_tier)
+                else:
+                    existing["tier"] = max(existing_tier, new_tier)
 
     return [
         StockConfig(

@@ -114,3 +114,180 @@ groups:
       - { code: "600584", name: "长电科技", tier: 1 }
       - { code: "002156", name: "通富微电", tier: 1 }
       - { code: "002185", name: "华天科技", tier: 2 }
+
+  - name: 化工-磷化工
+    stocks:
+      - { code: "600141", name: "兴发集团", tier: 1, note: "龙头锚" }
+      - { code: "600096", name: "云天化", tier: 1, note: "龙头锚" }
+      - { code: "002895", name: "川恒股份", tier: 2 }
+      - { code: "300505", name: "川金诺", tier: 2 }
+      - { code: "000902", name: "新洋丰", tier: 2 }
+
+  - name: 化工-氟化工
+    stocks:
+      - { code: "600160", name: "巨化股份", tier: 1, note: "龙头锚" }
+      - { code: "603379", name: "三美股份", tier: 2 }
+      - { code: "605020", name: "永和股份", tier: 2 }
+      - { code: "002915", name: "中欣氟材", tier: 3, note: "高弹性观察" }
+
+  - name: 化工-纯碱氯碱
+    stocks:
+      - { code: "000683", name: "博源化工", tier: 1, note: "龙头锚" }
+      - { code: "600409", name: "三友化工", tier: 2 }
+      - { code: "000822", name: "山东海化", tier: 2 }
+      - { code: "000707", name: "双环科技", tier: 3, note: "高弹性观察" }
+
+  - name: 化工-煤化工
+    stocks:
+      - { code: "600426", name: "华鲁恒升", tier: 1, note: "龙头锚" }
+      - { code: "600989", name: "宝丰能源", tier: 1, note: "龙头锚" }
+      - { code: "000830", name: "鲁西化工", tier: 2 }
+      - { code: "000422", name: "湖北宜化", tier: 2 }
+
+  - name: 化工-钛白粉
+    stocks:
+      - { code: "002601", name: "龙佰集团", tier: 1, note: "龙头锚" }
+      - { code: "002145", name: "钛能化学", tier: 2 }
+      - { code: "300891", name: "惠云钛业", tier: 2 }
+      - { code: "002136", name: "安纳达", tier: 2 }
+
+  - name: 有色-铜
+    stocks:
+      - { code: "601899", name: "紫金矿业", tier: 1, note: "龙头锚" }
+      - { code: "603993", name: "洛阳钼业", tier: 1, note: "龙头锚" }
+      - { code: "000630", name: "铜陵有色", tier: 2 }
+      - { code: "000878", name: "云南铜业", tier: 2 }
+      - { code: "601168", name: "西部矿业", tier: 2 }
+
+  - name: 有色-贵金属
+    stocks:
+      - { code: "600547", name: "山东黄金", tier: 1, note: "龙头锚" }
+      - { code: "600489", name: "中金黄金", tier: 1, note: "龙头锚" }
+      - { code: "600988", name: "赤峰黄金", tier: 2 }
+      - { code: "000975", name: "山金国际", tier: 2 }
+      - { code: "002155", name: "湖南黄金", tier: 2, note: "兼具锑资源" }
+
+  - name: 有色-镍
+    stocks:
+      - { code: "603799", name: "华友钴业", tier: 1, note: "镍钴材料龙头锚" }
+      - { code: "002340", name: "格林美", tier: 2 }
+      - { code: "300919", name: "中伟新材", tier: 2, note: "镍系材料" }
+
+  - name: 有色-锂矿
+    stocks:
+      - { code: "002460", name: "赣锋锂业", tier: 1, note: "龙头锚" }
+      - { code: "002466", name: "天齐锂业", tier: 1, note: "龙头锚" }
+      - { code: "002240", name: "盛新锂能", tier: 2 }
+      - { code: "002756", name: "永兴材料", tier: 2 }
+      - { code: "002176", name: "江特电机", tier: 3, note: "高弹性观察" }
+
+  - name: 有色-钴
+    stocks:
+      - { code: "603799", name: "华友钴业", tier: 1, note: "龙头锚" }
+      - { code: "603993", name: "洛阳钼业", tier: 1, note: "龙头锚" }
+      - { code: "300618", name: "寒锐钴业", tier: 2 }
+      - { code: "301219", name: "腾远钴业", tier: 2 }
+      - { code: "002340", name: "格林美", tier: 2, note: "回收与材料链观察" }
+
+  - name: 有色-钨
+    stocks:
+      - { code: "600549", name: "厦门钨业", tier: 1, note: "龙头锚" }
+      - { code: "000657", name: "中钨高新", tier: 1, note: "龙头锚" }
+      - { code: "002378", name: "章源钨业", tier: 2 }
+      - { code: "002842", name: "翔鹭钨业", tier: 3, note: "高弹性观察" }
+
+  - name: 有色-锡锑
+    stocks:
+      - { code: "000960", name: "锡业股份", tier: 1, note: "锡资源龙头锚" }
+      - { code: "600301", name: "华锡有色", tier: 2, note: "锡锑资源" }
+      - { code: "000426", name: "兴业银锡", tier: 2, note: "银锡资源" }
+      - { code: "002155", name: "湖南黄金", tier: 2, note: "锑金双主线观察" }
+
+  - name: 有色-钼
+    stocks:
+      - { code: "603993", name: "洛阳钼业", tier: 1, note: "龙头锚" }
+      - { code: "601958", name: "金钼股份", tier: 1, note: "钼产业链锚" }
+
+  - name: 有色-稀缺资源
+    stocks:
+      - { code: "000962", name: "东方钽业", tier: 1, note: "钽铌资源锚" }
+      - { code: "002428", name: "云南锗业", tier: 2, note: "锗资源" }
+      - { code: "600497", name: "驰宏锌锗", tier: 2, note: "锌锗资源观察" }
+      - { code: "600206", name: "有研新材", tier: 2, note: "稀有材料观察" }
+
+  - name: 有色-稀土资源
+    stocks:
+      - { code: "600111", name: "北方稀土", tier: 1, note: "轻稀土龙头锚" }
+      - { code: "000831", name: "中国稀土", tier: 1, note: "中重稀土龙头锚" }
+      - { code: "600392", name: "盛和资源", tier: 2 }
+      - { code: "600259", name: "中稀有色", tier: 2, note: "中重稀土" }
+
+  - name: 有色-稀土永磁
+    stocks:
+      - { code: "300748", name: "金力永磁", tier: 1, note: "龙头锚" }
+      - { code: "000970", name: "中科三环", tier: 1, note: "龙头锚" }
+      - { code: "300224", name: "正海磁材", tier: 2 }
+      - { code: "600366", name: "宁波韵升", tier: 2 }
+      - { code: "000795", name: "英洛华", tier: 2 }
+
+  - name: 半导体芯片-AI芯片
+    stocks:
+      - { code: "688256", name: "寒武纪", tier: 1, note: "AI芯片龙头锚" }
+      - { code: "688041", name: "海光信息", tier: 1, note: "CPU/DCU龙头锚" }
+      - { code: "300474", name: "景嘉微", tier: 2 }
+      - { code: "688047", name: "龙芯中科", tier: 2, note: "国产CPU观察" }
+      - { code: "300672", name: "国科微", tier: 2, note: "专用芯片观察" }
+
+  - name: 半导体芯片-设计
+    stocks:
+      - { code: "603986", name: "兆易创新", tier: 1, note: "龙头锚" }
+      - { code: "300661", name: "圣邦股份", tier: 1, note: "模拟芯片龙头锚" }
+      - { code: "688536", name: "思瑞浦", tier: 2, note: "模拟芯片" }
+      - { code: "688018", name: "乐鑫科技", tier: 2, note: "物联网芯片观察" }
+      - { code: "300474", name: "景嘉微", tier: 2, note: "图形芯片观察" }
+
+  - name: 半导体芯片-晶圆制造
+    stocks:
+      - { code: "688981", name: "中芯国际", tier: 1, note: "龙头锚" }
+      - { code: "688347", name: "华虹宏力", tier: 1, note: "特色工艺龙头锚" }
+      - { code: "688249", name: "晶合集成", tier: 2 }
+      - { code: "600460", name: "士兰微", tier: 2, note: "IDM观察" }
+
+  - name: 半导体芯片-设备
+    stocks:
+      - { code: "002371", name: "北方华创", tier: 1, note: "平台型设备龙头锚" }
+      - { code: "688012", name: "中微公司", tier: 1, note: "刻蚀设备龙头锚" }
+      - { code: "688072", name: "拓荆科技", tier: 2, note: "薄膜设备" }
+      - { code: "688082", name: "盛美上海", tier: 2, note: "清洗设备" }
+      - { code: "688120", name: "华海清科", tier: 2, note: "CMP设备" }
+
+  - name: 半导体芯片-功率器件
+    stocks:
+      - { code: "603290", name: "斯达半导", tier: 1, note: "IGBT龙头锚" }
+      - { code: "605111", name: "新洁能", tier: 2, note: "功率器件" }
+      - { code: "300373", name: "扬杰科技", tier: 2, note: "功率器件" }
+      - { code: "600460", name: "士兰微", tier: 2, note: "IDM功率器件观察" }
+
+  - name: 光模块-整机
+    stocks:
+      - { code: "300308", name: "中际旭创", tier: 1, note: "龙头锚" }
+      - { code: "300502", name: "新易盛", tier: 1, note: "龙头锚" }
+      - { code: "002281", name: "光迅科技", tier: 2 }
+      - { code: "000988", name: "华工科技", tier: 2 }
+      - { code: "603083", name: "剑桥科技", tier: 2, note: "高弹性观察" }
+      - { code: "301205", name: "联特科技", tier: 3, note: "高弹性观察" }
+
+  - name: 光模块-上游光器件
+    stocks:
+      - { code: "300394", name: "天孚通信", tier: 1, note: "光器件龙头锚" }
+      - { code: "688498", name: "源杰科技", tier: 2, note: "光芯片" }
+      - { code: "300570", name: "太辰光", tier: 2, note: "连接器件" }
+      - { code: "300620", name: "光库科技", tier: 2, note: "光器件" }
+      - { code: "688313", name: "仕佳光子", tier: 2, note: "光芯片" }
+
+  - name: 光模块-CPO硅光
+    stocks:
+      - { code: "300394", name: "天孚通信", tier: 1, note: "CPO器件龙头锚" }
+      - { code: "688498", name: "源杰科技", tier: 2, note: "光芯片" }
+      - { code: "300620", name: "光库科技", tier: 2, note: "薄膜铌酸锂与光器件观察" }
+      - { code: "688313", name: "仕佳光子", tier: 2, note: "AWG与光芯片观察" }

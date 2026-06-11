@@ -185,39 +185,31 @@ function renderRadar() {
 
 function renderGroups() {
   const groupStats = (state.dashboard && state.dashboard.group_stats) || {};
-  const allGroups = Array.from(new Set(state.stocks.map((s) => s.group)));
-  // Separate semiconductor material sub-groups from others
-  const semiPrefix = "半导体材料-";
-  const semiGroups = allGroups.filter(g => g.startsWith(semiPrefix)).sort();
-  const otherGroups = allGroups.filter(g => !g.startsWith(semiPrefix)).sort();
-  const orderedGroups = [...otherGroups, ...semiGroups];
+  const allGroups = Array.from(new Set(
+    state.stocks.flatMap((stock) => stock.groups?.length ? stock.groups : [stock.group])
+  ));
+  const focusPrefixes = ["化工-", "有色-", "半导体芯片-", "光模块-", "半导体材料-"];
+  const focusGroups = focusPrefixes.flatMap((prefix) =>
+    allGroups.filter((group) => group.startsWith(prefix)).sort()
+  );
+  const otherGroups = allGroups
+    .filter((group) => !focusPrefixes.some((prefix) => group.startsWith(prefix)))
+    .sort();
+  const orderedGroups = [...focusGroups, ...otherGroups];
   const groups = ["全部", ...orderedGroups];
   if (!groups.includes(state.group)) state.group = "全部";
 
   let html = "";
-  let inSemiBlock = false;
   for (const group of groups) {
-    const isSemi = group.startsWith(semiPrefix);
-    // Close semi block when transitioning out
-    if (inSemiBlock && !isSemi) {
-      html += '</div>';  // close .semi-cluster
-      inSemiBlock = false;
-    }
-    // Open semi block when entering
-    if (isSemi && !inSemiBlock) {
-      html += '<div class="semi-cluster">';
-      inSemiBlock = true;
-    }
     const gs = groupStats[group] || {};
     const avg = gs.avg_pct;
     const avgTag = avg !== undefined && avg !== null
       ? `<span class="group-pct ${avg > 0 ? 'pos' : avg < 0 ? 'neg' : 'muted'}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}%</span>`
       : "";
-    // For semi sub-groups, show short name (after prefix)
-    const display = isSemi ? group.slice(semiPrefix.length) : group;
+    const matchedPrefix = focusPrefixes.find((prefix) => group.startsWith(prefix));
+    const display = matchedPrefix ? group.slice(matchedPrefix.length) : group;
     html += `<button class="${group === state.group ? "active" : ""}" data-group="${group}" title="${group}">${display}${avgTag}</button>`;
   }
-  if (inSemiBlock) html += '</div>';
 
   document.getElementById("groupFilter").innerHTML = html;
   document.querySelectorAll("#groupFilter button").forEach((btn) => {
@@ -235,7 +227,8 @@ function renderTable() {
   const overheatOnly = document.getElementById("overheatOnly").checked;
   const query = document.getElementById("searchInput").value.trim();
   const rows = state.stocks.filter((stock) => {
-    if (state.group !== "全部" && stock.group !== state.group) return false;
+    const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
+    if (state.group !== "全部" && !stockGroups.includes(state.group)) return false;
     if (starOnly && !stock.star) return false;
     if (actionableOnly && !actionableSignals.has(stock.signal.signal)) return false;
     if (overheatOnly && stock.signal.signal !== "过热不追") return false;
@@ -306,12 +299,17 @@ function sortValue(stock, key) {
 }
 
 function defaultSortDirection(key) {
-  return key === "rsi14" || key === "volume_ratio" || key === "tier" ? "desc" : "desc";
+  return key === "tier" ? "asc" : "desc";
 }
 
 function stockRow(stock) {
   const pctChg = stock.quote?.pct_chg;
   const detail = state.expanded === stock.code ? detailRow(stock) : "";
+  const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
+  const displayedGroup = state.group !== "全部" && stockGroups.includes(state.group)
+    ? state.group
+    : stock.group;
+  const extraGroupCount = Math.max(0, stockGroups.length - 1);
   return `
     <tr class="stock-row" data-code="${stock.code}">
       <td>
@@ -321,7 +319,7 @@ function stockRow(stock) {
           ${stock.watch ? '<span class="watch-mark">观察</span>' : ""}
         </div>
       </td>
-      <td>${stock.group}</td>
+      <td title="${stockGroups.join(" / ")}">${displayedGroup}${extraGroupCount ? ` <span class="muted">+${extraGroupCount}</span>` : ""}</td>
       <td>${tierBadge(stock.tier)}</td>
       <td>${formatPrice(stock.price)}</td>
       <td class="${numClass(pctChg)}">${formatPct(pctChg)}</td>
@@ -342,6 +340,7 @@ function stockRow(stock) {
 function detailRow(stock) {
   const ind = stock.indicators || {};
   const signal = stock.signal || {};
+  const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
   return `
     <tr class="detail-row">
       <td colspan="14">
@@ -360,6 +359,8 @@ function detailRow(stock) {
               <li>MA5 / 10 / 20 / 60：${formatPrice(ind.ma5)} / ${formatPrice(ind.ma10)} / ${formatPrice(ind.ma20)} / ${formatPrice(ind.ma60)}</li>
               <li>距20日高点：${formatPct(ind.from_high20)}</li>
               <li>距60日高点：${formatPct(ind.from_high60)}</li>
+              <li>细分赛道：${stockGroups.join(" / ")}</li>
+              <li>观察定位：${stock.note || "--"}</li>
               <li>数据状态：${stock.data_status}</li>
             </ul>
           </section>
