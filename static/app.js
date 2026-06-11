@@ -264,9 +264,9 @@ function renderGroups() {
   const groupButton = (group, display = group) => {
     const gs = groupStats[group] || {};
     const avg = gs.avg_pct;
-    const avgTag = avg !== undefined && avg !== null
-      ? `<span class="group-pct ${avg > 0 ? 'pos' : avg < 0 ? 'neg' : 'muted'}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}%</span>`
-      : "";
+    const avgTag = avg === undefined || avg === null
+      ? '<span class="group-pct muted">--</span>'
+      : `<span class="group-pct ${avg > 0 ? 'pos' : avg < 0 ? 'neg' : 'muted'}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}%</span>`;
     return `<button class="${group === state.group ? "active" : ""}" data-group="${group}" title="${group}">${display}${avgTag}</button>`;
   };
 

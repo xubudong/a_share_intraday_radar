@@ -125,10 +125,22 @@ class RadarService:
             self.last_refresh_at = started
             self.last_refresh_mode = "manual" if force_history else "auto"
             self.errors = []
+            self.pool = load_stock_pool()
             codes = [stock.code for stock in self.pool]
 
             try:
-                self.quotes.update(fetch_realtime_quotes(codes))
+                refreshed_quotes = fetch_realtime_quotes(codes)
+                self.quotes.update(refreshed_quotes)
+                missing_codes = [code for code in codes if code not in refreshed_quotes]
+                if missing_codes:
+                    self.errors.append(
+                        {
+                            "scope": "realtime",
+                            "message": f"实时行情缺失 {len(missing_codes)} 只",
+                            "codes": missing_codes,
+                            "time": now_iso(),
+                        }
+                    )
             except Exception as exc:
                 self.errors.append({"scope": "realtime", "message": str(exc), "time": now_iso()})
 
@@ -264,7 +276,7 @@ class RadarService:
             "refresh": self.refresh_status(),
             "market_session": market_session(),
             "data_source": {
-                "realtime": "eastmoney",
+                "realtime": "eastmoney/tencent",
                 "history": "eastmoney_kline",
                 "status": "partial_error" if self.errors else "ok",
                 "errors": self.errors[-12:],
@@ -287,7 +299,7 @@ class RadarService:
                 name: {
                     "total": value["total"],
                     "signals": dict(value["signals"]),
-                    "avg_pct": round(sum(group_pcts.get(name, [])) / len(group_pcts.get(name, [])), 2) if group_pcts.get(name) else 0,
+                    "avg_pct": round(sum(group_pcts.get(name, [])) / len(group_pcts.get(name, [])), 2) if group_pcts.get(name) else None,
                 }
                 for name, value in group_stats.items()
             },

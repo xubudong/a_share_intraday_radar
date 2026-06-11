@@ -42,6 +42,7 @@ def fetch_realtime_quotes(codes: list[str]) -> dict[str, dict[str, Any]]:
 
     quotes: dict[str, dict[str, Any]] = {}
     last_error: Exception | None = None
+    consecutive_failures = 0
     for chunk in chunks(codes, 24):
         secids = ",".join(eastmoney_secid(code) for code in chunk)
         params = {
@@ -60,7 +61,11 @@ def fetch_realtime_quotes(codes: list[str]) -> dict[str, dict[str, Any]]:
                 data = request_json(url, timeout=12)
             except Exception as retry_exc:
                 last_error = retry_exc
+                consecutive_failures += 1
+                if consecutive_failures >= 2:
+                    break
                 continue
+        consecutive_failures = 0
         rows = data.get("data", {}).get("diff") or []
         for row in rows:
             code = str(row.get("f12")).zfill(6)
@@ -84,9 +89,89 @@ def fetch_realtime_quotes(codes: list[str]) -> dict[str, dict[str, Any]]:
                 "source": "eastmoney_realtime",
                 "updated_at": int(time.time()),
             }
+
+    missing_codes = [code for code in codes if code not in quotes]
+    if missing_codes:
+        try:
+            quotes.update(fetch_tencent_realtime_quotes(missing_codes))
+        except Exception as exc:
+            last_error = exc
+
     if not quotes:
         raise EastMoneyError(str(last_error) if last_error else "Realtime quote response was empty")
     return quotes
+
+
+def fetch_tencent_realtime_quotes(codes: list[str]) -> dict[str, dict[str, Any]]:
+    quotes: dict[str, dict[str, Any]] = {}
+    last_error: Exception | None = None
+    for chunk in chunks(codes, 50):
+        symbols = ",".join(tencent_symbol(code) for code in chunk)
+        url = "https://qt.gtimg.cn/q=" + urllib.parse.quote(symbols, safe=",")
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0",
+                "Referer": "https://gu.qq.com/",
+            },
+        )
+        payload = ""
+        for attempt in range(2):
+            try:
+                with urllib.request.urlopen(req, timeout=12) as response:
+                    payload = response.read().decode("gbk", "ignore")
+                break
+            except Exception as exc:
+                last_error = exc
+                if attempt == 0:
+                    time.sleep(0.2)
+        if not payload:
+            continue
+        for line in payload.splitlines():
+            quote = parse_tencent_quote(line)
+            if quote:
+                quotes[quote["code"]] = quote
+
+    if not quotes:
+        raise EastMoneyError(str(last_error) if last_error else "Tencent quote response was empty")
+    return quotes
+
+
+def parse_tencent_quote(line: str) -> dict[str, Any] | None:
+    _, marker, payload = line.partition('="')
+    if not marker:
+        return None
+    fields = payload.rstrip('";\r\n').split("~")
+    if len(fields) <= 45:
+        return None
+
+    code = fields[2].zfill(6)
+    price = clean_number(fields[3])
+    if not code or price is None:
+        return None
+
+    amount_parts = fields[35].split("/") if len(fields) > 35 else []
+    amount = clean_number(amount_parts[2]) if len(amount_parts) > 2 else None
+    market_cap = clean_number(fields[45])
+    return {
+        "code": code,
+        "name": fields[1],
+        "price": price,
+        "pct_chg": clean_number(fields[32]),
+        "change": clean_number(fields[31]),
+        "volume": clean_number(fields[36]),
+        "amount": amount,
+        "high": clean_number(fields[33]),
+        "low": clean_number(fields[34]),
+        "open": clean_number(fields[5]),
+        "prev_close": clean_number(fields[4]),
+        "turnover_market_cap": market_cap * 100000000 if market_cap is not None else None,
+        "main_net_inflow": None,
+        "main_net_inflow_pct": None,
+        "source": "tencent_realtime",
+        "quote_time": fields[30],
+        "updated_at": int(time.time()),
+    }
 
 
 def fetch_daily_klines(code: str, limit: int = 180) -> list[dict[str, Any]]:
