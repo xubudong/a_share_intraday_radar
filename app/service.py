@@ -243,6 +243,7 @@ class RadarService:
         pcts_main: list[float] = []   # 主板
         pcts_gem: list[float] = []    # 创业板/科创板
         group_pcts: dict[str, list[float]] = defaultdict(list)
+        tier_pcts: dict[int, list[float]] = defaultdict(list)
         for stock in self.stocks:
             pct = (stock.get("quote") or {}).get("pct_chg")
             groups = stock.get("groups") or [stock.get("group", "")]
@@ -264,6 +265,9 @@ class RadarService:
                     pcts_gem.append(pct)
                 else:
                     pcts_main.append(pct)
+                tier = int(stock.get("tier") or 0)
+                if tier in (1, 2, 3):
+                    tier_pcts[tier].append(pct)
                 for group in groups:
                     if group:
                         group_pcts[group].append(pct)
@@ -294,6 +298,9 @@ class RadarService:
                 "avg_pct": round(avg_pct, 2),
                 "avg_pct_main": round(avg_pct_main, 2),
                 "avg_pct_gem": round(avg_pct_gem, 2),
+                "avg_pct_t1": average_or_none(tier_pcts[1]),
+                "avg_pct_t2": average_or_none(tier_pcts[2]),
+                "avg_pct_t3": average_or_none(tier_pcts[3]),
             },
             "signal_counts": dict(signal_counts),
             "group_stats": {
@@ -420,6 +427,10 @@ def sample_sparkline(prices: list[float], n: int) -> list[float]:
         return prices
     step = len(prices) / n
     return [prices[int(i * step)] for i in range(n)]
+
+
+def average_or_none(values: list[float]) -> float | None:
+    return round(sum(values) / len(values), 2) if values else None
 
 
 def snapshot_path(snapshot_id: str) -> Path | None:

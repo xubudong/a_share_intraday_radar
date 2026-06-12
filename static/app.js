@@ -180,10 +180,16 @@ function renderSummary() {
   const avgPct = summary.avg_pct ?? 0;
   const avgPctMain = summary.avg_pct_main ?? 0;
   const avgPctGem = summary.avg_pct_gem ?? 0;
+  const avgPctT1 = summary.avg_pct_t1;
+  const avgPctT2 = summary.avg_pct_t2;
+  const avgPctT3 = summary.avg_pct_t3;
   const avgClass = avgPct > 0 ? "pos" : avgPct < 0 ? "neg" : "";
   const avgMainClass = avgPctMain > 0 ? "pos" : avgPctMain < 0 ? "neg" : "";
   const avgGemClass = avgPctGem > 0 ? "pos" : avgPctGem < 0 ? "neg" : "";
-  const fmtPct = (v) => (v >= 0 ? "+" : "") + v.toFixed(2) + "%";
+  const pctClass = (v) => v > 0 ? "pos" : v < 0 ? "neg" : "";
+  const fmtPct = (v) => v === null || v === undefined
+    ? "--"
+    : (v >= 0 ? "+" : "") + v.toFixed(2) + "%";
   document.getElementById("summaryGrid").innerHTML =
     items.map(([label, value]) => `
       <div class="summary-item">
@@ -212,6 +218,18 @@ function renderSummary() {
       <div class="summary-item">
         <div class="summary-label">创业/科创</div>
         <div class="summary-value ${avgGemClass}">${fmtPct(avgPctGem)}</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">T1平均涨跌幅</div>
+        <div class="summary-value ${pctClass(avgPctT1)}">${fmtPct(avgPctT1)}</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">T2平均涨跌幅</div>
+        <div class="summary-value ${pctClass(avgPctT2)}">${fmtPct(avgPctT2)}</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">T3平均涨跌幅</div>
+        <div class="summary-value ${pctClass(avgPctT3)}">${fmtPct(avgPctT3)}</div>
       </div>
     `;
 }

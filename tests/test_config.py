@@ -137,6 +137,60 @@ def test_dashboard_counts_stock_in_each_of_its_groups():
     assert dashboard["group_stats"]["有色-钴"]["avg_pct"] == 2.5
 
 
+def test_dashboard_reports_average_pct_by_tier():
+    from app.service import RadarService
+
+    service = RadarService.__new__(RadarService)
+    service._refresh_state_lock = threading.RLock()
+    service._refreshing = False
+    service._pending_force_history = False
+    service.pool = [object(), object(), object(), object()]
+    service.stocks = [
+        {
+            "code": "600001",
+            "group": "测试",
+            "groups": ["测试"],
+            "tier": 1,
+            "quote": {"pct_chg": 3.0},
+            "signal": {"signal": "观察"},
+        },
+        {
+            "code": "600002",
+            "group": "测试",
+            "groups": ["测试"],
+            "tier": 1,
+            "quote": {"pct_chg": 1.0},
+            "signal": {"signal": "观察"},
+        },
+        {
+            "code": "600003",
+            "group": "测试",
+            "groups": ["测试"],
+            "tier": 2,
+            "quote": {"pct_chg": -2.0},
+            "signal": {"signal": "观察"},
+        },
+        {
+            "code": "600004",
+            "group": "测试",
+            "groups": ["测试"],
+            "tier": 3,
+            "quote": {},
+            "signal": {"signal": "观察"},
+        },
+    ]
+    service.errors = []
+    service.last_refresh_at = None
+    service.last_success_at = None
+    service.last_refresh_mode = "none"
+
+    summary = service.dashboard()["summary"]
+
+    assert summary["avg_pct_t1"] == 2.0
+    assert summary["avg_pct_t2"] == -2.0
+    assert summary["avg_pct_t3"] is None
+
+
 def test_background_refresh_coalesces_duplicate_requests():
     from app.service import RadarService
 
