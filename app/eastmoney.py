@@ -232,10 +232,7 @@ def fetch_eastmoney_daily_klines(code: str, limit: int = 180) -> list[dict[str, 
 
 
 def fetch_intraday_trends(code: str) -> list[float]:
-    """Fetch today's minute-by-minute price series from EastMoney.
-    Returns a list of close prices for each minute bar (09:30..15:00).
-    On failure returns an empty list (non-fatal — sparkline simply won't render).
-    """
+    """Fetch today's minute prices, falling back to Tencent when needed."""
     params = {
         "secid": eastmoney_secid(code),
         "fields1": "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13",
@@ -247,8 +244,8 @@ def fetch_intraday_trends(code: str) -> list[float]:
     try:
         data = request_json(url, timeout=8)
     except Exception:
-        return []
-    trends = data.get("data", {}).get("trends") or []
+        data = {}
+    trends = (data.get("data") or {}).get("trends") or []
     prices: list[float] = []
     for line in trends:
         parts = line.split(",")
@@ -257,6 +254,48 @@ def fetch_intraday_trends(code: str) -> list[float]:
                 prices.append(float(parts[1]))
             except (ValueError, IndexError):
                 continue
+    if prices:
+        return prices
+    try:
+        return fetch_tencent_intraday_trends(code)
+    except Exception:
+        return []
+
+
+def fetch_tencent_intraday_trends(code: str) -> list[float]:
+    symbol = tencent_symbol(code)
+    url = (
+        "https://web.ifzq.gtimg.cn/appstock/app/minute/query?"
+        + urllib.parse.urlencode({"code": symbol})
+    )
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0",
+            "Referer": "https://gu.qq.com/",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=10) as response:
+        payload = response.read().decode("utf-8", "ignore")
+    data = json.loads(payload)
+    if data.get("code") not in (0, None):
+        raise EastMoneyError(f"Tencent minute code={data.get('code')}")
+    lines = (
+        data.get("data", {})
+        .get(symbol, {})
+        .get("data", {})
+        .get("data", [])
+    )
+    prices: list[float] = []
+    for line in lines:
+        parts = str(line).split()
+        if len(parts) < 2:
+            continue
+        price = clean_number(parts[1])
+        if price is not None:
+            prices.append(price)
+    if not prices:
+        raise EastMoneyError(f"Tencent minute response was empty for {code}")
     return prices
 
 

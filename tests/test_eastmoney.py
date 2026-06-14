@@ -53,3 +53,39 @@ def test_realtime_quotes_fall_back_to_tencent(monkeypatch):
 
     assert set(quotes) == {"600001", "000001"}
     assert all(quote["source"] == "tencent_realtime" for quote in quotes.values())
+
+
+def test_parse_tencent_intraday_prices(monkeypatch):
+    payload = (
+        b'{"code":0,"data":{"sz300408":{"data":{"data":'
+        b'["0930 136.38 10 1000.00","0931 134.78 20 2000.00"]}}}}'
+    )
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def read(self):
+            return payload
+
+    monkeypatch.setattr(
+        eastmoney.urllib.request,
+        "urlopen",
+        lambda *args, **kwargs: FakeResponse(),
+    )
+
+    assert eastmoney.fetch_tencent_intraday_trends("300408") == [136.38, 134.78]
+
+
+def test_intraday_trends_fall_back_to_tencent(monkeypatch):
+    monkeypatch.setattr(eastmoney, "request_json", lambda *args, **kwargs: {})
+    monkeypatch.setattr(
+        eastmoney,
+        "fetch_tencent_intraday_trends",
+        lambda code: [10.0, 10.2, 10.1],
+    )
+
+    assert eastmoney.fetch_intraday_trends("300408") == [10.0, 10.2, 10.1]

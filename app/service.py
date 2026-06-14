@@ -406,6 +406,7 @@ class RadarService:
     def health(self) -> dict[str, Any]:
         has_quotes = len(self.quotes) >= len(self.pool)
         has_indicators = sum(1 for stock in self.stocks if stock.get("indicators", {}).get("rsi14") is not None)
+        has_intraday = sum(1 for stock in self.stocks if len(stock.get("intraday") or []) >= 2)
         return {
             "ok": bool(self.stocks) and has_quotes and has_indicators >= max(1, len(self.pool) // 2),
             "refreshing": self._refreshing,
@@ -414,6 +415,7 @@ class RadarService:
             "quote_count": len(self.quotes),
             "kline_count": len(self.klines),
             "indicator_count": has_indicators,
+            "intraday_count": has_intraday,
             "last_refresh_at": self.last_refresh_at,
             "last_success_at": self.last_success_at,
             "cache_path": str(CACHE_PATH),
