@@ -7,9 +7,18 @@ const state = {
   refreshPollTimer: null,
   sort: { key: "signal", direction: "desc" },
   viewingSnapshot: null,  // snapshot ID or null for live
+  noteScope: "全部",
+  sectorNotes: [],
 };
 
 const actionableSignals = new Set(["可试仓", "二次确认", "突破观察"]);
+const groupFamilies = [
+  { prefix: "化工-", label: "化工" },
+  { prefix: "有色-", label: "有色" },
+  { prefix: "半导体芯片-", label: "芯片" },
+  { prefix: "光模块-", label: "光模块" },
+  { prefix: "半导体材料-", label: "半导体材料" },
+];
 
 document.addEventListener("DOMContentLoaded", () => {
   bindEvents();
@@ -25,6 +34,12 @@ function bindEvents() {
   document.getElementById("snapshotOverlay").addEventListener("click", (e) => {
     if (e.target === e.currentTarget) closeSnapshotPanel();
   });
+  document.getElementById("noteSaveBtn").addEventListener("click", saveSectorNote);
+  document.getElementById("noteTodayBtn").addEventListener("click", () => {
+    document.getElementById("noteDate").value = localToday();
+    populateNoteEditor();
+  });
+  document.getElementById("noteDate").addEventListener("change", populateNoteEditor);
   ["starOnly", "actionableOnly", "overheatOnly"].forEach((id) => {
     document.getElementById(id).addEventListener("change", renderTable);
   });
@@ -62,6 +77,8 @@ async function bootstrap() {
   } catch (err) {
     showRefreshError(err);
   }
+  document.getElementById("noteDate").value = localToday();
+  await loadSectorNotes(state.noteScope);
   await requestRefresh(false);
 }
 
@@ -265,19 +282,12 @@ function renderGroups() {
   const allGroups = Array.from(new Set(
     state.stocks.flatMap((stock) => stock.groups?.length ? stock.groups : [stock.group])
   ));
-  const groupFamilies = [
-    { prefix: "化工-", label: "化工" },
-    { prefix: "有色-", label: "有色" },
-    { prefix: "半导体芯片-", label: "芯片" },
-    { prefix: "光模块-", label: "光模块" },
-    { prefix: "半导体材料-", label: "半导体材料" },
-  ];
   const focusPrefixes = groupFamilies.map((family) => family.prefix);
   const otherGroups = allGroups
     .filter((group) => !focusPrefixes.some((prefix) => group.startsWith(prefix)))
     .sort();
-  const groups = ["全部", ...allGroups];
-  if (!groups.includes(state.group)) state.group = "全部";
+  const selections = ["全部", ...groupFamilies.map((family) => family.label), ...allGroups];
+  if (!selections.includes(state.group)) state.group = "全部";
 
   const groupButton = (group, display = group) => {
     const gs = groupStats[group] || {};
@@ -294,7 +304,7 @@ function renderGroups() {
       .filter((group) => group.startsWith(family.prefix))
       .sort();
     if (!familyGroups.length) continue;
-    html += `<div class="group-cluster"><span class="group-cluster-label">${family.label}</span>`;
+    html += `<div class="group-cluster"><button class="group-family-btn ${family.label === state.group ? "active" : ""}" data-family="${family.label}">${family.label}</button>`;
     html += familyGroups
       .map((group) => groupButton(group, group.slice(family.prefix.length)))
       .join("");
@@ -307,13 +317,139 @@ function renderGroups() {
   }
 
   document.getElementById("groupFilter").innerHTML = html;
-  document.querySelectorAll("#groupFilter button").forEach((btn) => {
+  document.querySelectorAll("#groupFilter button[data-group]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      state.group = btn.dataset.group;
-      renderGroups();
-      renderTable();
+      selectSector(btn.dataset.group);
     });
   });
+  document.querySelectorAll("#groupFilter button[data-family]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      selectSector(btn.dataset.family);
+    });
+  });
+}
+
+function selectSector(scope) {
+  state.group = scope;
+  state.noteScope = scope;
+  document.getElementById("noteDate").value = localToday();
+  document.getElementById("noteContent").value = "";
+  renderGroups();
+  renderTable();
+  loadSectorNotes(scope);
+}
+
+async function loadSectorNotes(scope) {
+  const requestedScope = scope;
+  const title = document.getElementById("noteScopeTitle");
+  const timeline = document.getElementById("noteTimeline");
+  title.textContent = scope;
+  timeline.innerHTML = '<div class="note-empty">加载笔记...</div>';
+  setNoteStatus("");
+  try {
+    const notes = await fetchJson(`/api/sector-notes?scope=${encodeURIComponent(scope)}`);
+    if (state.noteScope !== requestedScope) return;
+    state.sectorNotes = notes;
+    renderNoteTimeline();
+    populateNoteEditor();
+  } catch (err) {
+    if (state.noteScope !== requestedScope) return;
+    state.sectorNotes = [];
+    timeline.innerHTML = `<div class="note-empty">加载失败：${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function renderNoteTimeline() {
+  const timeline = document.getElementById("noteTimeline");
+  if (!state.sectorNotes.length) {
+    timeline.innerHTML = '<div class="note-empty">还没有笔记，从今天开始记录。</div>';
+    return;
+  }
+  timeline.innerHTML = state.sectorNotes.map((note) => `
+    <article class="note-entry">
+      <div class="note-entry-head">
+        <div>
+          <span class="note-entry-date">${formatNoteDate(note.date)}</span>
+          <span class="note-entry-time">更新 ${formatTime(note.updated_at)}</span>
+        </div>
+        <div class="note-entry-actions">
+          <button type="button" data-note-edit="${note.date}">编辑</button>
+          <button type="button" class="note-delete" data-note-delete="${note.date}">删除</button>
+        </div>
+      </div>
+      <div class="note-entry-content">${escapeHtml(note.content).replace(/\n/g, "<br>")}</div>
+    </article>
+  `).join("");
+  timeline.querySelectorAll("[data-note-edit]").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.getElementById("noteDate").value = button.dataset.noteEdit;
+      populateNoteEditor();
+      document.getElementById("noteContent").focus();
+    });
+  });
+  timeline.querySelectorAll("[data-note-delete]").forEach((button) => {
+    button.addEventListener("click", () => deleteSectorNote(button.dataset.noteDelete));
+  });
+}
+
+function populateNoteEditor() {
+  const noteDate = document.getElementById("noteDate").value || localToday();
+  const note = state.sectorNotes.find((item) => item.date === noteDate);
+  document.getElementById("noteContent").value = note?.content || "";
+  setNoteStatus(note ? "编辑该日期已有笔记" : "该日期尚未记录");
+}
+
+async function saveSectorNote() {
+  const button = document.getElementById("noteSaveBtn");
+  const noteDate = document.getElementById("noteDate").value;
+  const content = document.getElementById("noteContent").value.trim();
+  if (!noteDate || !content) {
+    setNoteStatus("请选择日期并填写内容", true);
+    return;
+  }
+  button.disabled = true;
+  setNoteStatus("保存中...");
+  try {
+    const response = await fetch(`/api/sector-notes/${noteDate}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scope: state.noteScope, content }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `${response.status}`);
+    await loadSectorNotes(state.noteScope);
+    document.getElementById("noteDate").value = noteDate;
+    populateNoteEditor();
+    setNoteStatus("已保存");
+  } catch (err) {
+    setNoteStatus(`保存失败：${err.message}`, true);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function deleteSectorNote(noteDate) {
+  if (!window.confirm(`确定删除 ${state.noteScope} 在 ${noteDate} 的笔记吗？`)) {
+    return;
+  }
+  try {
+    const response = await fetch(
+      `/api/sector-notes/${noteDate}?scope=${encodeURIComponent(state.noteScope)}`,
+      { method: "DELETE" },
+    );
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `${response.status}`);
+    await loadSectorNotes(state.noteScope);
+    setNoteStatus("已删除");
+  } catch (err) {
+    setNoteStatus(`删除失败：${err.message}`, true);
+  }
+}
+
+function setNoteStatus(message, isError = false) {
+  const status = document.getElementById("noteStatus");
+  status.textContent = message;
+  status.className = isError ? "neg" : "muted";
 }
 
 function renderTable() {
@@ -323,7 +459,11 @@ function renderTable() {
   const query = document.getElementById("searchInput").value.trim();
   const rows = state.stocks.filter((stock) => {
     const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
-    if (state.group !== "全部" && !stockGroups.includes(state.group)) return false;
+    if (state.group !== "全部") {
+      const family = groupFamilies.find((item) => item.label === state.group);
+      if (family && !stockGroups.some((group) => group.startsWith(family.prefix))) return false;
+      if (!family && !stockGroups.includes(state.group)) return false;
+    }
     if (starOnly && !stock.star) return false;
     if (actionableOnly && !actionableSignals.has(stock.signal.signal)) return false;
     if (overheatOnly && stock.signal.signal !== "过热不追") return false;
@@ -490,6 +630,34 @@ function tierBadge(tier) {
   if (!tier) return '<span class="muted">--</span>';
   const cls = tier === 1 ? "t1" : tier === 2 ? "t2" : "t3";
   return `<span class="tier-badge ${cls}">T${tier}</span>`;
+}
+
+function localToday() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatNoteDate(value) {
+  if (!value) return "--";
+  const parsed = new Date(`${value}T00:00:00`);
+  return parsed.toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short",
+  });
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function formatTime(value) {

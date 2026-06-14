@@ -34,8 +34,45 @@
         <div id="radarList" class="radar-list"></div>
       </section>
 
-      <section class="toolbar">
-        <div class="segmented" id="groupFilter"></div>
+      <section class="sector-workspace">
+        <div class="sector-picker">
+          <div class="workspace-head">
+            <div>
+              <h2>板块选择</h2>
+              <span class="muted">点击大板块或细分行业切换标的与笔记</span>
+            </div>
+          </div>
+          <div class="segmented" id="groupFilter"></div>
+        </div>
+
+        <aside class="notes-panel">
+          <div class="notes-head">
+            <div>
+              <div class="notes-kicker">研究日志</div>
+              <h2 id="noteScopeTitle">全部</h2>
+            </div>
+            <span class="muted">每日一条</span>
+          </div>
+          <div class="note-editor">
+            <input id="noteDate" class="note-date" type="date" />
+            <textarea
+              id="noteContent"
+              rows="4"
+              maxlength="20000"
+              placeholder="记录板块强弱、驱动因素、预期差和明日观察点..."
+            ></textarea>
+            <div class="note-editor-actions">
+              <span id="noteStatus" class="muted"></span>
+              <button id="noteTodayBtn" class="text-btn" type="button">今天</button>
+              <button id="noteSaveBtn" class="text-btn primary" type="button">保存笔记</button>
+            </div>
+          </div>
+          <div id="noteTimeline" class="note-timeline"></div>
+        </aside>
+      </section>
+
+      <section class="toolbar table-toolbar">
+        <span class="muted">标的筛选</span>
         <div class="filters">
           <label><input type="checkbox" id="starOnly" /> 星标</label>
           <label><input type="checkbox" id="actionableOnly" /> 买点</label>
