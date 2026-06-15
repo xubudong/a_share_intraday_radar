@@ -89,3 +89,30 @@ def test_intraday_trends_fall_back_to_tencent(monkeypatch):
     )
 
     assert eastmoney.fetch_intraday_trends("300408") == [10.0, 10.2, 10.1]
+
+
+def test_parse_sina_intraday_uses_latest_trading_date(monkeypatch):
+    payload = (
+        b'{"result":{"data":['
+        b'{"day":"2026-06-12 15:00:00","close":"10.00"},'
+        b'{"day":"2026-06-15 09:31:00","close":"10.20"},'
+        b'{"day":"2026-06-15 09:32:00","close":"10.30"}]}}'
+    )
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def read(self):
+            return payload
+
+    monkeypatch.setattr(
+        eastmoney.urllib.request,
+        "urlopen",
+        lambda *args, **kwargs: FakeResponse(),
+    )
+
+    assert eastmoney.fetch_sina_intraday_trends("300408") == [10.2, 10.3]

@@ -256,10 +256,14 @@ def fetch_intraday_trends(code: str) -> list[float]:
                 continue
     if prices:
         return prices
-    try:
-        return fetch_tencent_intraday_trends(code)
-    except Exception:
-        return []
+    for fetcher in (fetch_tencent_intraday_trends, fetch_sina_intraday_trends):
+        try:
+            prices = fetcher(code)
+            if prices:
+                return prices
+        except Exception:
+            continue
+    return []
 
 
 def fetch_tencent_intraday_trends(code: str) -> list[float]:
@@ -296,6 +300,48 @@ def fetch_tencent_intraday_trends(code: str) -> list[float]:
             prices.append(price)
     if not prices:
         raise EastMoneyError(f"Tencent minute response was empty for {code}")
+    return prices
+
+
+def fetch_sina_intraday_trends(code: str) -> list[float]:
+    symbol = tencent_symbol(code)
+    params = {
+        "symbol": symbol,
+        "scale": "1",
+        "ma": "no",
+        "datalen": "241",
+    }
+    url = (
+        "https://quotes.sina.cn/cn/api/openapi.php/"
+        "CN_MarketDataService.getKLineData?"
+        + urllib.parse.urlencode(params)
+    )
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0",
+            "Referer": "https://finance.sina.com.cn/",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=10) as response:
+        payload = response.read().decode("utf-8", "ignore")
+    data = json.loads(payload)
+    rows = data.get("result", {}).get("data") or []
+    valid_rows = [
+        row
+        for row in rows
+        if isinstance(row, dict) and row.get("day") and clean_number(row.get("close")) is not None
+    ]
+    if not valid_rows:
+        raise EastMoneyError(f"Sina minute response was empty for {code}")
+    latest_date = max(str(row["day"])[:10] for row in valid_rows)
+    prices = [
+        float(row["close"])
+        for row in valid_rows
+        if str(row["day"]).startswith(latest_date)
+    ]
+    if not prices:
+        raise EastMoneyError(f"Sina minute response was empty for {code}")
     return prices
 
 

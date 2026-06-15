@@ -25,6 +25,10 @@ CACHE_PATH = ROOT_DIR / "data" / "state_cache.json"
 SNAPSHOTS_DIR = ROOT_DIR / "data" / "snapshots"
 HISTORY_REFRESH_SECONDS = 30 * 60
 FETCH_WORKERS = 6
+INTRADAY_REFRESH_SECONDS = 5 * 60
+INTRADAY_RETRY_SECONDS = 45
+INTRADAY_MAX_PER_REFRESH = 24
+INTRADAY_WORKERS = 3
 
 
 SPARKLINE_POINTS = 80  # Number of sampled points for sparkline
@@ -41,6 +45,8 @@ class RadarService:
         self.quotes: dict[str, dict[str, Any]] = {}
         self.klines: dict[str, list[dict[str, Any]]] = {}
         self.intraday: dict[str, list[float]] = {}
+        self.intraday_loaded_at: dict[str, float] = {}
+        self.intraday_attempted_at: dict[str, float] = {}
         self.history_loaded_at: dict[str, float] = {}
         self.stocks: list[dict[str, Any]] = []
         self.errors: list[dict[str, Any]] = []
@@ -104,6 +110,9 @@ class RadarService:
             data = json.loads(CACHE_PATH.read_text(encoding="utf-8"))
             self.quotes = data.get("quotes", {})
             self.klines = data.get("klines", {})
+            self.intraday = data.get("intraday", {})
+            self.intraday_loaded_at = data.get("intraday_loaded_at", {})
+            self.intraday_attempted_at = data.get("intraday_attempted_at", {})
             self.history_loaded_at = data.get("history_loaded_at", {})
             self.last_success_at = data.get("last_success_at")
             self.stocks = self.build_stocks()
@@ -115,6 +124,9 @@ class RadarService:
         payload = {
             "quotes": self.quotes,
             "klines": self.klines,
+            "intraday": self.intraday,
+            "intraday_loaded_at": self.intraday_loaded_at,
+            "intraday_attempted_at": self.intraday_attempted_at,
             "history_loaded_at": self.history_loaded_at,
             "last_success_at": self.last_success_at,
         }
@@ -128,6 +140,20 @@ class RadarService:
             self.errors = []
             self.pool = load_stock_pool()
             codes = [stock.code for stock in self.pool]
+            valid_codes = set(codes)
+            self.quotes = {code: value for code, value in self.quotes.items() if code in valid_codes}
+            self.klines = {code: value for code, value in self.klines.items() if code in valid_codes}
+            self.intraday = {code: value for code, value in self.intraday.items() if code in valid_codes}
+            self.intraday_loaded_at = {
+                code: value
+                for code, value in self.intraday_loaded_at.items()
+                if code in valid_codes
+            }
+            self.intraday_attempted_at = {
+                code: value
+                for code, value in self.intraday_attempted_at.items()
+                if code in valid_codes
+            }
 
             try:
                 refreshed_quotes = fetch_realtime_quotes(codes)
@@ -334,11 +360,32 @@ class RadarService:
     # ── Intraday Trends ──
 
     def _refresh_intraday(self) -> None:
-        """Fetch intraday minute prices for all stocks and store sampled series."""
-        with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as executor:
+        """Refresh a limited batch and retain previously fetched sparklines."""
+        now = time.time()
+        candidates = []
+        for stock in self.pool:
+            code = stock.code
+            attempted_at = float(self.intraday_attempted_at.get(code) or 0)
+            loaded_at = float(self.intraday_loaded_at.get(code) or 0)
+            if now - attempted_at < INTRADAY_RETRY_SECONDS:
+                continue
+            if self.intraday.get(code) and now - loaded_at < INTRADAY_REFRESH_SECONDS:
+                continue
+            candidates.append(stock)
+        candidates.sort(
+            key=lambda stock: (
+                bool(self.intraday.get(stock.code)),
+                float(self.intraday_loaded_at.get(stock.code) or 0),
+            )
+        )
+        candidates = candidates[:INTRADAY_MAX_PER_REFRESH]
+        for stock in candidates:
+            self.intraday_attempted_at[stock.code] = now
+
+        with ThreadPoolExecutor(max_workers=INTRADAY_WORKERS) as executor:
             futures = {
                 executor.submit(fetch_intraday_trends, stock.code): stock.code
-                for stock in self.pool
+                for stock in candidates
             }
             for future in as_completed(futures):
                 code = futures[future]
@@ -346,6 +393,7 @@ class RadarService:
                     prices = future.result()
                     if prices:
                         self.intraday[code] = sample_sparkline(prices, SPARKLINE_POINTS)
+                        self.intraday_loaded_at[code] = time.time()
                 except Exception:
                     pass  # Non-fatal: sparkline simply won't render
 
