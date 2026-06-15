@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 from .config import ROOT_DIR
 from .instance import APP_ID, root_fingerprint
-from .notes import sector_note_store
+from .notes import sector_note_store, stock_note_scope
 from .service import radar_service
 
 
@@ -30,6 +30,10 @@ class ToggleStarRequest(BaseModel):
 
 class SectorNoteRequest(BaseModel):
     scope: str
+    content: str
+
+
+class StockNoteRequest(BaseModel):
     content: str
 
 
@@ -119,6 +123,43 @@ def delete_sector_note(note_date: str, scope: str) -> dict:
     if not deleted:
         raise HTTPException(status_code=404, detail="Sector note not found")
     return {"scope": scope, "date": note_date, "deleted": True}
+
+
+@app.get("/api/stock-notes")
+def list_stock_notes(code: str) -> list:
+    try:
+        return sector_note_store.list_notes(stock_note_scope(code))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.put("/api/stock-notes/{code}/{note_date}")
+def save_stock_note(code: str, note_date: str, req: StockNoteRequest) -> dict:
+    try:
+        return sector_note_store.upsert_note(
+            stock_note_scope(code),
+            note_date,
+            req.content,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.delete("/api/stock-notes/{code}/{note_date}")
+def delete_stock_note(code: str, note_date: str) -> dict:
+    try:
+        deleted = sector_note_store.delete_note(stock_note_scope(code), note_date)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Stock note not found")
+    return {"code": code, "date": note_date, "deleted": True}
 
 
 @app.get("/api/health")

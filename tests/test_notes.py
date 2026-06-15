@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 import pytest
 
 import app.server as server_module
-from app.notes import SectorNoteStore
+from app.notes import SectorNoteStore, stock_note_scope
 from app.service import radar_service
 
 
@@ -40,6 +40,10 @@ def test_sector_note_store_validates_input(tmp_path):
             pass
         else:
             raise AssertionError("无效笔记输入应被拒绝")
+
+    assert stock_note_scope("000636") == "stock:000636"
+    with pytest.raises(ValueError):
+        stock_note_scope("636")
 
 
 def test_sector_note_store_does_not_overwrite_corrupted_file(tmp_path):
@@ -89,3 +93,34 @@ def test_sector_note_api_crud(tmp_path, monkeypatch):
     assert updated.json()["content"] == "关注稀土、铜和钨"
     assert deleted.json()["deleted"] is True
     assert missing.status_code == 404
+
+
+def test_stock_note_api_crud(tmp_path, monkeypatch):
+    store = SectorNoteStore(tmp_path / "sector_notes.json")
+    monkeypatch.setattr(server_module, "sector_note_store", store)
+    original_start_refresh = radar_service.start_refresh
+    radar_service.start_refresh = lambda force_history=False: {
+        "accepted": False,
+        "refreshing": False,
+    }
+    try:
+        with TestClient(server_module.app) as client:
+            created = client.put(
+                "/api/stock-notes/000636/2026-06-15",
+                json={"content": "等待放量突破"},
+            )
+            listed = client.get("/api/stock-notes", params={"code": "000636"})
+            updated = client.put(
+                "/api/stock-notes/000636/2026-06-15",
+                json={"content": "缩量整理，继续观察"},
+            )
+            deleted = client.delete("/api/stock-notes/000636/2026-06-15")
+            invalid = client.get("/api/stock-notes", params={"code": "636"})
+    finally:
+        radar_service.start_refresh = original_start_refresh
+
+    assert created.status_code == 200
+    assert listed.json()[0]["content"] == "等待放量突破"
+    assert updated.json()["content"] == "缩量整理，继续观察"
+    assert deleted.json()["deleted"] is True
+    assert invalid.status_code == 400

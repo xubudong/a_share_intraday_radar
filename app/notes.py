@@ -12,6 +12,7 @@ from .config import ROOT_DIR
 
 SECTOR_NOTES_PATH = ROOT_DIR / "data" / "sector_notes.json"
 NOTE_DATE_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}")
+STOCK_CODE_PATTERN = re.compile(r"\d{6}")
 
 
 class SectorNoteStore:
@@ -126,6 +127,13 @@ def validate_note_date(note_date: str) -> str:
     except ValueError as exc:
         raise ValueError("日期无效") from exc
     return note_date
+
+
+def stock_note_scope(code: str) -> str:
+    code = code.strip()
+    if not STOCK_CODE_PATTERN.fullmatch(code):
+        raise ValueError("股票代码必须为 6 位数字")
+    return f"stock:{code}"
 
 
 sector_note_store = SectorNoteStore()

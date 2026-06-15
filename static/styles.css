@@ -845,6 +845,65 @@ td:nth-child(13) {
   line-height: 1.55;
 }
 
+.stock-note-panel {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.stock-note-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.stock-note-heading h3 {
+  margin: 0;
+}
+
+.stock-note-workspace {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.8fr) minmax(420px, 1.2fr);
+  gap: 14px;
+}
+
+.stock-note-editor {
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+}
+
+.stock-note-editor textarea {
+  width: 100%;
+  min-height: 90px;
+  resize: vertical;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  line-height: 1.55;
+}
+
+.stock-note-editor textarea:focus {
+  border-color: var(--teal);
+  outline: 2px solid rgba(15, 118, 110, 0.12);
+}
+
+.stock-note-timeline {
+  max-height: 245px;
+  overflow-y: auto;
+  padding: 9px 10px 9px 24px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+}
+
 .empty {
   padding: 18px;
   color: var(--muted);
@@ -988,6 +1047,10 @@ td:nth-child(13) {
   }
 
   .sector-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .stock-note-workspace {
     grid-template-columns: 1fr;
   }
 

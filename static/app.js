@@ -9,6 +9,7 @@ const state = {
   viewingSnapshot: null,  // snapshot ID or null for live
   noteScope: "全部",
   sectorNotes: [],
+  stockNotes: {},
 };
 
 const actionableSignals = new Set(["可试仓", "二次确认", "突破观察"]);
@@ -485,6 +486,8 @@ function renderTable() {
       renderTable();
     });
   });
+  const expandedStock = rows.find((stock) => stock.code === state.expanded);
+  if (expandedStock) initializeStockNotePanel(expandedStock);
 }
 
 function renderSortHeaders() {
@@ -599,10 +602,164 @@ function detailRow(stock) {
               <li>数据状态：${stock.data_status}</li>
             </ul>
           </section>
+          <section class="stock-note-panel" data-stock-note-code="${stock.code}">
+            <div class="stock-note-heading">
+              <div>
+                <div class="notes-kicker">个股日志</div>
+                <h3>${escapeHtml(stock.name)} <span class="muted">${stock.code}</span></h3>
+              </div>
+              <span class="muted">每日一条</span>
+            </div>
+            <div class="stock-note-workspace">
+              <div class="stock-note-editor">
+                <input class="note-date stock-note-date" type="date" value="${localToday()}" />
+                <textarea
+                  class="stock-note-content"
+                  rows="4"
+                  maxlength="20000"
+                  placeholder="记录个股逻辑、买卖计划、关键价位和后续验证..."
+                ></textarea>
+                <div class="note-editor-actions">
+                  <span class="stock-note-status muted"></span>
+                  <button class="text-btn stock-note-today" type="button">今天</button>
+                  <button class="text-btn primary stock-note-save" type="button">保存笔记</button>
+                </div>
+              </div>
+              <div class="stock-note-timeline">
+                <div class="note-empty">加载笔记...</div>
+              </div>
+            </div>
+          </section>
         </div>
       </td>
     </tr>
   `;
+}
+
+function initializeStockNotePanel(stock) {
+  const panel = document.querySelector(`[data-stock-note-code="${stock.code}"]`);
+  if (!panel) return;
+  panel.querySelector(".stock-note-date").addEventListener("change", () => {
+    populateStockNoteEditor(stock, panel);
+  });
+  panel.querySelector(".stock-note-today").addEventListener("click", () => {
+    panel.querySelector(".stock-note-date").value = localToday();
+    populateStockNoteEditor(stock, panel);
+  });
+  panel.querySelector(".stock-note-save").addEventListener("click", () => {
+    saveStockNote(stock, panel);
+  });
+  refreshStockNotes(stock, panel);
+}
+
+async function refreshStockNotes(stock, panel) {
+  const timeline = panel.querySelector(".stock-note-timeline");
+  timeline.innerHTML = '<div class="note-empty">加载笔记...</div>';
+  try {
+    const notes = await fetchJson(`/api/stock-notes?code=${stock.code}`);
+    if (state.expanded !== stock.code || !panel.isConnected) return;
+    state.stockNotes[stock.code] = notes;
+    renderStockNoteTimeline(stock, panel);
+    populateStockNoteEditor(stock, panel);
+  } catch (err) {
+    timeline.innerHTML = `<div class="note-empty">加载失败：${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function renderStockNoteTimeline(stock, panel) {
+  const notes = state.stockNotes[stock.code] || [];
+  const timeline = panel.querySelector(".stock-note-timeline");
+  if (!notes.length) {
+    timeline.innerHTML = '<div class="note-empty">还没有个股笔记。</div>';
+    return;
+  }
+  timeline.innerHTML = notes.map((note) => `
+    <article class="note-entry">
+      <div class="note-entry-head">
+        <div>
+          <span class="note-entry-date">${formatNoteDate(note.date)}</span>
+          <span class="note-entry-time">更新 ${formatTime(note.updated_at)}</span>
+        </div>
+        <div class="note-entry-actions">
+          <button type="button" data-stock-note-edit="${note.date}">编辑</button>
+          <button type="button" class="note-delete" data-stock-note-delete="${note.date}">删除</button>
+        </div>
+      </div>
+      <div class="note-entry-content">${escapeHtml(note.content).replace(/\n/g, "<br>")}</div>
+    </article>
+  `).join("");
+  timeline.querySelectorAll("[data-stock-note-edit]").forEach((button) => {
+    button.addEventListener("click", () => {
+      panel.querySelector(".stock-note-date").value = button.dataset.stockNoteEdit;
+      populateStockNoteEditor(stock, panel);
+      panel.querySelector(".stock-note-content").focus();
+    });
+  });
+  timeline.querySelectorAll("[data-stock-note-delete]").forEach((button) => {
+    button.addEventListener("click", () => {
+      deleteStockNote(stock, panel, button.dataset.stockNoteDelete);
+    });
+  });
+}
+
+function populateStockNoteEditor(stock, panel) {
+  const noteDate = panel.querySelector(".stock-note-date").value || localToday();
+  const notes = state.stockNotes[stock.code] || [];
+  const note = notes.find((item) => item.date === noteDate);
+  panel.querySelector(".stock-note-content").value = note?.content || "";
+  setStockNoteStatus(panel, note ? "编辑该日期已有笔记" : "该日期尚未记录");
+}
+
+async function saveStockNote(stock, panel) {
+  const button = panel.querySelector(".stock-note-save");
+  const noteDate = panel.querySelector(".stock-note-date").value;
+  const content = panel.querySelector(".stock-note-content").value.trim();
+  if (!noteDate || !content) {
+    setStockNoteStatus(panel, "请选择日期并填写内容", true);
+    return;
+  }
+  button.disabled = true;
+  setStockNoteStatus(panel, "保存中...");
+  try {
+    const response = await fetch(`/api/stock-notes/${stock.code}/${noteDate}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `${response.status}`);
+    await refreshStockNotes(stock, panel);
+    panel.querySelector(".stock-note-date").value = noteDate;
+    populateStockNoteEditor(stock, panel);
+    setStockNoteStatus(panel, "已保存");
+  } catch (err) {
+    setStockNoteStatus(panel, `保存失败：${err.message}`, true);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function deleteStockNote(stock, panel, noteDate) {
+  if (!window.confirm(`确定删除 ${stock.name} 在 ${noteDate} 的笔记吗？`)) {
+    return;
+  }
+  try {
+    const response = await fetch(`/api/stock-notes/${stock.code}/${noteDate}`, {
+      method: "DELETE",
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `${response.status}`);
+    await refreshStockNotes(stock, panel);
+    setStockNoteStatus(panel, "已删除");
+  } catch (err) {
+    setStockNoteStatus(panel, `删除失败：${err.message}`, true);
+  }
+}
+
+function setStockNoteStatus(panel, message, isError = false) {
+  const status = panel.querySelector(".stock-note-status");
+  status.textContent = message;
+  status.className = `stock-note-status ${isError ? "neg" : "muted"}`;
 }
 
 function maBlock(ind = {}) {
