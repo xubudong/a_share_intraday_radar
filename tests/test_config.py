@@ -25,6 +25,12 @@ def test_requested_sector_groups_and_tiers_are_present():
     stocks_by_code = {stock.code: stock for stock in pool}
     groups = {group for stock in pool for group in stock.groups}
 
+    assert "300476" in stocks_by_code
+    assert stocks_by_code["300476"].name == "胜宏科技"
+    assert stocks_by_code["300476"].group == "PCB"
+    assert stocks_by_code["300476"].tier == 1
+    assert "002962" not in stocks_by_code
+
     expected_groups = {
         "化工-磷化工",
         "化工-氟化工",

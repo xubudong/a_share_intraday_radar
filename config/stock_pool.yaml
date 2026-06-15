@@ -11,7 +11,6 @@ groups:
     stocks:
       - { code: "603773", name: "沃格光电", star: true, tier: 1 }
       - { code: "600552", name: "凯盛科技", star: true, tier: 1 }
-      - { code: "002962", name: "五方光电", watch: true, tier: 3 }
       - { code: "600707", name: "彩虹股份", tier: 2 }
 
   - name: 玻璃玻纤 / 电子布
@@ -23,6 +22,7 @@ groups:
 
   - name: PCB
     stocks:
+      - { code: "300476", name: "胜宏科技", star: true, tier: 1, note: "AI服务器/HPC高阶PCB核心" }
       - { code: "002463", name: "沪电股份", star: true, tier: 1 }
       - { code: "002916", name: "深南电路", star: true, tier: 1 }
       - { code: "603228", name: "景旺电子", tier: 2 }
