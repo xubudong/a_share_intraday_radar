@@ -292,7 +292,7 @@ function renderRadar() {
         <span>${stock.star ? '<button class="star-toggle starred" data-code="' + stock.code + '" title="取消星标" aria-label="取消星标">★</button> ' : '<button class="star-toggle" data-code="' + stock.code + '" title="加星标" aria-label="加星标">☆</button> '}${stock.name}</span>
         ${signalPill(stock.signal.signal)}
       </div>
-      <div class="stock-code">${stock.code} · ${stock.group}</div>
+      <div class="stock-code">${stock.code}${boardBadge(stock.code)} · ${stock.group}</div>
       <div class="radar-metrics">
         <span>价格 ${formatPrice(stock.price)}</span>
         <span class="${numClass(stock.quote?.pct_chg)}">${formatPct(stock.quote?.pct_chg)}</span>
@@ -581,7 +581,8 @@ function stockRow(stock) {
       <td>
         <div class="stock-name"><button class="star-toggle ${stock.star ? "starred" : ""}" data-code="${stock.code}" title="${stock.star ? "取消星标" : "加星标"}" aria-label="${stock.star ? "取消星标" : "加星标"}">${stock.star ? "★" : "☆"}</button> ${stock.name}</div>
         <div class="stock-code-line">
-          <button class="copy-code" data-code="${stock.code}" title="复制代码" aria-label="复制 ${stock.code}">${stock.code}</button>
+          <button class="copy-code ${boardCodeClass(stock.code)}" data-code="${stock.code}" title="复制代码" aria-label="复制 ${stock.code}">${stock.code}</button>
+          ${boardBadge(stock.code)}
           ${stock.watch ? '<span class="watch-mark">观察</span>' : ""}
         </div>
       </td>
@@ -603,6 +604,27 @@ function stockRow(stock) {
     </tr>
     ${detail}
   `;
+}
+
+function stockBoard(code) {
+  const value = String(code || "");
+  if (value.startsWith("688") || value.startsWith("689")) {
+    return { label: "科", name: "科创板", cls: "sci" };
+  }
+  if (value.startsWith("300") || value.startsWith("301") || value.startsWith("302")) {
+    return { label: "创", name: "创业板", cls: "gem" };
+  }
+  return null;
+}
+
+function boardCodeClass(code) {
+  return stockBoard(code) ? "restricted-board-code" : "";
+}
+
+function boardBadge(code) {
+  const board = stockBoard(code);
+  if (!board) return "";
+  return `<span class="board-badge ${board.cls}" title="${board.name}，非主板权限需注意" aria-label="${board.name}">${board.label}</span>`;
 }
 
 function detailRow(stock) {
