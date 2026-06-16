@@ -57,6 +57,15 @@ def test_requested_sector_groups_and_tiers_are_present():
         "光模块-上游光器件",
         "光模块-CPO硅光",
         "锂电设备",
+        "锂电电芯/储能",
+        "锂电材料-正极",
+        "锂电材料-负极",
+        "锂电材料-隔膜",
+        "锂电材料-电解液",
+        "锂电材料-铜箔/复合集流体",
+        "锂电材料-铝箔/结构件",
+        "锂电回收/前驱体",
+        "锂电新技术-固态/半固态",
     }
     assert expected_groups <= groups
 
@@ -71,6 +80,13 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert stocks_by_code["300450"].tier == 1
     assert stocks_by_code["688006"].tier == 1
     assert stocks_by_code["301325"].group == "锂电设备"
+    assert stocks_by_code["300750"].tier == 1
+    assert stocks_by_code["300769"].group == "锂电材料-正极"
+    assert stocks_by_code["002812"].group == "锂电材料-隔膜"
+    assert stocks_by_code["002709"].group == "锂电材料-电解液"
+    assert {"锂电设备", "锂电新技术-固态/半固态"} <= set(stocks_by_code["300450"].groups)
+    assert {"铜箔", "锂电材料-铜箔/复合集流体"} <= set(stocks_by_code["301217"].groups)
+    assert {"有色-镍", "有色-钴", "锂电回收/前驱体"} <= set(stocks_by_code["603799"].groups)
 
 
 def test_duplicate_stock_keeps_highest_priority_tier():

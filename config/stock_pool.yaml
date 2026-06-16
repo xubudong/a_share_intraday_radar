@@ -302,3 +302,83 @@ groups:
       - { code: "688518", name: "联赢激光", tier: 2, note: "电池激光焊接设备" }
       - { code: "688499", name: "利元亨", tier: 3, note: "高弹性观察" }
       - { code: "300648", name: "星云股份", tier: 3, note: "检测设备高弹性观察" }
+
+  - name: 锂电电芯/储能
+    stocks:
+      - { code: "300750", name: "宁德时代", tier: 1, note: "动力与储能电池龙头锚" }
+      - { code: "002594", name: "比亚迪", tier: 1, note: "刀片电池与整车闭环" }
+      - { code: "300014", name: "亿纬锂能", tier: 2, note: "动力与储能电芯" }
+      - { code: "002074", name: "国轩高科", tier: 2, note: "动力电池与固态观察" }
+      - { code: "300207", name: "欣旺达", tier: 2, note: "消费电池与动力电池" }
+      - { code: "300438", name: "鹏辉能源", tier: 3, note: "储能电芯高弹性观察" }
+      - { code: "688063", name: "派能科技", tier: 3, note: "户储观察" }
+
+  - name: 锂电材料-正极
+    stocks:
+      - { code: "300769", name: "德方纳米", tier: 1, note: "磷酸铁锂正极龙头锚" }
+      - { code: "301358", name: "湖南裕能", tier: 1, note: "磷酸铁锂正极龙头锚" }
+      - { code: "300073", name: "当升科技", tier: 2, note: "三元正极与固态观察" }
+      - { code: "688005", name: "容百科技", tier: 2, note: "高镍三元正极" }
+      - { code: "688778", name: "厦钨新能", tier: 2, note: "三元与钴酸锂正极" }
+      - { code: "688707", name: "振华新材", tier: 2, note: "三元正极" }
+      - { code: "688275", name: "万润新能", tier: 3, note: "磷酸铁锂正极观察" }
+
+  - name: 锂电材料-负极
+    stocks:
+      - { code: "603659", name: "璞泰来", tier: 1, note: "负极与涂覆设备龙头锚" }
+      - { code: "600884", name: "杉杉股份", tier: 1, note: "负极材料龙头锚" }
+      - { code: "001301", name: "尚太科技", tier: 2, note: "石墨负极" }
+      - { code: "300035", name: "中科电气", tier: 2, note: "负极材料" }
+      - { code: "300890", name: "翔丰华", tier: 3, note: "负极高弹性观察" }
+
+  - name: 锂电材料-隔膜
+    stocks:
+      - { code: "002812", name: "恩捷股份", tier: 1, note: "湿法隔膜龙头锚" }
+      - { code: "300568", name: "星源材质", tier: 1, note: "隔膜龙头锚" }
+      - { code: "002080", name: "中材科技", tier: 2, note: "隔膜与玻纤双线" }
+      - { code: "002108", name: "沧州明珠", tier: 3, note: "隔膜观察" }
+
+  - name: 锂电材料-电解液
+    stocks:
+      - { code: "002709", name: "天赐材料", tier: 1, note: "电解液龙头锚" }
+      - { code: "300037", name: "新宙邦", tier: 1, note: "电解液与氟化学龙头锚" }
+      - { code: "002407", name: "多氟多", tier: 2, note: "六氟磷酸锂与氟化工" }
+      - { code: "002326", name: "永太科技", tier: 2, note: "锂盐添加剂与氟化工" }
+      - { code: "002091", name: "江苏国泰", tier: 2, note: "电解液观察" }
+      - { code: "603026", name: "胜华新材", tier: 3, note: "溶剂链观察" }
+
+  - name: 锂电材料-铜箔/复合集流体
+    stocks:
+      - { code: "301217", name: "铜冠铜箔", tier: 1, note: "锂电铜箔龙头锚" }
+      - { code: "301511", name: "德福科技", tier: 1, note: "锂电铜箔龙头锚" }
+      - { code: "688388", name: "嘉元科技", tier: 2, note: "锂电铜箔" }
+      - { code: "600110", name: "诺德股份", tier: 2, note: "锂电铜箔" }
+      - { code: "002992", name: "宝明科技", tier: 3, note: "复合铜箔高弹性观察" }
+      - { code: "002203", name: "海亮股份", tier: 2, note: "铜加工与铜箔观察" }
+
+  - name: 锂电材料-铝箔/结构件
+    stocks:
+      - { code: "002850", name: "科达利", tier: 1, note: "电池结构件龙头锚" }
+      - { code: "603876", name: "鼎胜新材", tier: 1, note: "电池铝箔龙头锚" }
+      - { code: "300953", name: "震裕科技", tier: 2, note: "结构件与模具" }
+      - { code: "002965", name: "祥鑫科技", tier: 2, note: "结构件观察" }
+      - { code: "300057", name: "万顺新材", tier: 3, note: "铝箔与复合集流体观察" }
+
+  - name: 锂电回收/前驱体
+    stocks:
+      - { code: "002340", name: "格林美", tier: 1, note: "回收与前驱体龙头锚" }
+      - { code: "300919", name: "中伟股份", tier: 1, note: "三元前驱体龙头锚" }
+      - { code: "603799", name: "华友钴业", tier: 1, note: "镍钴锂材料一体化" }
+      - { code: "300618", name: "寒锐钴业", tier: 2, note: "钴资源与回收观察" }
+      - { code: "002645", name: "华宏科技", tier: 2, note: "再生资源与锂电回收观察" }
+      - { code: "688148", name: "芳源股份", tier: 3, note: "前驱体观察" }
+
+  - name: 锂电新技术-固态/半固态
+    stocks:
+      - { code: "300750", name: "宁德时代", tier: 1, note: "固态与凝聚态电池龙头锚" }
+      - { code: "002594", name: "比亚迪", tier: 1, note: "固态电池产业化观察" }
+      - { code: "300450", name: "先导智能", tier: 1, note: "固态电池设备龙头锚" }
+      - { code: "002074", name: "国轩高科", tier: 2, note: "固态电池观察" }
+      - { code: "688567", name: "孚能科技", tier: 2, note: "软包与半固态观察" }
+      - { code: "300073", name: "当升科技", tier: 2, note: "固态正极材料观察" }
+      - { code: "301325", name: "曼恩斯特", tier: 2, note: "固态涂布工艺观察" }
