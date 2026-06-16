@@ -16,6 +16,7 @@ const actionableSignals = new Set(["可试仓", "二次确认", "突破观察"])
 const groupFamilies = [
   { prefix: "化工-", label: "化工" },
   { prefix: "有色-", label: "有色" },
+  { prefix: "新能源-", label: "新能源" },
   { prefix: "半导体芯片-", label: "芯片" },
   { prefix: "光模块-", label: "光模块" },
   { prefix: "半导体材料-", label: "半导体材料" },
@@ -572,7 +573,9 @@ function stockRow(stock) {
   const displayedGroup = state.group !== "全部" && stockGroups.includes(state.group)
     ? state.group
     : stock.group;
-  const extraGroupCount = Math.max(0, stockGroups.length - 1);
+  const hiddenGroups = stockGroups.filter((group) => group !== displayedGroup);
+  const groupTooltip = stockGroups.join(" / ");
+  const hiddenGroupTooltip = hiddenGroups.join(" / ");
   return `
     <tr class="stock-row" data-code="${stock.code}">
       <td>
@@ -582,7 +585,9 @@ function stockRow(stock) {
           ${stock.watch ? '<span class="watch-mark">观察</span>' : ""}
         </div>
       </td>
-      <td title="${stockGroups.join(" / ")}">${displayedGroup}${extraGroupCount ? ` <span class="muted">+${extraGroupCount}</span>` : ""}</td>
+      <td class="group-cell" title="${escapeHtml(groupTooltip)}">
+        <span class="group-main">${escapeHtml(displayedGroup)}</span>${hiddenGroups.length ? `<span class="group-extra" title="${escapeHtml(hiddenGroupTooltip)}" aria-label="其他分组：${escapeHtml(hiddenGroupTooltip)}">另：${escapeHtml(hiddenGroupTooltip)}</span>` : ""}
+      </td>
       <td>${tierBadge(stock.tier)}</td>
       <td>${formatPrice(stock.price)}</td>
       <td class="${numClass(pctChg)}">${formatPct(pctChg)}</td>

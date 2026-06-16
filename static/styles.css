@@ -738,6 +738,22 @@ td:nth-child(13) {
   margin-top: 3px;
 }
 
+.group-cell {
+  line-height: 1.35;
+}
+
+.group-main,
+.group-extra {
+  display: block;
+}
+
+.group-extra {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
 .copy-code {
   height: 20px;
   padding: 0 5px;
