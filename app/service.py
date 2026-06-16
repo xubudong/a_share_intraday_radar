@@ -233,12 +233,14 @@ class RadarService:
             indicators = compute_indicators(rows)
             price = quote.get("price") or (rows[-1]["close"] if rows else None)
             starred = star_store.is_starred(stock.code)
+            group_starred = any(star_store.is_group_starred(group) for group in stock.groups)
             item = {
                 "code": stock.code,
                 "name": stock.name,
                 "group": stock.group,
                 "groups": list(stock.groups),
                 "star": starred,
+                "group_star": group_starred,
                 "watch": stock.watch,
                 "note": stock.note,
                 "tier": stock.tier,
@@ -325,6 +327,7 @@ class RadarService:
             "summary": {
                 "total": len(self.pool),
                 "stars": star_store.count,
+                "group_stars": star_store.group_count,
                 "actionable": sum(signal_counts[s] for s in ["可试仓", "二次确认", "突破观察"]),
                 "overheated": signal_counts["过热不追"],
                 "weak": signal_counts["走弱剔除"],
@@ -343,6 +346,7 @@ class RadarService:
                 name: {
                     "total": value["total"],
                     "signals": dict(value["signals"]),
+                    "star": star_store.is_group_starred(name),
                     "avg_pct": round(sum(group_pcts.get(name, [])) / len(group_pcts.get(name, [])), 2) if group_pcts.get(name) else None,
                 }
                 for name, value in group_stats.items()
@@ -366,6 +370,17 @@ class RadarService:
             if stock["code"] == code:
                 stock["star"] = new_state
                 break
+        return new_state
+
+    def toggle_group_star(self, group: str) -> bool:
+        """Toggle star for a sector/group. Returns new starred state."""
+        new_state = star_store.toggle_group(group)
+        for stock in self.stocks:
+            groups = stock.get("groups") or [stock.get("group", "")]
+            if group in groups:
+                stock["group_star"] = new_state or any(
+                    star_store.is_group_starred(item) for item in groups
+                )
         return new_state
 
     # ── Intraday Trends ──

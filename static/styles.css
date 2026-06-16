@@ -285,6 +285,29 @@ main {
   pointer-events: none;
 }
 
+.group-star-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  border-radius: 4px;
+  color: #b0b8c1;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.group-star-toggle:hover {
+  background: #fef3c7;
+  color: #ca8a04;
+}
+
+.group-star-toggle.starred {
+  color: #ca8a04;
+}
+
 .panel {
   margin-bottom: 14px;
 }

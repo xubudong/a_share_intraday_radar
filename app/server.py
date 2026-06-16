@@ -28,6 +28,10 @@ class ToggleStarRequest(BaseModel):
     code: str
 
 
+class ToggleGroupStarRequest(BaseModel):
+    group: str
+
+
 class SectorNoteRequest(BaseModel):
     scope: str
     content: str
@@ -70,6 +74,12 @@ def refresh(force_history: bool = False) -> dict:
 def toggle_star(req: ToggleStarRequest) -> dict:
     new_state = radar_service.toggle_star(req.code)
     return {"code": req.code, "star": new_state}
+
+
+@app.post("/api/toggle-group-star")
+def toggle_group_star(req: ToggleGroupStarRequest) -> dict:
+    new_state = radar_service.toggle_group_star(req.group)
+    return {"group": req.group, "star": new_state}
 
 
 @app.get("/api/snapshots")

@@ -30,6 +30,7 @@ class StarStore:
     def __init__(self, path: Path = STAR_STATE_PATH) -> None:
         self._path = path
         self._stars: set[str] = set()
+        self._groups: set[str] = set()
         self._load()
 
     def _load(self) -> None:
@@ -37,6 +38,7 @@ class StarStore:
             try:
                 data = json.loads(self._path.read_text(encoding="utf-8"))
                 self._stars = set(data.get("stars", []))
+                self._groups = set(data.get("groups", []))
                 return
             except Exception:
                 pass
@@ -57,7 +59,14 @@ class StarStore:
     def _save(self) -> None:
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._path.write_text(
-            json.dumps({"stars": sorted(self._stars)}, ensure_ascii=False, indent=2),
+            json.dumps(
+                {
+                    "stars": sorted(self._stars),
+                    "groups": sorted(self._groups),
+                },
+                ensure_ascii=False,
+                indent=2,
+            ),
             encoding="utf-8",
         )
 
@@ -73,9 +82,25 @@ class StarStore:
         self._save()
         return code in self._stars
 
+    def is_group_starred(self, group: str) -> bool:
+        return group in self._groups
+
+    def toggle_group(self, group: str) -> bool:
+        """Toggle star for a group. Returns new state (True = starred)."""
+        if group in self._groups:
+            self._groups.discard(group)
+        else:
+            self._groups.add(group)
+        self._save()
+        return group in self._groups
+
     @property
     def count(self) -> int:
         return len(self._stars)
+
+    @property
+    def group_count(self) -> int:
+        return len(self._groups)
 
 
 star_store = StarStore()

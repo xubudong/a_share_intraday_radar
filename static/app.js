@@ -59,6 +59,13 @@ function bindEvents() {
       toggleStar(starBtn.dataset.code, starBtn);
       return;
     }
+    const groupStarBtn = event.target.closest(".group-star-toggle");
+    if (groupStarBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleGroupStar(groupStarBtn.dataset.group, groupStarBtn);
+      return;
+    }
   });
   document.querySelectorAll("th[data-sort]").forEach((th) => {
     th.addEventListener("click", () => {
@@ -322,7 +329,11 @@ function renderGroups() {
     const avgTag = avg === undefined || avg === null
       ? '<span class="group-pct muted">--</span>'
       : `<span class="group-pct ${avg > 0 ? 'pos' : avg < 0 ? 'neg' : 'muted'}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}%</span>`;
-    return `<button class="${group === state.group ? "active" : ""}" data-group="${group}" title="${group}">${display}${avgTag}</button>`;
+    const starred = Boolean(gs.star);
+    const starTag = group === "全部"
+      ? ""
+      : `<span class="group-star-toggle ${starred ? "starred" : ""}" data-group="${escapeHtml(group)}" title="${starred ? "取消板块星标" : "板块加星标"}" aria-label="${starred ? "取消板块星标" : "板块加星标"}">${starred ? "★" : "☆"}</span>`;
+    return `<button class="${group === state.group ? "active" : ""}" data-group="${escapeHtml(group)}" title="${escapeHtml(group)}">${escapeHtml(display)}${avgTag}${starTag}</button>`;
   };
 
   let html = groupButton("全部");
@@ -484,6 +495,7 @@ function renderTable() {
   const actionableOnly = document.getElementById("actionableOnly").checked;
   const overheatOnly = document.getElementById("overheatOnly").checked;
   const query = document.getElementById("searchInput").value.trim();
+  const groupStats = (state.dashboard && state.dashboard.group_stats) || {};
   const rows = state.stocks.filter((stock) => {
     const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
     if (state.group !== "全部") {
@@ -491,7 +503,8 @@ function renderTable() {
       if (family && !stockGroups.some((group) => group.startsWith(family.prefix))) return false;
       if (!family && !stockGroups.includes(state.group)) return false;
     }
-    if (starOnly && !stock.star) return false;
+    const groupStarred = stock.group_star || stockGroups.some((group) => groupStats[group]?.star);
+    if (starOnly && !stock.star && !groupStarred) return false;
     if (actionableOnly && !actionableSignals.has(stock.signal.signal)) return false;
     if (overheatOnly && stock.signal.signal !== "过热不追") return false;
     if (query && !`${stock.code}${stock.name}`.includes(query)) return false;
@@ -948,6 +961,34 @@ async function toggleStar(code, button) {
     render();
   } catch (error) {
     button.title = `星标操作失败：${error.message}`;
+  }
+}
+
+async function toggleGroupStar(group, button) {
+  try {
+    const res = await fetch("/api/toggle-group-star", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ group }),
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    const data = await res.json();
+    if (state.dashboard && state.dashboard.group_stats && state.dashboard.group_stats[group]) {
+      state.dashboard.group_stats[group].star = data.star;
+    }
+    if (state.dashboard && state.dashboard.summary) {
+      state.dashboard.summary.group_stars = Object.values(state.dashboard.group_stats || {})
+        .filter((item) => item.star).length;
+    }
+    state.stocks.forEach((stock) => {
+      const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
+      stock.group_star = stockGroups.some(
+        (item) => state.dashboard?.group_stats?.[item]?.star,
+      );
+    });
+    render();
+  } catch (error) {
+    button.title = `板块星标操作失败：${error.message}`;
   }
 }
 

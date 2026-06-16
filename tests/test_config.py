@@ -1,7 +1,7 @@
 import threading
 import time
 
-from app.config import load_stock_pool, star_store
+from app.config import StarStore, load_stock_pool, star_store
 
 
 def test_stock_pool_loads_and_deduplicates_duplicate_codes():
@@ -66,6 +66,7 @@ def test_requested_sector_groups_and_tiers_are_present():
         "新能源-锂电材料-铝箔/结构件",
         "新能源-锂电回收/前驱体",
         "新能源-锂电新技术-固态/半固态",
+        "机器人核心",
     }
     assert expected_groups <= groups
 
@@ -91,6 +92,21 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert {"有色-镍", "有色-钴", "新能源-锂电回收/前驱体"} <= set(
         stocks_by_code["603799"].groups
     )
+    assert {
+        "300124",
+        "002747",
+        "002050",
+        "601689",
+        "688017",
+        "002472",
+        "603728",
+        "603667",
+        "603662",
+        "688322",
+    } <= set(stocks_by_code)
+    assert stocks_by_code["688017"].group == "机器人核心"
+    assert stocks_by_code["688017"].tier == 1
+    assert stocks_by_code["688322"].tier == 2
 
 
 def test_duplicate_stock_keeps_highest_priority_tier():
@@ -118,6 +134,23 @@ def test_star_toggle():
     # Toggle it off
     assert star_store.toggle("999999") is False
     assert not star_store.is_starred("999999")
+
+
+def test_star_store_supports_group_stars(tmp_path):
+    path = tmp_path / "star_state.json"
+    path.write_text('{"stars": [], "groups": []}', encoding="utf-8")
+    store = StarStore(path)
+
+    assert store.group_count == 0
+    assert not store.is_group_starred("机器人核心")
+    assert store.toggle_group("机器人核心") is True
+    assert store.is_group_starred("机器人核心")
+    assert store.group_count == 1
+
+    reloaded = StarStore(path)
+    assert reloaded.is_group_starred("机器人核心")
+    assert reloaded.toggle_group("机器人核心") is False
+    assert not reloaded.is_group_starred("机器人核心")
 
 
 def test_snapshot_save_and_load():
@@ -165,6 +198,45 @@ def test_dashboard_counts_stock_in_each_of_its_groups():
     assert dashboard["group_stats"]["有色-钴"]["total"] == 1
     assert dashboard["group_stats"]["有色-镍"]["avg_pct"] == 2.5
     assert dashboard["group_stats"]["有色-钴"]["avg_pct"] == 2.5
+
+
+def test_dashboard_marks_starred_groups(monkeypatch):
+    from app import service as service_module
+    from app.service import RadarService
+
+    class FakeStarStore:
+        count = 0
+        group_count = 1
+
+        def is_group_starred(self, group):
+            return group == "机器人核心"
+
+    monkeypatch.setattr(service_module, "star_store", FakeStarStore())
+
+    service = RadarService.__new__(RadarService)
+    service._refresh_state_lock = threading.RLock()
+    service._refreshing = False
+    service._pending_force_history = False
+    service.pool = [object()]
+    service.stocks = [
+        {
+            "code": "688017",
+            "group": "机器人核心",
+            "groups": ["机器人核心"],
+            "tier": 1,
+            "quote": {"pct_chg": 1.5},
+            "signal": {"signal": "观察"},
+        }
+    ]
+    service.errors = []
+    service.last_refresh_at = None
+    service.last_success_at = None
+    service.last_refresh_mode = "none"
+
+    dashboard = service.dashboard()
+
+    assert dashboard["summary"]["group_stars"] == 1
+    assert dashboard["group_stats"]["机器人核心"]["star"] is True
 
 
 def test_dashboard_reports_average_pct_by_tier():
