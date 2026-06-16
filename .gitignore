@@ -6,6 +6,7 @@ data/state_cache.json
 data/snapshots/
 data/sector_notes.json
 data/sector_notes.tmp
+config/star_state.json
 .workbuddy/
 .radar.pid
 .radar.out.log
