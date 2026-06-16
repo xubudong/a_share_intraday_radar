@@ -4,19 +4,21 @@
 
 ## 启动
 
-推荐直接双击：
+推荐在当前 PowerShell / CMD 窗口运行：
 
-```text
-start.bat
+```powershell
+py start_services.py
 ```
 
 停止服务：
 
-```text
-stop.bat
+```powershell
+py stop_services.py
 ```
 
-也可以在虚拟环境中使用统一的 Python 控制器：
+`start_services.py` 会自动创建 `.venv`、安装/检查 `requirements.txt`，并在当前窗口输出服务地址、PID 状态和日志路径。`start.bat` / `stop.bat` 仍保留为兼容入口，但主要逻辑已经迁移到 Python 脚本。
+
+也可以在虚拟环境中直接使用底层 Python 控制器：
 
 ```powershell
 .\.venv\Scripts\python.exe radar.py start
@@ -25,7 +27,7 @@ stop.bat
 .\.venv\Scripts\python.exe radar.py stop
 ```
 
-首次运行 `start.bat` 会自动创建 `.venv` 并安装依赖。控制器会通过项目身份接口和 PID 文件双重识别进程，避免误停其他 Python 服务。
+首次运行 `py start_services.py` 会自动创建 `.venv` 并安装依赖。控制器会通过项目身份接口和 PID 文件双重识别进程，避免误停其他 Python 服务。
 
 默认使用 `8030` 端口；如果该端口被无法接管的当前项目旧实例占用，控制器会自动选择后续空闲端口，并在启动信息中打印实际访问地址。`stop.bat` 会根据 PID 文件停止实际端口上的实例。
 
@@ -33,7 +35,7 @@ stop.bat
 cd D:\codex_project\a_share_intraday_radar
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\start.bat
+py start_services.py
 ```
 
 默认访问地址：`http://127.0.0.1:8030`
@@ -42,7 +44,7 @@ py -m venv .venv
 
 ```powershell
 $env:WEB_PORT = "8031"
-.\start.bat
+py start_services.py
 ```
 
 ## 功能

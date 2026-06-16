@@ -1,12 +1,17 @@
 @echo off
 setlocal
-set "ROOT=%~dp0"
-set "PYTHON=%ROOT%.venv\Scripts\python.exe"
+cd /d "%~dp0"
 
-if not exist "%PYTHON%" (
-    echo Cannot stop: .venv was not found. Run start.bat first.
-    exit /b 1
+if exist ".venv\Scripts\python.exe" (
+    ".venv\Scripts\python.exe" "stop_services.py" %*
+    exit /b %ERRORLEVEL%
 )
 
-"%PYTHON%" "%ROOT%radar.py" stop
+where py >nul 2>&1
+if not errorlevel 1 (
+    py -3 "stop_services.py" %*
+    exit /b %ERRORLEVEL%
+)
+
+python "stop_services.py" %*
 exit /b %ERRORLEVEL%

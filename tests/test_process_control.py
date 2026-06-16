@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 
 import radar
+import start_services
+import stop_services
 from app.instance import APP_ID, root_fingerprint
 
 
@@ -95,3 +97,30 @@ def test_find_available_port_skips_occupied_ports(monkeypatch):
     )
 
     assert radar.find_available_port("127.0.0.1", 8030) == 8032
+
+
+def test_start_services_layout_is_valid():
+    assert start_services.validate_project_layout() == []
+
+
+def test_start_services_main_runs_setup_then_radar(monkeypatch):
+    calls = []
+
+    monkeypatch.setattr(start_services, "ensure_venv", lambda: calls.append("venv") or 0)
+    monkeypatch.setattr(start_services, "install_dependencies", lambda: calls.append("install") or 0)
+    monkeypatch.setattr(
+        start_services,
+        "run_radar",
+        lambda command, host, port: calls.append((command, host, port)) or 0,
+    )
+
+    assert start_services.main(["--restart", "--host", "127.0.0.1", "--port", "8040"]) == 0
+    assert calls == ["venv", "install", ("restart", "127.0.0.1", 8040)]
+
+
+def test_stop_services_reports_missing_venv(monkeypatch, tmp_path, capsys):
+    missing_python = tmp_path / ".venv" / "Scripts" / "python.exe"
+    monkeypatch.setattr(stop_services, "venv_python", lambda: missing_python)
+
+    assert stop_services.run_stop("127.0.0.1", 8030) == 1
+    assert "未找到虚拟环境 Python" in capsys.readouterr().out
