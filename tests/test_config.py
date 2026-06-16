@@ -56,6 +56,7 @@ def test_requested_sector_groups_and_tiers_are_present():
         "光模块-整机",
         "光模块-上游光器件",
         "光模块-CPO硅光",
+        "锂电设备",
     }
     assert expected_groups <= groups
 
@@ -67,6 +68,9 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert {"光模块-上游光器件", "光模块-CPO硅光"} <= set(
         stocks_by_code["300394"].groups
     )
+    assert stocks_by_code["300450"].tier == 1
+    assert stocks_by_code["688006"].tier == 1
+    assert stocks_by_code["301325"].group == "锂电设备"
 
 
 def test_duplicate_stock_keeps_highest_priority_tier():

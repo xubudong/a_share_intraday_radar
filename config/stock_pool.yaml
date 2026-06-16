@@ -291,3 +291,14 @@ groups:
       - { code: "688498", name: "源杰科技", tier: 2, note: "光芯片" }
       - { code: "300620", name: "光库科技", tier: 2, note: "薄膜铌酸锂与光器件观察" }
       - { code: "688313", name: "仕佳光子", tier: 2, note: "AWG与光芯片观察" }
+
+  - name: 锂电设备
+    stocks:
+      - { code: "300450", name: "先导智能", tier: 1, note: "整线设备龙头锚" }
+      - { code: "688006", name: "杭可科技", tier: 1, note: "后段化成分容龙头" }
+      - { code: "300457", name: "赢合科技", tier: 2, note: "前中段设备核心" }
+      - { code: "301325", name: "曼恩斯特", tier: 2, note: "涂布模头与固态工艺观察" }
+      - { code: "688559", name: "海目星", tier: 2, note: "激光设备与工艺升级" }
+      - { code: "688518", name: "联赢激光", tier: 2, note: "电池激光焊接设备" }
+      - { code: "688499", name: "利元亨", tier: 3, note: "高弹性观察" }
+      - { code: "300648", name: "星云股份", tier: 3, note: "检测设备高弹性观察" }
