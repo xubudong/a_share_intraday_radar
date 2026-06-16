@@ -12,7 +12,12 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from .config import ROOT_DIR, StockConfig, load_stock_pool, star_store
-from .eastmoney import fetch_daily_klines, fetch_intraday_trends, fetch_realtime_quotes
+from .eastmoney import (
+    fetch_daily_klines,
+    fetch_intraday_trends,
+    fetch_market_indices,
+    fetch_realtime_quotes,
+)
 from .indicators import compute_indicators
 from .signals import evaluate_signal
 
@@ -47,6 +52,7 @@ class RadarService:
         self.intraday: dict[str, list[float]] = {}
         self.intraday_loaded_at: dict[str, float] = {}
         self.intraday_attempted_at: dict[str, float] = {}
+        self.market_indices: list[dict[str, Any]] = []
         self.history_loaded_at: dict[str, float] = {}
         self.stocks: list[dict[str, Any]] = []
         self.errors: list[dict[str, Any]] = []
@@ -113,6 +119,7 @@ class RadarService:
             self.intraday = data.get("intraday", {})
             self.intraday_loaded_at = data.get("intraday_loaded_at", {})
             self.intraday_attempted_at = data.get("intraday_attempted_at", {})
+            self.market_indices = data.get("market_indices", [])
             self.history_loaded_at = data.get("history_loaded_at", {})
             self.last_success_at = data.get("last_success_at")
             self.stocks = self.build_stocks()
@@ -127,6 +134,7 @@ class RadarService:
             "intraday": self.intraday,
             "intraday_loaded_at": self.intraday_loaded_at,
             "intraday_attempted_at": self.intraday_attempted_at,
+            "market_indices": self.market_indices,
             "history_loaded_at": self.history_loaded_at,
             "last_success_at": self.last_success_at,
         }
@@ -170,6 +178,8 @@ class RadarService:
                     )
             except Exception as exc:
                 self.errors.append({"scope": "realtime", "message": str(exc), "time": now_iso()})
+
+            self._refresh_market_indices()
 
             stale_stocks = [
                 stock
@@ -337,6 +347,7 @@ class RadarService:
                 }
                 for name, value in group_stats.items()
             },
+            "market_indices": getattr(self, "market_indices", []),
             "radar": radar,
         }
 
@@ -396,6 +407,25 @@ class RadarService:
                         self.intraday_loaded_at[code] = time.time()
                 except Exception:
                     pass  # Non-fatal: sparkline simply won't render
+
+    def _refresh_market_indices(self) -> None:
+        try:
+            indices = fetch_market_indices()
+        except Exception as exc:
+            self.errors.append(
+                {"scope": "market_index", "message": str(exc), "time": now_iso()}
+            )
+            return
+
+        if not indices:
+            return
+        self.market_indices = [
+            {
+                **index,
+                "intraday": sample_sparkline(index.get("intraday") or [], SPARKLINE_POINTS),
+            }
+            for index in indices
+        ]
 
 
     # ── Snapshots ──
@@ -464,6 +494,7 @@ class RadarService:
             "kline_count": len(self.klines),
             "indicator_count": has_indicators,
             "intraday_count": has_intraday,
+            "market_index_count": len(getattr(self, "market_indices", [])),
             "last_refresh_at": self.last_refresh_at,
             "last_success_at": self.last_success_at,
             "cache_path": str(CACHE_PATH),

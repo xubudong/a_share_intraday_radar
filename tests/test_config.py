@@ -197,6 +197,36 @@ def test_dashboard_reports_average_pct_by_tier():
     assert summary["avg_pct_t3"] is None
 
 
+def test_dashboard_includes_market_indices():
+    from app.service import RadarService
+
+    service = RadarService.__new__(RadarService)
+    service._refresh_state_lock = threading.RLock()
+    service._refreshing = False
+    service._pending_force_history = False
+    service.pool = []
+    service.stocks = []
+    service.errors = []
+    service.market_indices = [
+        {
+            "code": "000001",
+            "name": "上证指数",
+            "price": 4098.85,
+            "pct_chg": 0.06,
+            "change": 2.38,
+            "intraday": [4094.21, 4099.22, 4098.85],
+        }
+    ]
+    service.last_refresh_at = None
+    service.last_success_at = None
+    service.last_refresh_mode = "none"
+
+    dashboard = service.dashboard()
+
+    assert dashboard["market_indices"][0]["name"] == "上证指数"
+    assert dashboard["market_indices"][0]["intraday"] == [4094.21, 4099.22, 4098.85]
+
+
 def test_background_refresh_coalesces_duplicate_requests():
     from app.service import RadarService
 

@@ -158,6 +158,60 @@ main {
   grid-column: span 1;
 }
 
+.market-index-card {
+  grid-column: span 6;
+  padding: 11px 14px;
+}
+
+.market-index-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.market-index-item {
+  display: grid;
+  grid-template-columns: minmax(86px, 0.75fr) minmax(110px, 1fr);
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.market-index-name {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.market-index-point {
+  margin-top: 2px;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.market-index-change {
+  display: flex;
+  gap: 7px;
+  margin-top: 1px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.market-index-chart {
+  min-width: 0;
+}
+
+.market-sparkline {
+  display: block;
+  width: 100%;
+  height: 42px;
+}
+
+.market-index-empty {
+  padding-top: 14px;
+}
+
 .up-down-bar {
   display: flex;
   align-items: center;
@@ -1043,6 +1097,14 @@ td:nth-child(13) {
 
   .summary-grid,
   .radar-list {
+    grid-template-columns: 1fr;
+  }
+
+  .market-index-card {
+    grid-column: auto;
+  }
+
+  .market-index-list {
     grid-template-columns: 1fr;
   }
 

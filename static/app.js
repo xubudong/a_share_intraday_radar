@@ -208,6 +208,27 @@ function renderSummary() {
   const fmtPct = (v) => v === null || v === undefined
     ? "--"
     : (v >= 0 ? "+" : "") + v.toFixed(2) + "%";
+  const marketIndices = (state.dashboard && state.dashboard.market_indices) || [];
+  const marketIndexHtml = marketIndices.length
+    ? marketIndices.map((index) => {
+      const pct = index.pct_chg;
+      const change = index.change;
+      const cls = pctClass(pct);
+      return `
+        <div class="market-index-item">
+          <div>
+            <div class="market-index-name">${escapeHtml(index.name || index.code)}</div>
+            <div class="market-index-point">${formatPrice(index.price)}</div>
+            <div class="market-index-change ${cls}">
+              ${change === null || change === undefined ? "--" : (change >= 0 ? "+" : "") + Number(change).toFixed(2)}
+              <span>${fmtPct(pct)}</span>
+            </div>
+          </div>
+          <div class="market-index-chart">${marketIndexSparklineSVG(index.intraday, pct)}</div>
+        </div>
+      `;
+    }).join("")
+    : '<div class="muted market-index-empty">等待大盘数据...</div>';
   document.getElementById("summaryGrid").innerHTML =
     items.map(([label, value]) => `
       <div class="summary-item">
@@ -248,6 +269,10 @@ function renderSummary() {
       <div class="summary-item">
         <div class="summary-label">T3平均涨跌幅</div>
         <div class="summary-value ${pctClass(avgPctT3)}">${fmtPct(avgPctT3)}</div>
+      </div>
+      <div class="summary-item market-index-card">
+        <div class="summary-label">大盘指数</div>
+        <div class="market-index-list">${marketIndexHtml}</div>
       </div>
     `;
 }
@@ -1013,5 +1038,27 @@ function sparklineSVG(prices, pctChg) {
   return `<svg class="sparkline" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">`
     + `<polygon points="${areaPoints}" fill="${fill}" />`
     + `<polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" />`
+    + `</svg>`;
+}
+
+function marketIndexSparklineSVG(prices, pctChg) {
+  if (!prices || prices.length < 2) return '<span class="muted">--</span>';
+  const w = 160, h = 42, padY = 4;
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  const range = max - min || 1;
+  const step = w / (prices.length - 1);
+  const points = prices.map((p, i) => {
+    const x = i * step;
+    const y = padY + (1 - (p - min) / range) * (h - 2 * padY);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const color = pctChg >= 0 ? "var(--red)" : "var(--green)";
+  const fill = pctChg >= 0 ? "rgba(220,38,38,0.07)" : "rgba(21,128,61,0.07)";
+  const areaPoints = points.join(" ")
+    + ` ${w.toFixed(1)},${h.toFixed(1)} 0,${h.toFixed(1)}`;
+  return `<svg class="market-sparkline" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">`
+    + `<polygon points="${areaPoints}" fill="${fill}" />`
+    + `<polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linejoin="round" />`
     + `</svg>`;
 }

@@ -91,6 +91,48 @@ def test_intraday_trends_fall_back_to_tencent(monkeypatch):
     assert eastmoney.fetch_intraday_trends("300408") == [10.0, 10.2, 10.1]
 
 
+def test_market_indices_fall_back_to_tencent(monkeypatch):
+    monkeypatch.setattr(
+        eastmoney,
+        "fetch_eastmoney_market_index_quotes",
+        lambda: (_ for _ in ()).throw(OSError("eastmoney unavailable")),
+    )
+    monkeypatch.setattr(
+        eastmoney,
+        "fetch_tencent_market_index_quotes",
+        lambda indices=None: {
+            "000001": {
+                "code": "000001",
+                "name": "上证指数",
+                "price": 4098.85,
+                "pct_chg": 0.06,
+                "change": 2.38,
+                "source": "tencent_index",
+            }
+        },
+    )
+    monkeypatch.setattr(
+        eastmoney,
+        "fetch_market_index_intraday",
+        lambda index: [4094.21, 4099.22, 4098.85],
+    )
+
+    indices = eastmoney.fetch_market_indices()
+
+    assert indices == [
+        {
+            "code": "000001",
+            "symbol": "sh000001",
+            "name": "上证指数",
+            "price": 4098.85,
+            "pct_chg": 0.06,
+            "change": 2.38,
+            "source": "tencent_index",
+            "intraday": [4094.21, 4099.22, 4098.85],
+        }
+    ]
+
+
 def test_parse_sina_intraday_uses_latest_trading_date(monkeypatch):
     payload = (
         b'{"result":{"data":['
