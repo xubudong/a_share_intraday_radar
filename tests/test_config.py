@@ -67,6 +67,7 @@ def test_requested_sector_groups_and_tiers_are_present():
         "新能源-锂电回收/前驱体",
         "新能源-锂电新技术-固态/半固态",
         "机器人核心",
+        "液冷核心",
     }
     assert expected_groups <= groups
 
@@ -107,6 +108,21 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert stocks_by_code["688017"].group == "机器人核心"
     assert stocks_by_code["688017"].tier == 1
     assert stocks_by_code["688322"].tier == 2
+    assert {
+        "002837",
+        "301018",
+        "872808",
+        "300499",
+        "300602",
+        "300547",
+        "300684",
+        "300990",
+        "603912",
+        "301202",
+    } <= set(stocks_by_code)
+    assert stocks_by_code["002837"].group == "液冷核心"
+    assert stocks_by_code["872808"].tier == 1
+    assert stocks_by_code["301202"].tier == 2
 
 
 def test_duplicate_stock_keeps_highest_priority_tier():
