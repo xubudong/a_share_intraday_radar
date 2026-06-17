@@ -34,6 +34,7 @@ groups:
       - { code: "600522", name: "中天科技", tier: 2 }
       - { code: "600498", name: "烽火通信", tier: 2 }
       - { code: "002491", name: "通鼎互联", tier: 3 }
+      - { code: "600105", name: "永鼎股份", tier: 3, note: "光纤光缆与通信线缆高弹性观察" }
 
   - name: 工业气体
     stocks:

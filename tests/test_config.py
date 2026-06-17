@@ -30,6 +30,8 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert stocks_by_code["300476"].group == "PCB"
     assert stocks_by_code["300476"].tier == 1
     assert "002962" not in stocks_by_code
+    assert stocks_by_code["600105"].group == "光纤"
+    assert stocks_by_code["600105"].tier == 3
 
     expected_groups = {
         "化工-磷化工",
