@@ -14,13 +14,19 @@ const state = {
 
 const actionableSignals = new Set(["可试仓", "二次确认", "突破观察"]);
 const groupFamilies = [
-  { prefix: "化工-", label: "化工" },
-  { prefix: "有色-", label: "有色" },
-  { prefix: "新能源-", label: "新能源" },
-  { prefix: "半导体芯片-", label: "芯片" },
-  { prefix: "光模块-", label: "光模块" },
-  { prefix: "半导体材料-", label: "半导体材料" },
-  { prefix: "电网设备-", label: "电网设备" },
+  {
+    label: "电子元件",
+    groups: ["MLCC（被动元件）", "PCB", "覆铜板", "玻璃基板", "玻璃玻纤 / 电子布"],
+  },
+  { label: "化工", prefixes: ["化工-"], groups: ["工业气体"] },
+  { label: "有色", prefixes: ["有色-"] },
+  { label: "新能源", prefixes: ["新能源-"], groups: ["铜箔"] },
+  { label: "芯片", prefixes: ["半导体芯片-"], groups: ["存储芯片", "先进封装"] },
+  { label: "光通信", prefixes: ["光模块-"], groups: ["光纤"] },
+  { label: "半导体材料", prefixes: ["半导体材料-"] },
+  { label: "电网设备", prefixes: ["电网设备-"] },
+  { label: "机器人", groups: ["机器人核心"] },
+  { label: "算力基础设施", groups: ["液冷核心"] },
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -317,9 +323,8 @@ function renderGroups() {
   const allGroups = Array.from(new Set(
     state.stocks.flatMap((stock) => stock.groups?.length ? stock.groups : [stock.group])
   ));
-  const focusPrefixes = groupFamilies.map((family) => family.prefix);
   const otherGroups = allGroups
-    .filter((group) => !focusPrefixes.some((prefix) => group.startsWith(prefix)))
+    .filter((group) => !groupFamilies.some((family) => groupMatchesFamily(group, family)))
     .sort();
   const selections = ["全部", ...groupFamilies.map((family) => family.label), ...allGroups];
   if (!selections.includes(state.group)) state.group = "全部";
@@ -340,12 +345,12 @@ function renderGroups() {
   let html = groupButton("全部");
   for (const family of groupFamilies) {
     const familyGroups = allGroups
-      .filter((group) => group.startsWith(family.prefix))
-      .sort();
+      .filter((group) => groupMatchesFamily(group, family))
+      .sort((a, b) => groupDisplayForFamily(a, family).localeCompare(groupDisplayForFamily(b, family), "zh-CN"));
     if (!familyGroups.length) continue;
     html += `<div class="group-cluster"><button class="group-family-btn ${family.label === state.group ? "active" : ""}" data-family="${family.label}">${family.label}</button>`;
     html += familyGroups
-      .map((group) => groupButton(group, group.slice(family.prefix.length)))
+      .map((group) => groupButton(group, groupDisplayForFamily(group, family)))
       .join("");
     html += "</div>";
   }
@@ -366,6 +371,18 @@ function renderGroups() {
       selectSector(btn.dataset.family);
     });
   });
+}
+
+function groupMatchesFamily(group, family) {
+  const prefixes = family.prefixes || (family.prefix ? [family.prefix] : []);
+  return prefixes.some((prefix) => group.startsWith(prefix)) || (family.groups || []).includes(group);
+}
+
+function groupDisplayForFamily(group, family) {
+  const prefixes = family.prefixes || (family.prefix ? [family.prefix] : []);
+  const matchedPrefix = prefixes.find((prefix) => group.startsWith(prefix));
+  if (matchedPrefix) return group.slice(matchedPrefix.length);
+  return group;
 }
 
 function selectSector(scope) {
@@ -501,7 +518,7 @@ function renderTable() {
     const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
     if (state.group !== "全部") {
       const family = groupFamilies.find((item) => item.label === state.group);
-      if (family && !stockGroups.some((group) => group.startsWith(family.prefix))) return false;
+      if (family && !stockGroups.some((group) => groupMatchesFamily(group, family))) return false;
       if (!family && !stockGroups.includes(state.group)) return false;
     }
     const groupStarred = stock.group_star || stockGroups.some((group) => groupStats[group]?.star);
