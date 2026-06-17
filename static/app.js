@@ -20,6 +20,7 @@ const groupFamilies = [
   { prefix: "半导体芯片-", label: "芯片" },
   { prefix: "光模块-", label: "光模块" },
   { prefix: "半导体材料-", label: "半导体材料" },
+  { prefix: "电网设备-", label: "电网设备" },
 ];
 
 document.addEventListener("DOMContentLoaded", () => {

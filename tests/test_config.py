@@ -68,6 +68,10 @@ def test_requested_sector_groups_and_tiers_are_present():
         "新能源-锂电新技术-固态/半固态",
         "机器人核心",
         "液冷核心",
+        "电网设备-二次设备/数字电网",
+        "电网设备-特高压/一次设备",
+        "电网设备-变压器/配电",
+        "电网设备-智能电表/用电侧",
     }
     assert expected_groups <= groups
 
@@ -123,6 +127,31 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert stocks_by_code["002837"].group == "液冷核心"
     assert stocks_by_code["872808"].tier == 1
     assert stocks_by_code["301202"].tier == 2
+    assert {
+        "600406",
+        "000400",
+        "002028",
+        "600312",
+        "601179",
+        "601126",
+        "600089",
+        "688676",
+        "603556",
+        "300360",
+    } <= set(stocks_by_code)
+    assert stocks_by_code["600406"].group == "电网设备-二次设备/数字电网"
+    assert stocks_by_code["600312"].group == "电网设备-特高压/一次设备"
+    assert stocks_by_code["688676"].group == "电网设备-变压器/配电"
+    assert stocks_by_code["603556"].group == "电网设备-智能电表/用电侧"
+    assert {
+        "电网设备-二次设备/数字电网",
+        "电网设备-特高压/一次设备",
+    } <= set(stocks_by_code["000400"].groups)
+    assert {
+        "电网设备-特高压/一次设备",
+        "电网设备-变压器/配电",
+    } <= set(stocks_by_code["002028"].groups)
+    assert stocks_by_code["600089"].tier == 1
 
 
 def test_duplicate_stock_keeps_highest_priority_tier():
