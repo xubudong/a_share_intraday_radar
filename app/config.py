@@ -25,12 +25,13 @@ class StockConfig:
 
 
 class StarStore:
-    """User-managed star state, persisted to star_state.json."""
+    """User-managed star, group and holding state."""
 
     def __init__(self, path: Path = STAR_STATE_PATH) -> None:
         self._path = path
         self._stars: set[str] = set()
         self._groups: set[str] = set()
+        self._holdings: set[str] = set()
         self._load()
 
     def _load(self) -> None:
@@ -39,22 +40,11 @@ class StarStore:
                 data = json.loads(self._path.read_text(encoding="utf-8"))
                 self._stars = set(data.get("stars", []))
                 self._groups = set(data.get("groups", []))
+                self._holdings = set(data.get("holdings", []))
                 return
             except Exception:
                 pass
-        # First run: migrate stars from YAML
-        self._migrate_from_yaml()
         self._save()
-
-    def _migrate_from_yaml(self) -> None:
-        try:
-            raw = yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8"))
-            for group in raw.get("groups", []):
-                for item in group.get("stocks", []):
-                    if item.get("star"):
-                        self._stars.add(str(item["code"]).zfill(6))
-        except Exception:
-            pass
 
     def _save(self) -> None:
         self._path.parent.mkdir(parents=True, exist_ok=True)
@@ -63,6 +53,7 @@ class StarStore:
                 {
                     "stars": sorted(self._stars),
                     "groups": sorted(self._groups),
+                    "holdings": sorted(self._holdings),
                 },
                 ensure_ascii=False,
                 indent=2,
@@ -94,6 +85,18 @@ class StarStore:
         self._save()
         return group in self._groups
 
+    def is_holding(self, code: str) -> bool:
+        return code in self._holdings
+
+    def toggle_holding(self, code: str) -> bool:
+        """Toggle holding state for a code."""
+        if code in self._holdings:
+            self._holdings.discard(code)
+        else:
+            self._holdings.add(code)
+        self._save()
+        return code in self._holdings
+
     @property
     def count(self) -> int:
         return len(self._stars)
@@ -101,6 +104,10 @@ class StarStore:
     @property
     def group_count(self) -> int:
         return len(self._groups)
+
+    @property
+    def holding_count(self) -> int:
+        return len(self._holdings)
 
 
 star_store = StarStore()

@@ -1,7 +1,7 @@
 import threading
 import time
 
-from app.config import StarStore, load_stock_pool, star_store
+from app.config import CONFIG_PATH, StarStore, load_stock_pool, star_store
 
 
 def test_stock_pool_loads_and_deduplicates_duplicate_codes():
@@ -163,6 +163,10 @@ def test_duplicate_stock_keeps_highest_priority_tier():
     assert xingfa.tier == 1
 
 
+def test_stock_pool_has_no_default_stars():
+    assert "star: true" not in CONFIG_PATH.read_text(encoding="utf-8")
+
+
 def test_star_store_basic():
     """Star store should support is_starred and toggle."""
     # Verify toggle on/off works
@@ -198,6 +202,39 @@ def test_star_store_supports_group_stars(tmp_path):
     assert reloaded.is_group_starred("机器人核心")
     assert reloaded.toggle_group("机器人核心") is False
     assert not reloaded.is_group_starred("机器人核心")
+
+
+def test_star_store_supports_holdings(tmp_path):
+    path = tmp_path / "star_state.json"
+    path.write_text('{"stars": [], "groups": []}', encoding="utf-8")
+    store = StarStore(path)
+
+    assert store.holding_count == 0
+    assert not store.is_holding("600000")
+    assert store.toggle_holding("600000") is True
+    assert store.is_holding("600000")
+    assert store.holding_count == 1
+
+    reloaded = StarStore(path)
+    assert reloaded.is_holding("600000")
+    assert reloaded.toggle_holding("600000") is False
+    assert not reloaded.is_holding("600000")
+
+
+def test_service_toggle_holding_updates_stock(monkeypatch):
+    from app import service as service_module
+    from app.service import RadarService
+
+    class FakeStarStore:
+        def toggle_holding(self, code):
+            return code == "600000"
+
+    monkeypatch.setattr(service_module, "star_store", FakeStarStore())
+    service = RadarService.__new__(RadarService)
+    service.stocks = [{"code": "600000", "holding": False}]
+
+    assert service.toggle_holding("600000") is True
+    assert service.stocks[0]["holding"] is True
 
 
 def test_snapshot_save_and_load():

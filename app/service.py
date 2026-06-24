@@ -233,6 +233,7 @@ class RadarService:
             indicators = compute_indicators(rows)
             price = quote.get("price") or (rows[-1]["close"] if rows else None)
             starred = star_store.is_starred(stock.code)
+            holding = star_store.is_holding(stock.code)
             group_starred = any(star_store.is_group_starred(group) for group in stock.groups)
             item = {
                 "code": stock.code,
@@ -240,6 +241,7 @@ class RadarService:
                 "group": stock.group,
                 "groups": list(stock.groups),
                 "star": starred,
+                "holding": holding,
                 "group_star": group_starred,
                 "watch": stock.watch,
                 "note": stock.note,
@@ -327,6 +329,7 @@ class RadarService:
             "summary": {
                 "total": len(self.pool),
                 "stars": star_store.count,
+                "holdings": getattr(star_store, "holding_count", 0),
                 "group_stars": star_store.group_count,
                 "actionable": sum(signal_counts[s] for s in ["可试仓", "二次确认", "突破观察"]),
                 "overheated": signal_counts["过热不追"],
@@ -381,6 +384,15 @@ class RadarService:
                 stock["group_star"] = new_state or any(
                     star_store.is_group_starred(item) for item in groups
                 )
+        return new_state
+
+    def toggle_holding(self, code: str) -> bool:
+        """Toggle holding state for a stock code."""
+        new_state = star_store.toggle_holding(code)
+        for stock in self.stocks:
+            if stock["code"] == code:
+                stock["holding"] = new_state
+                break
         return new_state
 
     # ── Intraday Trends ──

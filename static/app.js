@@ -49,7 +49,7 @@ function bindEvents() {
     populateNoteEditor();
   });
   document.getElementById("noteDate").addEventListener("change", populateNoteEditor);
-  ["starOnly", "actionableOnly", "overheatOnly"].forEach((id) => {
+  ["starOnly", "holdingOnly", "actionableOnly", "overheatOnly"].forEach((id) => {
     document.getElementById(id).addEventListener("change", renderTable);
   });
   document.getElementById("searchInput").addEventListener("input", renderTable);
@@ -64,6 +64,12 @@ function bindEvents() {
     if (starBtn) {
       event.stopPropagation();
       toggleStar(starBtn.dataset.code, starBtn);
+      return;
+    }
+    const holdingBtn = event.target.closest(".holding-toggle");
+    if (holdingBtn) {
+      event.stopPropagation();
+      toggleHolding(holdingBtn.dataset.code, holdingBtn);
       return;
     }
     const groupStarBtn = event.target.closest(".group-star-toggle");
@@ -303,7 +309,7 @@ function renderRadar() {
   el.innerHTML = radar.map((stock) => `
     <article class="radar-card">
       <div class="radar-title">
-        <span>${stock.star ? '<button class="star-toggle starred" data-code="' + stock.code + '" title="取消星标" aria-label="取消星标">★</button> ' : '<button class="star-toggle" data-code="' + stock.code + '" title="加星标" aria-label="加星标">☆</button> '}${stock.name}</span>
+        <span>${stock.star ? '<button class="star-toggle starred" data-code="' + stock.code + '" title="取消星标" aria-label="取消星标">★</button> ' : '<button class="star-toggle" data-code="' + stock.code + '" title="加星标" aria-label="加星标">☆</button> '}${holdingButton(stock)} ${stock.name}</span>
         ${signalPill(stock.signal.signal)}
       </div>
       <div class="stock-code">${stock.code}${boardBadge(stock.code)} · ${stock.group}</div>
@@ -510,10 +516,10 @@ function setNoteStatus(message, isError = false) {
 
 function renderTable() {
   const starOnly = document.getElementById("starOnly").checked;
+  const holdingOnly = document.getElementById("holdingOnly").checked;
   const actionableOnly = document.getElementById("actionableOnly").checked;
   const overheatOnly = document.getElementById("overheatOnly").checked;
   const query = document.getElementById("searchInput").value.trim();
-  const groupStats = (state.dashboard && state.dashboard.group_stats) || {};
   const rows = state.stocks.filter((stock) => {
     const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
     if (state.group !== "全部") {
@@ -521,8 +527,8 @@ function renderTable() {
       if (family && !stockGroups.some((group) => groupMatchesFamily(group, family))) return false;
       if (!family && !stockGroups.includes(state.group)) return false;
     }
-    const groupStarred = stock.group_star || stockGroups.some((group) => groupStats[group]?.star);
-    if (starOnly && !stock.star && !groupStarred) return false;
+    if (starOnly && !stock.star) return false;
+    if (holdingOnly && !stock.holding) return false;
     if (actionableOnly && !actionableSignals.has(stock.signal.signal)) return false;
     if (overheatOnly && stock.signal.signal !== "过热不追") return false;
     if (query && !`${stock.code}${stock.name}`.includes(query)) return false;
@@ -610,7 +616,7 @@ function stockRow(stock) {
   return `
     <tr class="stock-row" data-code="${stock.code}">
       <td>
-        <div class="stock-name"><button class="star-toggle ${stock.star ? "starred" : ""}" data-code="${stock.code}" title="${stock.star ? "取消星标" : "加星标"}" aria-label="${stock.star ? "取消星标" : "加星标"}">${stock.star ? "★" : "☆"}</button> ${stock.name}</div>
+        <div class="stock-name"><button class="star-toggle ${stock.star ? "starred" : ""}" data-code="${stock.code}" title="${stock.star ? "取消星标" : "加星标"}" aria-label="${stock.star ? "取消星标" : "加星标"}">${stock.star ? "★" : "☆"}</button> ${holdingButton(stock)} ${stock.name}</div>
         <div class="stock-code-line">
           <button class="copy-code ${boardCodeClass(stock.code)}" data-code="${stock.code}" title="复制代码" aria-label="复制 ${stock.code}">${stock.code}</button>
           ${boardBadge(stock.code)}
@@ -979,6 +985,30 @@ async function toggleStar(code, button) {
     render();
   } catch (error) {
     button.title = `星标操作失败：${error.message}`;
+  }
+}
+
+function holdingButton(stock) {
+  return `<button class="holding-toggle ${stock.holding ? "active" : ""}" data-code="${stock.code}" title="${stock.holding ? "取消持仓" : "标记持仓"}" aria-label="${stock.holding ? "取消持仓" : "标记持仓"}">持</button>`;
+}
+
+async function toggleHolding(code, button) {
+  try {
+    const res = await fetch("/api/toggle-holding", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    const data = await res.json();
+    const stock = state.stocks.find((item) => item.code === code);
+    if (stock) stock.holding = data.holding;
+    if (state.dashboard && state.dashboard.summary) {
+      state.dashboard.summary.holdings = state.stocks.filter((item) => item.holding).length;
+    }
+    render();
+  } catch (error) {
+    button.title = `持仓操作失败：${error.message}`;
   }
 }
 
