@@ -419,6 +419,49 @@ def test_dashboard_includes_market_indices():
     assert dashboard["market_indices"][0]["intraday"] == [4094.21, 4099.22, 4098.85]
 
 
+def test_market_index_refresh_keeps_cached_missing_items_and_intraday(monkeypatch):
+    from app.service import RadarService
+    import app.service as service_module
+
+    service = RadarService.__new__(RadarService)
+    service.errors = []
+    service.market_indices = [
+        {
+            "code": "N225",
+            "name": "日经225",
+            "price": 71854.88,
+            "intraday": [70000.0, 70100.0],
+        },
+        {
+            "code": "KS11",
+            "name": "韩国KOSPI",
+            "price": 8908.8,
+            "intraday": [8700.0, 8800.0],
+        },
+    ]
+    monkeypatch.setattr(
+        service_module,
+        "fetch_market_indices",
+        lambda: [
+            {
+                "code": "N225",
+                "name": "日经225",
+                "price": 71900.0,
+                "intraday": [],
+            }
+        ],
+    )
+
+    service._refresh_market_indices()
+    by_code = {index["code"]: index for index in service.market_indices}
+
+    assert by_code["N225"]["price"] == 71900.0
+    assert by_code["N225"]["intraday"] == [70000.0, 70100.0]
+    assert by_code["N225"]["intraday_cached"] is True
+    assert by_code["KS11"]["price"] == 8908.8
+    assert by_code["KS11"]["stale"] is True
+
+
 def test_background_refresh_coalesces_duplicate_requests():
     from app.service import RadarService
 

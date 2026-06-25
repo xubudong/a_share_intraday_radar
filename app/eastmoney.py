@@ -20,6 +20,7 @@ MARKET_INDICES = [
     {"code": "N225", "name": "日经225", "secid": "100.N225"},
     {"code": "KS11", "name": "韩国KOSPI", "secid": "100.KS11"},
     {"code": "NDX", "name": "昨夜纳指", "secid": "100.NDX"},
+    {"code": "NQ00Y", "name": "小纳指主连", "secid": "103.NQ00Y"},
 ]
 
 
@@ -183,8 +184,20 @@ def fetch_eastmoney_market_index_quote_chunk(indices: list[dict[str, str]]) -> d
         "fields": INDEX_QUOTE_FIELDS,
         "secids": ",".join(index["secid"] for index in indices),
     }
-    url = "https://push2.eastmoney.com/api/qt/ulist.np/get?" + urllib.parse.urlencode(params)
-    data = request_json(url, timeout=12)
+    query = urllib.parse.urlencode(params)
+    urls = [
+        "https://push2.eastmoney.com/api/qt/ulist.np/get?" + query,
+        "http://push2.eastmoney.com/api/qt/ulist.np/get?" + query,
+    ]
+    last_error: Exception | None = None
+    for url in urls:
+        try:
+            data = request_json(url, timeout=12)
+            break
+        except Exception as exc:
+            last_error = exc
+    else:
+        raise EastMoneyError(str(last_error))
     rows = data.get("data", {}).get("diff") or []
     quotes: dict[str, dict[str, Any]] = {}
     for row in rows:

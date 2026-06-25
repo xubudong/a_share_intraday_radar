@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 
 from .config import ROOT_DIR, StockConfig, load_stock_pool, star_store
 from .eastmoney import (
+    MARKET_INDICES,
     fetch_daily_klines,
     fetch_intraday_trends,
     fetch_market_indices,
@@ -436,6 +437,11 @@ class RadarService:
                     pass  # Non-fatal: sparkline simply won't render
 
     def _refresh_market_indices(self) -> None:
+        cached_by_code = {
+            str(index.get("code")): index
+            for index in getattr(self, "market_indices", [])
+            if index.get("code")
+        }
         try:
             indices = fetch_market_indices()
         except Exception as exc:
@@ -446,13 +452,37 @@ class RadarService:
 
         if not indices:
             return
-        self.market_indices = [
-            {
-                **index,
-                "intraday": sample_sparkline(index.get("intraday") or [], SPARKLINE_POINTS),
-            }
+        refreshed_by_code = {
+            str(index.get("code")): index
             for index in indices
-        ]
+            if index.get("code")
+        }
+        merged = []
+        for config in MARKET_INDICES:
+            code = config["code"]
+            current = refreshed_by_code.get(code)
+            cached = cached_by_code.get(code)
+            if not current:
+                if cached:
+                    merged.append({**cached, "name": config["name"], "stale": True})
+                continue
+
+            intraday = sample_sparkline(current.get("intraday") or [], SPARKLINE_POINTS)
+            intraday_cached = False
+            if not intraday and cached and cached.get("intraday"):
+                intraday = cached["intraday"]
+                intraday_cached = True
+            merged.append(
+                {
+                    **current,
+                    "code": code,
+                    "name": config["name"],
+                    "intraday": intraday,
+                    "intraday_cached": intraday_cached,
+                    "stale": False,
+                }
+            )
+        self.market_indices = merged
 
 
     # ── Snapshots ──

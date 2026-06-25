@@ -5,17 +5,19 @@ def test_market_indices_focus_on_sci_tech_and_external_markets():
     codes = [index["code"] for index in eastmoney.MARKET_INDICES]
     names = [index["name"] for index in eastmoney.MARKET_INDICES]
 
-    assert codes == ["000001", "000688", "399006", "N225", "KS11", "NDX"]
+    assert codes == ["000001", "000688", "399006", "N225", "KS11", "NDX", "NQ00Y"]
     assert "科创50" in names
     assert "日经225" in names
     assert "韩国KOSPI" in names
     assert "昨夜纳指" in names
+    assert "小纳指主连" in names
     assert "深证成指" not in names
 
 
 def test_market_index_code_keeps_external_symbols():
     assert eastmoney.normalize_market_index_code("1") == "000001"
     assert eastmoney.normalize_market_index_code("N225") == "N225"
+    assert eastmoney.normalize_market_index_code("NQ00Y") == "NQ00Y"
 
 
 def test_eastmoney_market_index_quote_chunk_keeps_alpha_codes(monkeypatch):
