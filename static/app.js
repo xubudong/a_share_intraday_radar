@@ -10,6 +10,7 @@ const state = {
   noteScope: "全部",
   sectorNotes: [],
   stockNotes: {},
+  radarCollapsed: true,
 };
 
 const actionableSignals = new Set(["可试仓", "二次确认", "突破观察"]);
@@ -43,6 +44,7 @@ function bindEvents() {
   document.getElementById("snapshotOverlay").addEventListener("click", (e) => {
     if (e.target === e.currentTarget) closeSnapshotPanel();
   });
+  document.getElementById("radarToggle").addEventListener("click", toggleRadarPanel);
   document.getElementById("noteSaveBtn").addEventListener("click", saveSectorNote);
   document.getElementById("noteTodayBtn").addEventListener("click", () => {
     document.getElementById("noteDate").value = localToday();
@@ -261,6 +263,9 @@ function renderSummary() {
       `;
     }).join("")
     : '<div class="muted market-index-empty">等待大盘数据...</div>';
+  document.getElementById("marketIndexPanel").innerHTML = `
+    <div class="market-index-list">${marketIndexHtml}</div>
+  `;
   document.getElementById("summaryGrid").innerHTML =
     items.map(([label, value]) => `
       <div class="summary-item">
@@ -302,15 +307,13 @@ function renderSummary() {
         <div class="summary-label">T3平均涨跌幅</div>
         <div class="summary-value ${pctClass(avgPctT3)}">${fmtPct(avgPctT3)}</div>
       </div>
-      <div class="summary-item market-index-card">
-        <div class="market-index-list">${marketIndexHtml}</div>
-      </div>
     `;
 }
 
 function renderRadar() {
   const radar = (state.dashboard && state.dashboard.radar) || [];
   document.getElementById("radarCount").textContent = `${radar.length} 只`;
+  renderRadarPanelState();
   const el = document.getElementById("radarList");
   if (!radar.length) {
     el.innerHTML = `<div class="empty">当前没有进入买点雷达的标的。</div>`;
@@ -332,6 +335,19 @@ function renderRadar() {
       <div class="radar-action">${stock.signal.action}</div>
     </article>
   `).join("");
+}
+
+function toggleRadarPanel() {
+  state.radarCollapsed = !state.radarCollapsed;
+  renderRadarPanelState();
+}
+
+function renderRadarPanelState() {
+  const panel = document.getElementById("radarPanel");
+  const button = document.getElementById("radarToggle");
+  panel.classList.toggle("collapsed", state.radarCollapsed);
+  button.textContent = state.radarCollapsed ? "展开" : "收起";
+  button.setAttribute("aria-expanded", String(!state.radarCollapsed));
 }
 
 function renderGroups() {

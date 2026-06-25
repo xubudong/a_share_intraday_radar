@@ -25,11 +25,15 @@
 
     <main>
       <section class="summary-grid" id="summaryGrid"></section>
+      <section class="market-index-panel" id="marketIndexPanel"></section>
 
-      <section class="panel">
+      <section class="panel radar-panel collapsed" id="radarPanel">
         <div class="panel-head">
-          <h2>今日买点雷达</h2>
-          <span id="radarCount" class="muted"></span>
+          <div class="panel-title-row">
+            <h2>今日买点雷达</h2>
+            <span id="radarCount" class="muted"></span>
+          </div>
+          <button id="radarToggle" class="text-btn compact" type="button" aria-expanded="false">展开</button>
         </div>
         <div id="radarList" class="radar-list"></div>
       </section>
