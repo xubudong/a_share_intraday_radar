@@ -39,7 +39,9 @@ def test_requested_sector_groups_and_tiers_are_present():
         "化工-纯碱氯碱",
         "化工-煤化工",
         "化工-钛白粉",
+        "化工-电子树脂/合成树脂",
         "有色-铜",
+        "有色-铝",
         "有色-贵金属",
         "有色-镍",
         "有色-锂矿",
@@ -48,8 +50,10 @@ def test_requested_sector_groups_and_tiers_are_present():
         "有色-锡锑",
         "有色-钼",
         "有色-稀缺资源",
+        "有色-镓锗铟",
         "有色-稀土资源",
         "有色-稀土永磁",
+        "半导体材料-CMP/抛光材料",
         "半导体芯片-AI芯片",
         "半导体芯片-设计",
         "半导体芯片-晶圆制造",
@@ -99,6 +103,14 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert {"有色-镍", "有色-钴", "新能源-锂电回收/前驱体"} <= set(
         stocks_by_code["603799"].groups
     )
+    assert stocks_by_code["601609"].group == "有色-铜"
+    assert stocks_by_code["601600"].group == "有色-铝"
+    assert {"有色-铝", "有色-镓锗铟"} <= set(stocks_by_code["601600"].groups)
+    assert stocks_by_code["601020"].group == "有色-锡锑"
+    assert stocks_by_code["600961"].group == "有色-镓锗铟"
+    assert stocks_by_code["688019"].group == "半导体材料-CMP/抛光材料"
+    assert stocks_by_code["605589"].group == "化工-电子树脂/合成树脂"
+    assert stocks_by_code["300236"].group == "半导体材料-湿电子"
     assert {
         "300124",
         "002747",

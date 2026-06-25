@@ -109,6 +109,13 @@ groups:
       - { code: "603078", name: "江化微", tier: 2 }
       - { code: "300655", name: "晶瑞电材", note: "兼光刻胶", tier: 2 }
       - { code: "600141", name: "兴发集团", tier: 2 }
+      - { code: "300236", name: "上海新阳", tier: 2, note: "湿电子化学品与电镀液观察" }
+
+  - name: 半导体材料-CMP/抛光材料
+    stocks:
+      - { code: "688019", name: "安集科技", tier: 1, note: "CMP抛光液龙头锚" }
+      - { code: "300054", name: "鼎龙股份", tier: 1, note: "抛光垫与CMP材料核心" }
+      - { code: "300655", name: "晶瑞电材", tier: 2, note: "电子化学品协同观察" }
 
   - name: 先进封装
     stocks:
@@ -152,6 +159,12 @@ groups:
       - { code: "300891", name: "惠云钛业", tier: 2 }
       - { code: "002136", name: "安纳达", tier: 2 }
 
+  - name: 化工-电子树脂/合成树脂
+    stocks:
+      - { code: "605589", name: "圣泉集团", tier: 1, note: "酚醛树脂、电子树脂与铸造材料核心" }
+      - { code: "002643", name: "万润股份", tier: 2, note: "电子材料与特种化学品观察" }
+      - { code: "600183", name: "生益科技", tier: 2, note: "覆铜板树脂材料链观察" }
+
   - name: 有色-铜
     stocks:
       - { code: "601899", name: "紫金矿业", tier: 1, note: "龙头锚" }
@@ -159,6 +172,16 @@ groups:
       - { code: "000630", name: "铜陵有色", tier: 2 }
       - { code: "000878", name: "云南铜业", tier: 2 }
       - { code: "601168", name: "西部矿业", tier: 2 }
+      - { code: "601609", name: "金田股份", tier: 2, note: "铜加工与线缆材料观察" }
+
+  - name: 有色-铝
+    stocks:
+      - { code: "601600", name: "中国铝业", tier: 1, note: "电解铝与氧化铝龙头锚" }
+      - { code: "000807", name: "云铝股份", tier: 1, note: "绿色铝与电解铝核心" }
+      - { code: "000933", name: "神火股份", tier: 2, note: "电解铝与煤电一体化" }
+      - { code: "600219", name: "南山铝业", tier: 2, note: "铝加工与高端制造" }
+      - { code: "002532", name: "天山铝业", tier: 2, note: "电解铝与氧化铝观察" }
+      - { code: "601677", name: "明泰铝业", tier: 2, note: "铝板带箔加工" }
 
   - name: 有色-贵金属
     stocks:
@@ -203,6 +226,7 @@ groups:
       - { code: "600301", name: "华锡有色", tier: 2, note: "锡锑资源" }
       - { code: "000426", name: "兴业银锡", tier: 2, note: "银锡资源" }
       - { code: "002155", name: "湖南黄金", tier: 2, note: "锑金双主线观察" }
+      - { code: "601020", name: "华钰矿业", tier: 2, note: "锑银多金属观察" }
 
   - name: 有色-钼
     stocks:
@@ -215,6 +239,15 @@ groups:
       - { code: "002428", name: "云南锗业", tier: 2, note: "锗资源" }
       - { code: "600497", name: "驰宏锌锗", tier: 2, note: "锌锗资源观察" }
       - { code: "600206", name: "有研新材", tier: 2, note: "稀有材料观察" }
+
+  - name: 有色-镓锗铟
+    stocks:
+      - { code: "002428", name: "云南锗业", tier: 1, note: "锗资源核心" }
+      - { code: "600497", name: "驰宏锌锗", tier: 2, note: "锌锗资源" }
+      - { code: "600961", name: "株冶集团", tier: 2, note: "锌冶炼与铟锗资源观察" }
+      - { code: "601600", name: "中国铝业", tier: 2, note: "氧化铝与副产镓观察" }
+      - { code: "600206", name: "有研新材", tier: 2, note: "稀有金属材料观察" }
+      - { code: "000060", name: "中金岭南", tier: 3, note: "铅锌资源与铟锗观察" }
 
   - name: 有色-稀土资源
     stocks:
