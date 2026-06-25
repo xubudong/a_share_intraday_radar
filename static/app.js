@@ -537,7 +537,7 @@ function renderTable() {
 
   const body = document.getElementById("stockBody");
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="14" class="empty">没有符合筛选条件的标的。</td></tr>`;
+    body.innerHTML = `<tr><td colspan="16" class="empty">没有符合筛选条件的标的。</td></tr>`;
     return;
   }
 
@@ -589,6 +589,8 @@ function sortValue(stock, key) {
     signal: signal.rank_score,
     price: stock.price,
     pct_chg: quote.pct_chg,
+    return_5d: ind.return_5d,
+    return_20d: ind.return_20d,
     amount: quote.amount,
     main_net_inflow: quote.main_net_inflow,
     rsi14: ind.rsi14,
@@ -629,6 +631,8 @@ function stockRow(stock) {
       <td>${tierBadge(stock.tier)}</td>
       <td>${formatPrice(stock.price)}</td>
       <td class="${numClass(pctChg)}">${formatPct(pctChg)}</td>
+      <td class="${numClass(stock.indicators?.return_5d)}">${formatPct(stock.indicators?.return_5d)}</td>
+      <td class="${numClass(stock.indicators?.return_20d)}">${formatPct(stock.indicators?.return_20d)}</td>
       <td>${sparklineSVG(stock.intraday, pctChg)}</td>
       <td>${formatMoney(stock.quote?.amount)}</td>
       <td class="${numClass(stock.quote?.main_net_inflow)}">${formatMoney(stock.quote?.main_net_inflow)}</td>
@@ -670,7 +674,7 @@ function detailRow(stock) {
   const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
   return `
     <tr class="detail-row">
-      <td colspan="14">
+      <td colspan="16">
         <div class="detail">
           <section>
             <h3>触发原因</h3>

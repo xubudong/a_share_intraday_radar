@@ -607,11 +607,12 @@ main {
 }
 
 .table-wrap {
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 table {
   width: 100%;
+  min-width: 1680px;
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -689,43 +690,51 @@ td:nth-child(5) {
   width: 82px;
 }
 
-/* 走势 (sparkline) column — 6th */
+/* 5日、20日涨幅 — 6th & 7th */
 th:nth-child(6),
-td:nth-child(6) {
+td:nth-child(6),
+th:nth-child(7),
+td:nth-child(7) {
+  width: 86px;
+}
+
+/* 走势 (sparkline) column — 8th */
+th:nth-child(8),
+td:nth-child(8) {
   width: 110px;
 }
 
-/* 成交额, 主力净流入 — 7th & 8th */
-th:nth-child(7),
-td:nth-child(7),
-th:nth-child(8),
-td:nth-child(8) {
+/* 成交额, 主力净流入 — 9th & 10th */
+th:nth-child(9),
+td:nth-child(9),
+th:nth-child(10),
+td:nth-child(10) {
   width: 105px;
 }
 
-/* MA位置 — 9th */
-th:nth-child(9),
-td:nth-child(9) {
+/* MA位置 — 11th */
+th:nth-child(11),
+td:nth-child(11) {
   width: 150px;
 }
 
-/* RSI, 量比 — 10th & 11th */
-th:nth-child(10),
-td:nth-child(10),
-th:nth-child(11),
-td:nth-child(11) {
+/* RSI, 量比 — 12th & 13th */
+th:nth-child(12),
+td:nth-child(12),
+th:nth-child(13),
+td:nth-child(13) {
   width: 82px;
 }
 
-/* 信号 — 12th */
-th:nth-child(12),
-td:nth-child(12) {
+/* 信号 — 14th */
+th:nth-child(14),
+td:nth-child(14) {
   width: 102px;
 }
 
-/* 信号说明 — 13th */
-th:nth-child(13),
-td:nth-child(13) {
+/* 信号说明 — 15th */
+th:nth-child(15),
+td:nth-child(15) {
   width: 360px;
   min-width: 280px;
 }

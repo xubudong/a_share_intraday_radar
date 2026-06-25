@@ -81,6 +81,8 @@ def compute_indicators(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "dev_ma10": round_or_none(pct(close, ma10)),
         "dev_ma20": round_or_none(pct(close, ma20)),
         "dev_ma60": round_or_none(pct(close, ma60)),
+        "return_5d": round_or_none(pct(close, closes[-6])) if len(closes) >= 6 else None,
+        "return_20d": round_or_none(pct(close, closes[-21])) if len(closes) >= 21 else None,
         "rsi14": round_or_none(rsi(closes, 14)),
         "volume_ratio": round_or_none(vol5 / vol20 if vol5 and vol20 else None),
         "high20": round_or_none(high20),
