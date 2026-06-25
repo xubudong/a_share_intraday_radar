@@ -15,8 +15,11 @@ KLINE_FIELDS2 = "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61"
 INDEX_QUOTE_FIELDS = "f2,f3,f4,f12,f14,f15,f16,f17,f18"
 MARKET_INDICES = [
     {"code": "000001", "name": "上证指数", "secid": "1.000001", "symbol": "sh000001"},
-    {"code": "399001", "name": "深证成指", "secid": "0.399001", "symbol": "sz399001"},
+    {"code": "000688", "name": "科创50", "secid": "1.000688", "symbol": "sh000688"},
     {"code": "399006", "name": "创业板指", "secid": "0.399006", "symbol": "sz399006"},
+    {"code": "N225", "name": "日经225", "secid": "100.N225"},
+    {"code": "KS11", "name": "韩国KOSPI", "secid": "100.KS11"},
+    {"code": "NDX", "name": "昨夜纳指", "secid": "100.NDX"},
 ]
 
 
@@ -142,8 +145,8 @@ def fetch_market_indices() -> list[dict[str, Any]]:
             {
                 **quote,
                 "code": index["code"],
-                "symbol": index["symbol"],
-                "name": quote.get("name") or index_by_code[index["code"]]["name"],
+                "symbol": index.get("symbol", ""),
+                "name": index_by_code[index["code"]].get("name") or quote.get("name"),
                 "intraday": intraday,
             }
         )
@@ -154,18 +157,38 @@ def fetch_market_indices() -> list[dict[str, Any]]:
 
 
 def fetch_eastmoney_market_index_quotes() -> dict[str, dict[str, Any]]:
+    quotes: dict[str, dict[str, Any]] = {}
+    last_error: Exception | None = None
+    for index_chunk in chunks(MARKET_INDICES, 3):
+        try:
+            quotes.update(fetch_eastmoney_market_index_quote_chunk(index_chunk))
+            continue
+        except Exception as exc:
+            last_error = exc
+        for index in index_chunk:
+            try:
+                quotes.update(fetch_eastmoney_market_index_quote_chunk([index]))
+            except Exception as exc:
+                last_error = exc
+                continue
+    if not quotes:
+        raise EastMoneyError(str(last_error) if last_error else "EastMoney index quote response was empty")
+    return quotes
+
+
+def fetch_eastmoney_market_index_quote_chunk(indices: list[dict[str, str]]) -> dict[str, dict[str, Any]]:
     params = {
         "fltt": "2",
         "invt": "2",
         "fields": INDEX_QUOTE_FIELDS,
-        "secids": ",".join(index["secid"] for index in MARKET_INDICES),
+        "secids": ",".join(index["secid"] for index in indices),
     }
     url = "https://push2.eastmoney.com/api/qt/ulist.np/get?" + urllib.parse.urlencode(params)
     data = request_json(url, timeout=12)
     rows = data.get("data", {}).get("diff") or []
     quotes: dict[str, dict[str, Any]] = {}
     for row in rows:
-        code = str(row.get("f12") or "").zfill(6)
+        code = normalize_market_index_code(row.get("f12"))
         price = clean_number(row.get("f2"))
         if not code or price is None:
             continue
@@ -182,13 +205,13 @@ def fetch_eastmoney_market_index_quotes() -> dict[str, dict[str, Any]]:
             "source": "eastmoney_index",
             "updated_at": int(time.time()),
         }
-    if not quotes:
-        raise EastMoneyError("EastMoney index quote response was empty")
     return quotes
 
 
 def fetch_tencent_market_index_quotes(indices: list[dict[str, str]] | None = None) -> dict[str, dict[str, Any]]:
-    selected = indices or MARKET_INDICES
+    selected = [index for index in (indices or MARKET_INDICES) if index.get("symbol")]
+    if not selected:
+        return {}
     symbols = ",".join(index["symbol"] for index in selected)
     url = "https://qt.gtimg.cn/q=" + urllib.parse.quote(symbols, safe=",")
     req = urllib.request.Request(
@@ -219,7 +242,15 @@ def fetch_market_index_intraday(index: dict[str, str]) -> list[float]:
             return prices
     except Exception:
         pass
-    return fetch_tencent_intraday_trends_by_symbol(index["symbol"])
+    symbol = index.get("symbol")
+    if not symbol:
+        return []
+    return fetch_tencent_intraday_trends_by_symbol(symbol)
+
+
+def normalize_market_index_code(value: Any) -> str:
+    code = str(value or "")
+    return code.zfill(6) if code.isdigit() else code
 
 
 def fetch_tencent_realtime_quotes(codes: list[str]) -> dict[str, dict[str, Any]]:

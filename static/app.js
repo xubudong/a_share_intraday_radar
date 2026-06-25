@@ -229,6 +229,16 @@ function renderSummary() {
   const fmtPct = (v) => v === null || v === undefined
     ? "--"
     : (v >= 0 ? "+" : "") + v.toFixed(2) + "%";
+  const marketAnchorHtml = (index) => {
+    const anchors = [
+      ["昨收", index.prev_close],
+      ["今开", index.open],
+    ].filter(([, value]) => value !== null && value !== undefined);
+    if (!anchors.length) return "";
+    return `<div class="market-index-anchor">${
+      anchors.map(([label, value]) => `<span>${label} ${formatPrice(value)}</span>`).join("")
+    }</div>`;
+  };
   const marketIndices = (state.dashboard && state.dashboard.market_indices) || [];
   const marketIndexHtml = marketIndices.length
     ? marketIndices.map((index) => {
@@ -240,6 +250,7 @@ function renderSummary() {
           <div>
             <div class="market-index-name">${escapeHtml(index.name || index.code)}</div>
             <div class="market-index-point">${formatPrice(index.price)}</div>
+            ${marketAnchorHtml(index)}
             <div class="market-index-change ${cls}">
               ${change === null || change === undefined ? "--" : (change >= 0 ? "+" : "") + Number(change).toFixed(2)}
               <span>${fmtPct(pct)}</span>
@@ -292,7 +303,6 @@ function renderSummary() {
         <div class="summary-value ${pctClass(avgPctT3)}">${fmtPct(avgPctT3)}</div>
       </div>
       <div class="summary-item market-index-card">
-        <div class="summary-label">大盘指数</div>
         <div class="market-index-list">${marketIndexHtml}</div>
       </div>
     `;

@@ -167,7 +167,6 @@ main {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  margin-top: 8px;
 }
 
 .market-index-item {
@@ -188,6 +187,16 @@ main {
   margin-top: 2px;
   font-size: 18px;
   font-weight: 900;
+}
+
+.market-index-anchor {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 1px;
+  margin-top: 1px;
+  color: var(--muted);
+  font-size: 11px;
 }
 
 .market-index-change {
