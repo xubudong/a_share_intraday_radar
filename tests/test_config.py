@@ -78,6 +78,18 @@ def test_requested_sector_groups_and_tiers_are_present():
         "电网设备-特高压/一次设备",
         "电网设备-变压器/配电",
         "电网设备-智能电表/用电侧",
+        "医药-创新药",
+        "医药-中药",
+        "医药-血制品",
+        "医药-疫苗",
+        "医药-原料药",
+        "医药-CXO",
+        "医药-医疗器械",
+        "医药-IVD",
+        "医药-医疗服务",
+        "医药-药店/医药商业",
+        "医药-医美",
+        "医药-生命科学上游",
     }
     assert expected_groups <= groups
 
@@ -166,6 +178,18 @@ def test_requested_sector_groups_and_tiers_are_present():
         "电网设备-变压器/配电",
     } <= set(stocks_by_code["002028"].groups)
     assert stocks_by_code["600089"].tier == 1
+    assert stocks_by_code["600276"].group == "医药-创新药"
+    assert stocks_by_code["600436"].group == "医药-中药"
+    assert stocks_by_code["600161"].group == "医药-血制品"
+    assert {"医药-血制品", "医药-疫苗"} <= set(stocks_by_code["002007"].groups)
+    assert stocks_by_code["000739"].group == "医药-原料药"
+    assert stocks_by_code["603259"].group == "医药-CXO"
+    assert stocks_by_code["300760"].group == "医药-医疗器械"
+    assert stocks_by_code["300244"].group == "医药-IVD"
+    assert stocks_by_code["300015"].group == "医药-医疗服务"
+    assert stocks_by_code["603939"].group == "医药-药店/医药商业"
+    assert stocks_by_code["300896"].group == "医药-医美"
+    assert stocks_by_code["688133"].group == "医药-生命科学上游"
 
 
 def test_duplicate_stock_keeps_highest_priority_tier():

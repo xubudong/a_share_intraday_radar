@@ -468,3 +468,105 @@ groups:
     stocks:
       - { code: "603556", name: "海兴电力", tier: 1, note: "智能电表、AMI与海外用电信息化" }
       - { code: "300360", name: "炬华科技", tier: 2, note: "智能电表、采集终端与配网数字化" }
+
+  - name: 医药-创新药
+    stocks:
+      - { code: "600276", name: "恒瑞医药", tier: 1, note: "创新药龙头锚" }
+      - { code: "688235", name: "百济神州-U", tier: 1, note: "全球化创新药核心" }
+      - { code: "688506", name: "百利天恒", tier: 1, note: "ADC与创新药高弹性核心" }
+      - { code: "002422", name: "科伦药业", tier: 2, note: "输液基本盘与创新药出海观察" }
+      - { code: "688578", name: "艾力斯", tier: 2, note: "肺癌靶向创新药" }
+      - { code: "688331", name: "荣昌生物", tier: 2, note: "ADC与自身免疫创新药观察" }
+
+  - name: 医药-中药
+    stocks:
+      - { code: "600436", name: "片仔癀", tier: 1, note: "品牌中药龙头锚" }
+      - { code: "000538", name: "云南白药", tier: 1, note: "品牌中药与消费医疗核心" }
+      - { code: "600085", name: "同仁堂", tier: 1, note: "老字号品牌中药" }
+      - { code: "000999", name: "华润三九", tier: 1, note: "OTC品牌中药核心" }
+      - { code: "000423", name: "东阿阿胶", tier: 2, note: "滋补消费中药" }
+      - { code: "002603", name: "以岭药业", tier: 2, note: "中药创新药观察" }
+
+  - name: 医药-血制品
+    stocks:
+      - { code: "600161", name: "天坛生物", tier: 1, note: "血制品央企龙头锚" }
+      - { code: "002007", name: "华兰生物", tier: 1, note: "血制品与疫苗双主线" }
+      - { code: "002252", name: "上海莱士", tier: 1, note: "血制品龙头" }
+      - { code: "300294", name: "博雅生物", tier: 2, note: "血制品平台" }
+      - { code: "000403", name: "派林生物", tier: 2, note: "血制品弹性观察" }
+
+  - name: 医药-疫苗
+    stocks:
+      - { code: "300122", name: "智飞生物", tier: 1, note: "疫苗代理与自主产品龙头" }
+      - { code: "300601", name: "康泰生物", tier: 2, note: "人用疫苗平台" }
+      - { code: "300142", name: "沃森生物", tier: 2, note: "肺炎与HPV疫苗观察" }
+      - { code: "688276", name: "百克生物", tier: 2, note: "带状疱疹疫苗核心" }
+      - { code: "002007", name: "华兰生物", tier: 2, note: "流感疫苗与血制品双主线" }
+
+  - name: 医药-原料药
+    stocks:
+      - { code: "000739", name: "普洛药业", tier: 1, note: "特色原料药与CDMO" }
+      - { code: "600521", name: "华海药业", tier: 1, note: "特色原料药与制剂出口" }
+      - { code: "600216", name: "浙江医药", tier: 2, note: "维生素与特色原料药" }
+      - { code: "600267", name: "海正药业", tier: 2, note: "原料药与制剂平台" }
+      - { code: "002332", name: "仙琚制药", tier: 2, note: "甾体激素原料药与制剂" }
+
+  - name: 医药-CXO
+    stocks:
+      - { code: "603259", name: "药明康德", tier: 1, note: "CRO/CDMO平台龙头锚" }
+      - { code: "300759", name: "康龙化成", tier: 1, note: "药物发现与临床前CRO核心" }
+      - { code: "300347", name: "泰格医药", tier: 1, note: "临床CRO龙头锚" }
+      - { code: "002821", name: "凯莱英", tier: 2, note: "小分子CDMO核心" }
+      - { code: "603127", name: "昭衍新药", tier: 2, note: "临床前安评CRO" }
+      - { code: "300363", name: "博腾股份", tier: 2, note: "CDMO弹性观察" }
+
+  - name: 医药-医疗器械
+    stocks:
+      - { code: "300760", name: "迈瑞医疗", tier: 1, note: "医疗器械龙头锚" }
+      - { code: "688271", name: "联影医疗", tier: 1, note: "医学影像设备核心" }
+      - { code: "688617", name: "惠泰医疗", tier: 1, note: "电生理与血管介入核心" }
+      - { code: "300003", name: "乐普医疗", tier: 2, note: "心血管器械与创新器械" }
+      - { code: "688029", name: "南微医学", tier: 2, note: "内镜诊疗器械" }
+      - { code: "300529", name: "健帆生物", tier: 2, note: "血液灌流器械核心" }
+
+  - name: 医药-IVD
+    stocks:
+      - { code: "300244", name: "迪安诊断", tier: 1, note: "第三方检验与IVD服务" }
+      - { code: "603882", name: "金域医学", tier: 1, note: "第三方医学检验龙头" }
+      - { code: "300482", name: "万孚生物", tier: 2, note: "POCT检测" }
+      - { code: "300685", name: "艾德生物", tier: 2, note: "肿瘤伴随诊断" }
+      - { code: "688575", name: "亚辉龙", tier: 2, note: "化学发光IVD观察" }
+
+  - name: 医药-医疗服务
+    stocks:
+      - { code: "300015", name: "爱尔眼科", tier: 1, note: "眼科医疗服务龙头锚" }
+      - { code: "600763", name: "通策医疗", tier: 1, note: "口腔医疗服务核心" }
+      - { code: "301267", name: "华厦眼科", tier: 2, note: "眼科连锁医疗服务" }
+      - { code: "301239", name: "普瑞眼科", tier: 2, note: "眼科医疗服务观察" }
+      - { code: "000516", name: "国际医学", tier: 2, note: "综合医疗服务观察" }
+
+  - name: 医药-药店/医药商业
+    stocks:
+      - { code: "603939", name: "益丰药房", tier: 1, note: "连锁药房龙头锚" }
+      - { code: "603883", name: "老百姓", tier: 1, note: "连锁药房核心" }
+      - { code: "603233", name: "大参林", tier: 1, note: "华南连锁药房龙头" }
+      - { code: "002727", name: "一心堂", tier: 2, note: "西南连锁药房" }
+      - { code: "601607", name: "上海医药", tier: 2, note: "医药商业与创新药平台" }
+      - { code: "000028", name: "国药一致", tier: 2, note: "医药分销与零售" }
+
+  - name: 医药-医美
+    stocks:
+      - { code: "300896", name: "爱美客", tier: 1, note: "注射医美龙头锚" }
+      - { code: "688363", name: "华熙生物", tier: 1, note: "玻尿酸与合成生物核心" }
+      - { code: "000963", name: "华东医药", tier: 1, note: "医美产品与制药双主线" }
+      - { code: "300957", name: "贝泰妮", tier: 2, note: "功效护肤与皮肤健康" }
+      - { code: "600223", name: "福瑞达", tier: 2, note: "玻尿酸与医美消费观察" }
+
+  - name: 医药-生命科学上游
+    stocks:
+      - { code: "688133", name: "泰坦科技", tier: 1, note: "科研试剂与实验室耗材" }
+      - { code: "688179", name: "阿拉丁", tier: 2, note: "科研试剂平台" }
+      - { code: "688105", name: "诺唯赞", tier: 2, note: "分子试剂与生命科学工具" }
+      - { code: "688315", name: "诺禾致源", tier: 2, note: "基因测序服务" }
+      - { code: "688265", name: "南模生物", tier: 2, note: "实验动物模型" }
+      - { code: "300725", name: "药石科技", tier: 2, note: "分子砌块与药物发现上游" }
