@@ -386,8 +386,8 @@ function renderGroups() {
     const avgTag = avg === null || avg === undefined
       ? '<span class="group-pct muted">--</span>'
       : `<span class="group-pct ${avg > 0 ? 'pos' : avg < 0 ? 'neg' : 'muted'}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}%</span>`;
-    const flatText = stats.flat ? `<span class="muted">/${stats.flat}平</span>` : "";
-    return `${avgTag}<span class="family-breadth"><span class="pos">${stats.up}涨</span>/<span class="neg">${stats.down}跌</span>${flatText}</span>`;
+    const flatText = stats.flat ? `/${stats.flat}平` : "";
+    return `${avgTag}<span class="family-breadth">${stats.up}涨/${stats.down}跌${flatText}</span>`;
   };
 
   let html = groupButton("全部");

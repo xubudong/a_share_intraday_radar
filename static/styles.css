@@ -476,8 +476,9 @@ main {
 
 .family-breadth {
   margin-left: 4px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
+  color: var(--muted);
   white-space: nowrap;
 }
 
