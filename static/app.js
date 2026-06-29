@@ -352,10 +352,15 @@ function renderRadarPanelState() {
 }
 
 function renderGroups() {
-  const groupStats = (state.dashboard && state.dashboard.group_stats) || {};
+  const savedGroupStats = (state.dashboard && state.dashboard.group_stats) || {};
+  const computedGroupStats = computeGroupStatsFromStocks();
+  const groupStats = { ...computedGroupStats, ...savedGroupStats };
   const allGroups = Array.from(new Set(
     state.stocks.flatMap((stock) => stock.groups?.length ? stock.groups : [stock.group])
   ));
+  const familyStats = Object.fromEntries(
+    groupFamilies.map((family) => [family.label, computeFamilyStats(family)])
+  );
   const otherGroups = allGroups
     .filter((group) => !groupFamilies.some((family) => groupMatchesFamily(group, family)))
     .sort();
@@ -375,13 +380,25 @@ function renderGroups() {
     return `<button class="${group === state.group ? "active" : ""}" data-group="${escapeHtml(group)}" title="${escapeHtml(group)}">${escapeHtml(display)}${avgTag}${starTag}</button>`;
   };
 
+  const familyStatsTag = (stats) => {
+    if (!stats || !stats.total) return '<span class="family-stats muted">--</span>';
+    const avg = stats.avg_pct;
+    const avgTag = avg === null || avg === undefined
+      ? '<span class="group-pct muted">--</span>'
+      : `<span class="group-pct ${avg > 0 ? 'pos' : avg < 0 ? 'neg' : 'muted'}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}%</span>`;
+    const flatText = stats.flat ? `<span class="muted">/${stats.flat}平</span>` : "";
+    return `${avgTag}<span class="family-breadth"><span class="pos">${stats.up}涨</span>/<span class="neg">${stats.down}跌</span>${flatText}</span>`;
+  };
+
   let html = groupButton("全部");
   for (const family of groupFamilies) {
     const familyGroups = allGroups
       .filter((group) => groupMatchesFamily(group, family))
       .sort((a, b) => groupDisplayForFamily(a, family).localeCompare(groupDisplayForFamily(b, family), "zh-CN"));
     if (!familyGroups.length) continue;
-    html += `<div class="group-cluster"><button class="group-family-btn ${family.label === state.group ? "active" : ""}" data-family="${family.label}">${family.label}</button>`;
+    const stats = familyStats[family.label];
+    const familyTitle = `${family.label}：${stats.total}只，${stats.up}涨/${stats.down}跌${stats.flat ? `/${stats.flat}平` : ""}`;
+    html += `<div class="group-cluster"><button class="group-family-btn ${family.label === state.group ? "active" : ""}" data-family="${escapeHtml(family.label)}" title="${escapeHtml(familyTitle)}"><span>${escapeHtml(family.label)}</span>${familyStatsTag(stats)}</button>`;
     html += familyGroups
       .map((group) => groupButton(group, groupDisplayForFamily(group, family)))
       .join("");
@@ -404,6 +421,63 @@ function renderGroups() {
       selectSector(btn.dataset.family);
     });
   });
+}
+
+function computeGroupStatsFromStocks() {
+  const rawStats = {};
+  for (const stock of state.stocks) {
+    const groups = stock.groups?.length ? stock.groups : [stock.group];
+    const pct = stock.quote?.pct_chg;
+    for (const group of groups) {
+      if (!group) continue;
+      if (!rawStats[group]) rawStats[group] = { total: 0, signals: {}, pcts: [] };
+      rawStats[group].total += 1;
+      if (pct !== null && pct !== undefined) rawStats[group].pcts.push(pct);
+    }
+  }
+  return Object.fromEntries(
+    Object.entries(rawStats).map(([group, stats]) => [
+      group,
+      {
+        total: stats.total,
+        signals: stats.signals,
+        avg_pct: stats.pcts.length
+          ? Number((stats.pcts.reduce((sum, pct) => sum + pct, 0) / stats.pcts.length).toFixed(2))
+          : null,
+      },
+    ])
+  );
+}
+
+function computeFamilyStats(family) {
+  const stats = { total: 0, up: 0, down: 0, flat: 0, pcts: [] };
+  for (const stock of state.stocks) {
+    const groups = stock.groups?.length ? stock.groups : [stock.group];
+    if (!groups.some((group) => groupMatchesFamily(group, family))) continue;
+    stats.total += 1;
+    const pct = stock.quote?.pct_chg;
+    if (pct === null || pct === undefined) {
+      stats.flat += 1;
+    } else if (pct > 0) {
+      stats.up += 1;
+      stats.pcts.push(pct);
+    } else if (pct < 0) {
+      stats.down += 1;
+      stats.pcts.push(pct);
+    } else {
+      stats.flat += 1;
+      stats.pcts.push(pct);
+    }
+  }
+  return {
+    total: stats.total,
+    up: stats.up,
+    down: stats.down,
+    flat: stats.flat,
+    avg_pct: stats.pcts.length
+      ? Number((stats.pcts.reduce((sum, pct) => sum + pct, 0) / stats.pcts.length).toFixed(2))
+      : null,
+  };
 }
 
 function groupMatchesFamily(group, family) {
@@ -1153,7 +1227,11 @@ async function loadSnapshotView(snapshotId) {
     const data = await fetchJson(`/api/snapshots/${snapshotId}`);
     state.viewingSnapshot = snapshotId;
     state.stocks = data.stocks || [];
-    state.dashboard = { ...state.dashboard, summary: data.summary || {} };
+    state.dashboard = {
+      ...state.dashboard,
+      summary: data.summary || {},
+      group_stats: data.group_stats || {},
+    };
     render();
     // Update header to show snapshot mode
     document.getElementById("lastUpdated").textContent = `快照：${formatTime(data.created_at)}（历史回放）`;

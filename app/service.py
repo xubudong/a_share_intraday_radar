@@ -491,10 +491,12 @@ class RadarService:
         """Save current stocks payload as a snapshot. Returns snapshot ID (timestamp)."""
         SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
         ts = datetime.now(SH_TZ).strftime("%Y%m%dT%H%M%S")
+        dashboard = self.dashboard()
         payload = {
             "id": ts,
             "created_at": now_iso(),
-            "summary": self.dashboard().get("summary", {}),
+            "summary": dashboard.get("summary", {}),
+            "group_stats": dashboard.get("group_stats", {}),
             "stocks": self.stocks,
         }
         path = SNAPSHOTS_DIR / f"{ts}.json"

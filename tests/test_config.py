@@ -286,6 +286,7 @@ def test_snapshot_save_and_load():
     assert data is not None
     assert data["id"] == sid
     assert "stocks" in data
+    assert "group_stats" in data
     # Non-existent snapshot
     assert radar_service.load_snapshot("nonexistent") is None
 
