@@ -59,9 +59,20 @@ def test_requested_sector_groups_and_tiers_are_present():
         "半导体芯片-晶圆制造",
         "半导体芯片-设备",
         "半导体芯片-功率器件",
+        "半导体芯片-端侧AI/AIoT",
+        "半导体芯片-CIS/视觉感知",
+        "半导体芯片-模拟/RF/PMIC",
+        "半导体芯片-功率/电源管理",
+        "半导体芯片-IP/FPGA/ASIC",
+        "半导体芯片-网络通信",
+        "半导体设备-检测/量测",
+        "半导体设备-零部件/工艺系统",
+        "半导体设备-光刻/涂胶显影配套",
         "光模块-整机",
         "光模块-上游光器件",
         "光模块-CPO硅光",
+        "光模块-二线器件",
+        "光模块-高速连接/网络设备",
         "新能源-锂电设备",
         "新能源-锂电电芯/储能",
         "新能源-锂电材料-正极",
@@ -123,6 +134,23 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert stocks_by_code["688019"].group == "半导体材料-CMP/抛光材料"
     assert stocks_by_code["605589"].group == "化工-电子树脂/合成树脂"
     assert stocks_by_code["300236"].group == "半导体材料-湿电子"
+    assert stocks_by_code["603893"].group == "半导体芯片-端侧AI/AIoT"
+    assert stocks_by_code["603501"].group == "半导体芯片-CIS/视觉感知"
+    assert stocks_by_code["688052"].group == "半导体芯片-模拟/RF/PMIC"
+    assert stocks_by_code["688396"].group == "半导体芯片-功率/电源管理"
+    assert stocks_by_code["688521"].group == "半导体芯片-IP/FPGA/ASIC"
+    assert stocks_by_code["688515"].group == "半导体芯片-网络通信"
+    assert stocks_by_code["688361"].group == "半导体设备-检测/量测"
+    assert stocks_by_code["688409"].group == "半导体设备-零部件/工艺系统"
+    assert stocks_by_code["688037"].group == "半导体设备-光刻/涂胶显影配套"
+    assert stocks_by_code["300548"].group == "光模块-二线器件"
+    assert stocks_by_code["300913"].group == "光模块-高速连接/网络设备"
+    assert {"半导体芯片-端侧AI/AIoT", "半导体芯片-CIS/视觉感知"} <= set(
+        stocks_by_code["300613"].groups
+    )
+    assert {"半导体芯片-模拟/RF/PMIC", "半导体芯片-功率/电源管理"} <= set(
+        stocks_by_code["688508"].groups
+    )
     assert {
         "300124",
         "002747",

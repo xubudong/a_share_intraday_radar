@@ -302,6 +302,72 @@ groups:
       - { code: "300373", name: "扬杰科技", tier: 2, note: "功率器件" }
       - { code: "600460", name: "士兰微", tier: 2, note: "IDM功率器件观察" }
 
+  - name: 半导体芯片-端侧AI/AIoT
+    stocks:
+      - { code: "603893", name: "瑞芯微", tier: 1, note: "端侧AI SoC与AIoT核心" }
+      - { code: "688099", name: "晶晨股份", tier: 1, note: "多媒体SoC与端侧AI观察" }
+      - { code: "300458", name: "全志科技", tier: 2, note: "AIoT与边缘终端SoC" }
+      - { code: "300223", name: "北京君正", tier: 2, note: "嵌入式CPU、存储与AI终端观察" }
+      - { code: "300613", name: "富瀚微", tier: 2, note: "安防视觉SoC与边缘AI观察" }
+      - { code: "688262", name: "国芯科技", tier: 2, note: "国产嵌入式CPU与AIoT观察" }
+
+  - name: 半导体芯片-CIS/视觉感知
+    stocks:
+      - { code: "603501", name: "韦尔股份", tier: 1, note: "CIS龙头锚" }
+      - { code: "688213", name: "思特威", tier: 1, note: "安防、车载与AI视觉CIS核心" }
+      - { code: "688728", name: "格科微", tier: 2, note: "CIS与显示驱动观察" }
+      - { code: "300613", name: "富瀚微", tier: 2, note: "视觉处理SoC协同观察" }
+
+  - name: 半导体芯片-模拟/RF/PMIC
+    stocks:
+      - { code: "688052", name: "纳芯微", tier: 1, note: "模拟与汽车/工业芯片核心" }
+      - { code: "688381", name: "帝奥微", tier: 2, note: "模拟芯片补涨观察" }
+      - { code: "688153", name: "唯捷创芯", tier: 2, note: "射频前端与端侧通信芯片" }
+      - { code: "688508", name: "芯朋微", tier: 2, note: "电源管理芯片" }
+      - { code: "688141", name: "杰华特", tier: 2, note: "PMIC与电源管理观察" }
+      - { code: "688798", name: "艾为电子", tier: 2, note: "模拟与音频/电源芯片观察" }
+
+  - name: 半导体芯片-功率/电源管理
+    stocks:
+      - { code: "688396", name: "华润微", tier: 1, note: "IDM功率半导体平台" }
+      - { code: "688187", name: "时代电气", tier: 1, note: "功率器件与轨交/新能源平台" }
+      - { code: "688261", name: "东微半导", tier: 2, note: "高压功率器件观察" }
+      - { code: "688711", name: "宏微科技", tier: 2, note: "IGBT与功率模块观察" }
+      - { code: "688508", name: "芯朋微", tier: 2, note: "PMIC与电源管理" }
+      - { code: "300623", name: "捷捷微电", tier: 2, note: "功率器件补涨观察" }
+
+  - name: 半导体芯片-IP/FPGA/ASIC
+    stocks:
+      - { code: "688521", name: "芯原股份", tier: 1, note: "芯片IP与定制ASIC核心" }
+      - { code: "688385", name: "复旦微电", tier: 1, note: "FPGA与安全芯片核心" }
+      - { code: "002049", name: "紫光国微", tier: 2, note: "安全芯片与特种IC观察" }
+
+  - name: 半导体芯片-网络通信
+    stocks:
+      - { code: "688515", name: "裕太微", tier: 1, note: "以太网PHY与AI网络观察" }
+      - { code: "688702", name: "盛科通信-U", tier: 1, note: "交换芯片与AI网络基础设施" }
+      - { code: "688220", name: "翱捷科技", tier: 2, note: "蜂窝通信SoC与端侧连接观察" }
+
+  - name: 半导体设备-检测/量测
+    stocks:
+      - { code: "688361", name: "中科飞测", tier: 1, note: "量检测设备高弹性核心" }
+      - { code: "300567", name: "精测电子", tier: 2, note: "半导体检测与面板检测延伸" }
+      - { code: "688200", name: "华峰测控", tier: 2, note: "测试机核心" }
+      - { code: "300604", name: "长川科技", tier: 2, note: "测试设备与分选机观察" }
+
+  - name: 半导体设备-零部件/工艺系统
+    stocks:
+      - { code: "688409", name: "富创精密", tier: 1, note: "半导体设备零部件核心" }
+      - { code: "300260", name: "新莱应材", tier: 2, note: "真空与洁净管路零部件" }
+      - { code: "688596", name: "正帆科技", tier: 2, note: "工艺介质供应系统" }
+      - { code: "603690", name: "至纯科技", tier: 2, note: "高纯工艺系统与清洗设备观察" }
+
+  - name: 半导体设备-光刻/涂胶显影配套
+    stocks:
+      - { code: "688037", name: "芯源微", tier: 1, note: "涂胶显影与清洗设备核心" }
+      - { code: "688630", name: "芯碁微装", tier: 2, note: "直写光刻设备观察" }
+      - { code: "688419", name: "耐科装备", tier: 2, note: "封装与塑封设备观察" }
+
   - name: 光模块-整机
     stocks:
       - { code: "300308", name: "中际旭创", tier: 1, note: "龙头锚" }
@@ -325,6 +391,19 @@ groups:
       - { code: "688498", name: "源杰科技", tier: 2, note: "光芯片" }
       - { code: "300620", name: "光库科技", tier: 2, note: "薄膜铌酸锂与光器件观察" }
       - { code: "688313", name: "仕佳光子", tier: 2, note: "AWG与光芯片观察" }
+
+  - name: 光模块-二线器件
+    stocks:
+      - { code: "300548", name: "博创科技", tier: 2, note: "光器件与硅光封装观察" }
+      - { code: "688205", name: "德科立", tier: 2, note: "光模块与光放大器二线弹性" }
+      - { code: "301183", name: "东田微", tier: 2, note: "光学元件与AI硬件观察" }
+      - { code: "688195", name: "腾景科技", tier: 2, note: "精密光学元件" }
+      - { code: "002902", name: "铭普光磁", tier: 3, note: "光通信与磁性器件弹性观察" }
+
+  - name: 光模块-高速连接/网络设备
+    stocks:
+      - { code: "300913", name: "兆龙互连", tier: 2, note: "高速铜缆与数据中心连接观察" }
+      - { code: "301191", name: "菲菱科思", tier: 2, note: "网络设备与交换机代工观察" }
 
   - name: 新能源-锂电设备
     stocks:

@@ -25,6 +25,7 @@ const groupFamilies = [
   { label: "芯片", prefixes: ["半导体芯片-"], groups: ["存储芯片", "先进封装"] },
   { label: "光通信", prefixes: ["光模块-"], groups: ["光纤"] },
   { label: "半导体材料", prefixes: ["半导体材料-"] },
+  { label: "半导体设备", prefixes: ["半导体设备-"] },
   { label: "电网设备", prefixes: ["电网设备-"] },
   { label: "机器人", groups: ["机器人核心"] },
   { label: "算力基础设施", groups: ["液冷核心"] },
