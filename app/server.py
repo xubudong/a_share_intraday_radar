@@ -12,6 +12,7 @@ from .config import ROOT_DIR
 from .instance import APP_ID, root_fingerprint
 from .notes import sector_note_store, stock_note_scope
 from .service import radar_service
+from .sentiment import sentiment_service
 
 
 @asynccontextmanager
@@ -48,6 +49,11 @@ class StockNoteRequest(BaseModel):
 @app.get("/")
 def index() -> FileResponse:
     return FileResponse(ROOT_DIR / "static" / "index.html")
+
+
+@app.get("/market")
+def market() -> FileResponse:
+    return FileResponse(ROOT_DIR / "static" / "market.html")
 
 
 @app.get("/api/instance")
@@ -180,6 +186,42 @@ def delete_stock_note(code: str, note_date: str) -> dict:
     if not deleted:
         raise HTTPException(status_code=404, detail="Stock note not found")
     return {"code": code, "date": note_date, "deleted": True}
+
+
+@app.get("/api/sentiment")
+def get_sentiment(date: str | None = None) -> dict:
+    try:
+        return sentiment_service.get_sentiment(date)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.post("/api/sentiment/refresh")
+def refresh_sentiment(
+    date: str | None = None,
+    profile: str = "fast",
+    include_telegraph: bool = False,
+) -> dict:
+    try:
+        return sentiment_service.start_refresh(
+            target_date_text=date,
+            profile=profile,
+            include_telegraph=include_telegraph,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/sentiment/marks/{item_id}/toggle")
+def toggle_sentiment_mark(item_id: str) -> dict:
+    try:
+        return sentiment_service.toggle_mark(item_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @app.get("/api/health")

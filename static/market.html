@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>市场新闻舆情</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>市场新闻舆情</h1>
+        <div class="meta">
+          <span id="marketStatus" class="badge neutral">等待数据</span>
+          <span id="marketUpdated">生成：--</span>
+          <span id="marketSourceStatus">来源：--</span>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="text-btn nav-btn" href="/">雷达</a>
+        <input id="sentimentDate" class="note-date market-date" type="date" />
+        <button id="sentimentLoadBtn" class="text-btn" type="button">读取</button>
+        <button id="sentimentRefreshBtn" class="text-btn primary" type="button">刷新舆情</button>
+      </div>
+    </header>
+
+    <main class="market-main">
+      <section class="summary-grid market-summary-grid" id="marketSummary"></section>
+
+      <section class="toolbar market-toolbar">
+        <span class="muted">时间线筛选</span>
+        <div class="filters">
+          <label><input type="checkbox" id="markedOnly" /> 重点</label>
+          <label><input type="checkbox" id="matchedOnly" /> 股票池命中</label>
+          <select id="sourceFilter" class="market-select" aria-label="来源筛选">
+            <option value="全部">全部来源</option>
+          </select>
+          <input id="marketSearch" class="search market-search" type="search" placeholder="搜索新闻 / 标的 / 板块" />
+        </div>
+      </section>
+
+      <section class="market-layout">
+        <aside class="market-side">
+          <section class="panel market-section-panel">
+            <div class="panel-head">
+              <div class="panel-title-row">
+                <h2>情绪与主线</h2>
+                <span id="marketSectionCount" class="muted"></span>
+              </div>
+              <div class="section-actions">
+                <button id="expandAllSections" class="text-btn compact" type="button">全部展开</button>
+                <button id="collapseAllSections" class="text-btn compact" type="button">全部折叠</button>
+              </div>
+            </div>
+            <div id="marketSections" class="market-sections"></div>
+          </section>
+
+          <section class="panel market-source-panel">
+            <div class="panel-head">
+              <h2>数据源状态</h2>
+            </div>
+            <div id="sourceSummary" class="source-summary"></div>
+          </section>
+        </aside>
+
+        <section class="panel market-timeline-panel">
+          <div class="panel-head">
+            <div class="panel-title-row">
+              <h2>新闻时间线</h2>
+              <span id="timelineCount" class="muted"></span>
+            </div>
+          </div>
+          <div id="timelineList" class="timeline-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/market.js"></script>
+  </body>
+</html>
