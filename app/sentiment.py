@@ -605,7 +605,7 @@ def importance_label(score: int | None) -> str:
     if score >= 3:
         return "重要"
     if score == 2:
-        return "关注"
+        return "重点"
     return "普通"
 
 

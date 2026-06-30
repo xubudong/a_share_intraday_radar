@@ -869,6 +869,15 @@ main {
   box-shadow: inset 3px 0 0 #f59e0b;
 }
 
+.timeline-item.important-news .timeline-card {
+  border-color: #fecaca;
+}
+
+.timeline-item.important-news .timeline-card h3,
+.timeline-item.important-news .timeline-content {
+  color: #b91c1c;
+}
+
 .timeline-head,
 .timeline-actions {
   display: flex;
@@ -920,6 +929,11 @@ main {
 .timeline-content strong {
   font-weight: 900;
   color: #111827;
+}
+
+.timeline-item.important-news .timeline-card h3 strong,
+.timeline-item.important-news .timeline-content strong {
+  color: inherit;
 }
 
 .timeline-actions button {
@@ -992,7 +1006,8 @@ main {
 }
 
 .importance-badge.high {
-  background: #fee2e2;
+  background: #fff;
+  border: 1px solid #fecaca;
   color: #b91c1c;
 }
 

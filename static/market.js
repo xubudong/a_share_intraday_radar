@@ -16,6 +16,7 @@ function bindMarketEvents() {
   document.getElementById("sentimentRefreshBtn").addEventListener("click", refreshSentiment);
   document.getElementById("sentimentDate").addEventListener("change", loadSentiment);
   document.getElementById("markedOnly").addEventListener("change", renderMarketContent);
+  document.getElementById("importantOnly").addEventListener("change", renderMarketContent);
   document.getElementById("matchedOnly").addEventListener("change", renderMarketContent);
   document.getElementById("marketSearch").addEventListener("input", renderMarketContent);
   document.getElementById("expandAllSections").addEventListener("click", () => setAllSectionsCollapsed(false));
@@ -258,7 +259,7 @@ function renderTimeline() {
     return;
   }
   root.innerHTML = filtered.map((item) => `
-    <article class="timeline-item ${item.manual_marked ? "marked" : ""} ${item.auto_matched ? "auto-hit" : ""}">
+    <article class="timeline-item ${item.manual_marked ? "marked" : ""} ${isImportantNews(item) ? "important-news" : ""} ${item.auto_matched ? "auto-hit" : ""}">
       <div class="timeline-stem">
         <span></span>
       </div>
@@ -290,6 +291,7 @@ function renderTimeline() {
 
 function timelineFilter(item) {
   if (document.getElementById("markedOnly").checked && !item.manual_marked) return false;
+  if (document.getElementById("importantOnly").checked && !isImportantNews(item)) return false;
   if (document.getElementById("matchedOnly").checked && !item.auto_matched) return false;
   if (marketState.source !== "全部" && item.source !== marketState.source) return false;
   const query = currentSearchQuery();
@@ -366,9 +368,13 @@ function matchTags(item) {
 
 function importanceBadge(item) {
   if (item.importance_score === null || item.importance_score === undefined) return "";
-  const cls = Number(item.importance_score) >= 3 ? "high" : Number(item.importance_score) === 2 ? "mid" : "low";
+  const cls = isImportantNews(item) ? "high" : "low";
   const label = item.importance_label || "重要度";
   return `<span class="importance-badge ${cls}" title="华尔街见闻原始 score 字段">${escapeHtml(label)} ${escapeHtml(item.importance_score)}</span>`;
+}
+
+function isImportantNews(item) {
+  return Number(item.importance_score || 0) >= 2;
 }
 
 function duplicateBadge(item) {
@@ -414,10 +420,22 @@ function renderInlineText(value, item = {}, options = {}) {
       const head = text.slice(0, index);
       const sep = text[index];
       const tail = text.slice(index + 1);
-      return `<strong>${highlightStockTerms(head, item)}</strong>${escapeHtml(sep)}${highlightStockTerms(tail, item)}`;
+      if (isLikelyStockPrefix(head, item)) {
+        return `<strong>${highlightStockTerms(head, item)}</strong>${escapeHtml(sep)}${highlightStockTerms(tail, item)}`;
+      }
     }
   }
   return highlightStockTerms(text, item);
+}
+
+function isLikelyStockPrefix(value, item = {}) {
+  const text = String(value || "").trim();
+  if (!text || text.length > 18) return false;
+  if (/[，,。；;、！？!?（）()“”"《》【】]/.test(text)) return false;
+  const stocks = item.matched_stocks || [];
+  if (stocks.some((stock) => text.includes(stock.code) || text.includes(stock.name))) return true;
+  return /^\d{6}\s+[\u4e00-\u9fa5A-Za-z0-9*ST-]{2,10}$/.test(text)
+    || /^[\u4e00-\u9fa5A-Za-z0-9*ST-]{2,10}$/.test(text);
 }
 
 function firstColonIndex(value) {

@@ -164,6 +164,32 @@ def test_timeline_deduplicates_same_day_news_across_channels():
     assert data["timeline"][0]["duplicate_count"] == 2
 
 
+def test_timeline_score_two_is_labeled_as_key_news():
+    payload = build_payload(
+        date(2026, 6, 30),
+        [
+            SourceResult(
+                name="wallstreetcn_global",
+                status="ok",
+                elapsed_sec=0.1,
+                items=[
+                    {
+                        "title": "重点新闻",
+                        "content": "score 为 2 的消息",
+                        "published_at": "2026-06-30T09:30:00+08:00",
+                        "raw": {"score": 2},
+                    }
+                ],
+            )
+        ],
+    )
+
+    data = derive_display_payload(payload, pool=sample_pool())
+
+    assert data["timeline"][0]["importance_score"] == 2
+    assert data["timeline"][0]["importance_label"] == "重点"
+
+
 def test_stock_pool_matching_hits_code_name_group_and_note():
     match_index = sentiment_module.build_match_index(sample_pool())
 
