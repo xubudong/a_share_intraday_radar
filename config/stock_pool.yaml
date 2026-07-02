@@ -548,6 +548,71 @@ groups:
       - { code: "603556", name: "海兴电力", tier: 1, note: "智能电表、AMI与海外用电信息化" }
       - { code: "300360", name: "炬华科技", tier: 2, note: "智能电表、采集终端与配网数字化" }
 
+  - name: 国产算力-服务器整机
+    stocks:
+      - { code: "603019", name: "中科曙光", tier: 1, note: "国产算力服务器与超算龙头锚" }
+      - { code: "000977", name: "浪潮信息", tier: 1, note: "AI服务器整机核心" }
+      - { code: "601138", name: "工业富联", tier: 1, note: "AI服务器制造与云基础设施链" }
+      - { code: "000938", name: "紫光股份", tier: 1, note: "服务器、网络设备与新华三平台" }
+      - { code: "000034", name: "神州数码", tier: 2, note: "国产算力集成与服务器分销" }
+      - { code: "002261", name: "拓维信息", tier: 2, note: "华为算力生态与服务器观察" }
+
+  - name: 国产算力-高速网络/交换设备
+    stocks:
+      - { code: "000938", name: "紫光股份", tier: 1, note: "新华三交换机与数据中心网络核心" }
+      - { code: "000063", name: "中兴通讯", tier: 1, note: "通信设备与数据中心网络核心" }
+      - { code: "301165", name: "锐捷网络", tier: 2, note: "企业级交换机与数据中心网络" }
+      - { code: "301191", name: "菲菱科思", tier: 2, note: "网络设备代工与交换机链" }
+      - { code: "688702", name: "盛科通信-U", tier: 1, note: "以太网交换芯片与国产网络底座" }
+
+  - name: 国产算力-IDC/数据中心运营
+    stocks:
+      - { code: "603881", name: "数据港", tier: 1, note: "数据中心运营与云厂商配套" }
+      - { code: "300738", name: "奥飞数据", tier: 2, note: "IDC与算力租赁观察" }
+      - { code: "300383", name: "光环新网", tier: 2, note: "IDC与云服务运营" }
+      - { code: "300442", name: "润泽科技", tier: 1, note: "大型数据中心运营核心" }
+      - { code: "600845", name: "宝信软件", tier: 1, note: "IDC与工业软件双主线" }
+
+  - name: 国产算力-电源/UPS
+    stocks:
+      - { code: "002335", name: "科华数据", tier: 1, note: "数据中心UPS与电源系统核心" }
+      - { code: "002518", name: "科士达", tier: 1, note: "UPS、电源与数据中心配套" }
+      - { code: "300693", name: "盛弘股份", tier: 2, note: "电能质量与数据中心电源观察" }
+      - { code: "300713", name: "英可瑞", tier: 3, note: "电源模块高弹性观察" }
+      - { code: "002851", name: "麦格米特", tier: 2, note: "电源控制与服务器电源链观察" }
+
+  - name: 国产算力-基础软件
+    stocks:
+      - { code: "600536", name: "中国软件", tier: 1, note: "国产操作系统与信创软件龙头锚" }
+      - { code: "688152", name: "麒麟信安", tier: 2, note: "国产操作系统与信创安全" }
+      - { code: "301236", name: "软通动力", tier: 1, note: "鸿蒙与国产算力生态服务" }
+      - { code: "300598", name: "诚迈科技", tier: 2, note: "操作系统与智能终端软件观察" }
+      - { code: "300339", name: "润和软件", tier: 2, note: "鸿蒙与金融信创软件" }
+      - { code: "688111", name: "金山办公", tier: 1, note: "国产办公软件与AI办公核心" }
+
+  - name: 国产算力-数据库/中间件
+    stocks:
+      - { code: "002368", name: "太极股份", tier: 1, note: "政务信创与系统集成核心" }
+      - { code: "300379", name: "东方通", tier: 2, note: "中间件国产替代" }
+      - { code: "603138", name: "海量数据", tier: 2, note: "数据库与数据基础软件观察" }
+      - { code: "688058", name: "宝兰德", tier: 2, note: "中间件与基础软件观察" }
+      - { code: "600845", name: "宝信软件", tier: 1, note: "工业软件、IDC与数据平台" }
+
+  - name: 国产算力-网络安全
+    stocks:
+      - { code: "688561", name: "奇安信-U", tier: 1, note: "政企网络安全龙头锚" }
+      - { code: "300454", name: "深信服", tier: 1, note: "网络安全与云基础设施" }
+      - { code: "002439", name: "启明星辰", tier: 2, note: "网络安全平台" }
+      - { code: "300369", name: "绿盟科技", tier: 2, note: "安全服务与攻防演练观察" }
+      - { code: "002268", name: "电科网安", tier: 2, note: "密码安全与央企安全链" }
+
+  - name: 国产算力-边缘终端/AI硬件
+    stocks:
+      - { code: "688475", name: "萤石网络", tier: 2, note: "AI摄像头与边缘视觉终端" }
+      - { code: "300857", name: "协创数据", tier: 2, note: "AIoT终端与云视频硬件观察" }
+      - { code: "002045", name: "国光电器", tier: 2, note: "AI音频硬件与智能终端" }
+      - { code: "002351", name: "漫步者", tier: 3, note: "AI音频消费硬件观察" }
+
   - name: 医药-创新药
     stocks:
       - { code: "600276", name: "恒瑞医药", tier: 1, note: "创新药龙头锚" }

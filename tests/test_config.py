@@ -89,6 +89,14 @@ def test_requested_sector_groups_and_tiers_are_present():
         "电网设备-特高压/一次设备",
         "电网设备-变压器/配电",
         "电网设备-智能电表/用电侧",
+        "国产算力-服务器整机",
+        "国产算力-高速网络/交换设备",
+        "国产算力-IDC/数据中心运营",
+        "国产算力-电源/UPS",
+        "国产算力-基础软件",
+        "国产算力-数据库/中间件",
+        "国产算力-网络安全",
+        "国产算力-边缘终端/AI硬件",
         "医药-创新药",
         "医药-中药",
         "医药-血制品",
@@ -206,6 +214,23 @@ def test_requested_sector_groups_and_tiers_are_present():
         "电网设备-变压器/配电",
     } <= set(stocks_by_code["002028"].groups)
     assert stocks_by_code["600089"].tier == 1
+    assert stocks_by_code["603019"].group == "国产算力-服务器整机"
+    assert stocks_by_code["000063"].group == "国产算力-高速网络/交换设备"
+    assert stocks_by_code["603881"].group == "国产算力-IDC/数据中心运营"
+    assert stocks_by_code["002335"].group == "国产算力-电源/UPS"
+    assert stocks_by_code["600536"].group == "国产算力-基础软件"
+    assert stocks_by_code["002368"].group == "国产算力-数据库/中间件"
+    assert stocks_by_code["688561"].group == "国产算力-网络安全"
+    assert stocks_by_code["688475"].group == "国产算力-边缘终端/AI硬件"
+    assert {"国产算力-服务器整机", "国产算力-高速网络/交换设备"} <= set(
+        stocks_by_code["000938"].groups
+    )
+    assert {"半导体芯片-网络通信", "国产算力-高速网络/交换设备"} <= set(
+        stocks_by_code["688702"].groups
+    )
+    assert {"国产算力-IDC/数据中心运营", "国产算力-数据库/中间件"} <= set(
+        stocks_by_code["600845"].groups
+    )
     assert stocks_by_code["600276"].group == "医药-创新药"
     assert stocks_by_code["600436"].group == "医药-中药"
     assert stocks_by_code["600161"].group == "医药-血制品"

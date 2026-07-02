@@ -29,6 +29,7 @@ const groupFamilies = [
   { label: "电网设备", prefixes: ["电网设备-"] },
   { label: "机器人", groups: ["机器人核心"] },
   { label: "算力基础设施", groups: ["液冷核心"] },
+  { label: "国产算力", prefixes: ["国产算力-"] },
   { label: "医药", prefixes: ["医药-"] },
 ];
 
