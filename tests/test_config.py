@@ -284,6 +284,13 @@ def test_stock_pool_has_no_default_stars():
     assert "star: true" not in CONFIG_PATH.read_text(encoding="utf-8")
 
 
+def test_frontend_groups_ai_application_family():
+    app_js = (CONFIG_PATH.parents[1] / "static" / "app.js").read_text(encoding="utf-8")
+
+    assert 'label: "AI应用"' in app_js
+    assert 'prefixes: ["AI应用-"]' in app_js
+
+
 def test_star_store_basic():
     """Star store should support is_starred and toggle."""
     # Verify toggle on/off works
