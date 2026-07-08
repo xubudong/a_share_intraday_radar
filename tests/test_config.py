@@ -97,6 +97,14 @@ def test_requested_sector_groups_and_tiers_are_present():
         "国产算力-数据库/中间件",
         "国产算力-网络安全",
         "国产算力-边缘终端/AI硬件",
+        "AI应用-办公/企业智能体",
+        "AI应用-搜索/知识管理",
+        "AI应用-教育",
+        "AI应用-医疗",
+        "AI应用-金融",
+        "AI应用-营销/电商",
+        "AI应用-内容/IP/游戏",
+        "AI应用-政务/法律",
         "医药-创新药",
         "医药-中药",
         "医药-血制品",
@@ -230,6 +238,26 @@ def test_requested_sector_groups_and_tiers_are_present():
     )
     assert {"国产算力-IDC/数据中心运营", "国产算力-数据库/中间件"} <= set(
         stocks_by_code["600845"].groups
+    )
+    assert stocks_by_code["600588"].group == "AI应用-办公/企业智能体"
+    assert stocks_by_code["300229"].group == "AI应用-搜索/知识管理"
+    assert stocks_by_code["000526"].group == "AI应用-教育"
+    assert stocks_by_code["603108"].group == "AI应用-医疗"
+    assert stocks_by_code["300033"].group == "AI应用-金融"
+    assert stocks_by_code["300058"].group == "AI应用-营销/电商"
+    assert stocks_by_code["300418"].group == "AI应用-内容/IP/游戏"
+    assert stocks_by_code["300271"].group == "AI应用-政务/法律"
+    assert {"国产算力-基础软件", "AI应用-办公/企业智能体"} <= set(
+        stocks_by_code["688111"].groups
+    )
+    assert {"AI应用-搜索/知识管理", "AI应用-教育"} <= set(
+        stocks_by_code["002230"].groups
+    )
+    assert {"国产算力-基础软件", "AI应用-金融"} <= set(
+        stocks_by_code["301236"].groups
+    )
+    assert {"国产算力-数据库/中间件", "AI应用-政务/法律"} <= set(
+        stocks_by_code["002368"].groups
     )
     assert stocks_by_code["600276"].group == "医药-创新药"
     assert stocks_by_code["600436"].group == "医药-中药"
