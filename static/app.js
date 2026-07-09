@@ -962,8 +962,8 @@ function setStockNoteStatus(panel, message, isError = false) {
 function maBlock(ind = {}) {
   return `
     <div class="ma-line">
-      <span>MA5 ${formatPct(ind.dev_ma5)}</span>
-      <span>MA20 ${formatPct(ind.dev_ma20)}</span>
+      <span>MA5 <span class="${numClass(ind.dev_ma5)}">${formatPct(ind.dev_ma5)}</span></span>
+      <span>MA20 <span class="${numClass(ind.dev_ma20)}">${formatPct(ind.dev_ma20)}</span></span>
     </div>
   `;
 }
