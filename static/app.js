@@ -30,7 +30,10 @@ const groupFamilies = [
   { label: "机器人", groups: ["机器人核心"] },
   { label: "算力基础设施", groups: ["液冷核心"] },
   { label: "国产算力", prefixes: ["国产算力-"] },
-  { label: "AI应用", prefixes: ["AI应用-"] },
+  { label: "计算机软件", prefixes: ["计算机软件-"] },
+  { label: "传媒", prefixes: ["传媒-"] },
+  { label: "游戏", prefixes: ["游戏-"] },
+  { label: "数据安全", prefixes: ["数据安全-"] },
   { label: "医药", prefixes: ["医药-"] },
 ];
 

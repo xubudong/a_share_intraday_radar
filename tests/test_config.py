@@ -95,16 +95,19 @@ def test_requested_sector_groups_and_tiers_are_present():
         "国产算力-电源/UPS",
         "国产算力-基础软件",
         "国产算力-数据库/中间件",
-        "国产算力-网络安全",
         "国产算力-边缘终端/AI硬件",
-        "AI应用-办公/企业智能体",
-        "AI应用-搜索/知识管理",
-        "AI应用-教育",
-        "AI应用-医疗",
-        "AI应用-金融",
-        "AI应用-营销/电商",
-        "AI应用-内容/IP/游戏",
-        "AI应用-政务/法律",
+        "数据安全-网络安全",
+        "数据安全-数据服务/AI数据",
+        "计算机软件-办公/企业智能体",
+        "计算机软件-企业软件/工业软件",
+        "计算机软件-搜索/知识管理",
+        "计算机软件-教育信息化/AI教育",
+        "计算机软件-政务/医疗IT",
+        "计算机软件-金融IT",
+        "传媒-营销广告",
+        "传媒-IP/语料/版权",
+        "传媒-影视内容",
+        "游戏-AI游戏/互动娱乐",
         "医药-创新药",
         "医药-中药",
         "医药-血制品",
@@ -228,7 +231,7 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert stocks_by_code["002335"].group == "国产算力-电源/UPS"
     assert stocks_by_code["600536"].group == "国产算力-基础软件"
     assert stocks_by_code["002368"].group == "国产算力-数据库/中间件"
-    assert stocks_by_code["688561"].group == "国产算力-网络安全"
+    assert stocks_by_code["688561"].group == "数据安全-网络安全"
     assert stocks_by_code["688475"].group == "国产算力-边缘终端/AI硬件"
     assert {"国产算力-服务器整机", "国产算力-高速网络/交换设备"} <= set(
         stocks_by_code["000938"].groups
@@ -239,24 +242,30 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert {"国产算力-IDC/数据中心运营", "国产算力-数据库/中间件"} <= set(
         stocks_by_code["600845"].groups
     )
-    assert stocks_by_code["600588"].group == "AI应用-办公/企业智能体"
-    assert stocks_by_code["300229"].group == "AI应用-搜索/知识管理"
-    assert stocks_by_code["000526"].group == "AI应用-教育"
-    assert stocks_by_code["603108"].group == "AI应用-医疗"
-    assert stocks_by_code["300033"].group == "AI应用-金融"
-    assert stocks_by_code["300058"].group == "AI应用-营销/电商"
-    assert stocks_by_code["300418"].group == "AI应用-内容/IP/游戏"
-    assert stocks_by_code["300271"].group == "AI应用-政务/法律"
-    assert {"国产算力-基础软件", "AI应用-办公/企业智能体"} <= set(
+    assert stocks_by_code["600588"].group == "计算机软件-办公/企业智能体"
+    assert stocks_by_code["300170"].group == "计算机软件-企业软件/工业软件"
+    assert stocks_by_code["300229"].group == "计算机软件-搜索/知识管理"
+    assert stocks_by_code["000526"].group == "计算机软件-教育信息化/AI教育"
+    assert stocks_by_code["603108"].group == "计算机软件-政务/医疗IT"
+    assert stocks_by_code["300033"].group == "计算机软件-金融IT"
+    assert stocks_by_code["300058"].group == "传媒-营销广告"
+    assert stocks_by_code["603533"].group == "传媒-IP/语料/版权"
+    assert stocks_by_code["300133"].group == "传媒-影视内容"
+    assert stocks_by_code["300418"].group == "游戏-AI游戏/互动娱乐"
+    assert stocks_by_code["002517"].group == "游戏-AI游戏/互动娱乐"
+    assert stocks_by_code["688787"].group == "数据安全-数据服务/AI数据"
+    assert stocks_by_code["300271"].group == "计算机软件-政务/医疗IT"
+    assert "09999" not in stocks_by_code
+    assert {"国产算力-基础软件", "计算机软件-办公/企业智能体"} <= set(
         stocks_by_code["688111"].groups
     )
-    assert {"AI应用-搜索/知识管理", "AI应用-教育"} <= set(
+    assert {"计算机软件-搜索/知识管理", "计算机软件-教育信息化/AI教育"} <= set(
         stocks_by_code["002230"].groups
     )
-    assert {"国产算力-基础软件", "AI应用-金融"} <= set(
+    assert {"国产算力-基础软件", "计算机软件-金融IT"} <= set(
         stocks_by_code["301236"].groups
     )
-    assert {"国产算力-数据库/中间件", "AI应用-政务/法律"} <= set(
+    assert {"国产算力-数据库/中间件", "计算机软件-政务/医疗IT"} <= set(
         stocks_by_code["002368"].groups
     )
     assert stocks_by_code["600276"].group == "医药-创新药"
@@ -284,11 +293,17 @@ def test_stock_pool_has_no_default_stars():
     assert "star: true" not in CONFIG_PATH.read_text(encoding="utf-8")
 
 
-def test_frontend_groups_ai_application_family():
+def test_frontend_groups_software_media_game_and_data_security_families():
     app_js = (CONFIG_PATH.parents[1] / "static" / "app.js").read_text(encoding="utf-8")
 
-    assert 'label: "AI应用"' in app_js
-    assert 'prefixes: ["AI应用-"]' in app_js
+    assert 'label: "计算机软件"' in app_js
+    assert 'prefixes: ["计算机软件-"]' in app_js
+    assert 'label: "传媒"' in app_js
+    assert 'prefixes: ["传媒-"]' in app_js
+    assert 'label: "游戏"' in app_js
+    assert 'prefixes: ["游戏-"]' in app_js
+    assert 'label: "数据安全"' in app_js
+    assert 'prefixes: ["数据安全-"]' in app_js
 
 
 def test_star_store_basic():

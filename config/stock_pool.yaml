@@ -598,13 +598,22 @@ groups:
       - { code: "688058", name: "宝兰德", tier: 2, note: "中间件与基础软件观察" }
       - { code: "600845", name: "宝信软件", tier: 1, note: "工业软件、IDC与数据平台" }
 
-  - name: 国产算力-网络安全
+  - name: 数据安全-网络安全
     stocks:
       - { code: "688561", name: "奇安信-U", tier: 1, note: "政企网络安全龙头锚" }
       - { code: "300454", name: "深信服", tier: 1, note: "网络安全与云基础设施" }
+      - { code: "688023", name: "安恒信息", tier: 2, note: "数据安全与AI安全观察" }
       - { code: "002439", name: "启明星辰", tier: 2, note: "网络安全平台" }
       - { code: "300369", name: "绿盟科技", tier: 2, note: "安全服务与攻防演练观察" }
       - { code: "002268", name: "电科网安", tier: 2, note: "密码安全与央企安全链" }
+
+  - name: 数据安全-数据服务/AI数据
+    stocks:
+      - { code: "688787", name: "海天瑞声", tier: 2, note: "AI训练数据与语料服务弹性" }
+      - { code: "688031", name: "星环科技-U", tier: 2, note: "大数据基础软件与知识库底座" }
+      - { code: "300766", name: "每日互动", tier: 2, note: "数据智能与数据要素观察" }
+      - { code: "688327", name: "云从科技-UW", tier: 3, note: "多模态AI与行业应用高弹性观察" }
+      - { code: "688088", name: "虹软科技", tier: 2, note: "视觉AI与端侧图像算法观察" }
 
   - name: 国产算力-边缘终端/AI硬件
     stocks:
@@ -613,7 +622,7 @@ groups:
       - { code: "002045", name: "国光电器", tier: 2, note: "AI音频硬件与智能终端" }
       - { code: "002351", name: "漫步者", tier: 3, note: "AI音频消费硬件观察" }
 
-  - name: AI应用-办公/企业智能体
+  - name: 计算机软件-办公/企业智能体
     stocks:
       - { code: "688111", name: "金山办公", tier: 1, note: "AI办公与企业智能体核心" }
       - { code: "600588", name: "用友网络", tier: 1, note: "企业管理软件与AI Agent工作流" }
@@ -622,7 +631,17 @@ groups:
       - { code: "688095", name: "福昕软件", tier: 2, note: "PDF文档智能体与办公软件" }
       - { code: "300624", name: "万兴科技", tier: 2, note: "AIGC创意软件与办公工具" }
 
-  - name: AI应用-搜索/知识管理
+  - name: 计算机软件-企业软件/工业软件
+    stocks:
+      - { code: "300170", name: "汉得信息", tier: 2, note: "ERP与企业AI Agent落地观察" }
+      - { code: "300378", name: "鼎捷数智", tier: 2, note: "制造业ERP与工业AI软件" }
+      - { code: "300687", name: "赛意信息", tier: 2, note: "企业数字化与智能制造软件" }
+      - { code: "688777", name: "中控技术", tier: 1, note: "流程工业软件与工业智能化核心" }
+      - { code: "688083", name: "中望软件", tier: 2, note: "国产CAD与工业软件观察" }
+      - { code: "002410", name: "广联达", tier: 2, note: "建筑软件与AI设计/造价应用" }
+      - { code: "600845", name: "宝信软件", tier: 1, note: "工业软件、IDC与数据平台" }
+
+  - name: 计算机软件-搜索/知识管理
     stocks:
       - { code: "002230", name: "科大讯飞", tier: 1, note: "大模型、教育与知识管理核心" }
       - { code: "300229", name: "拓尔思", tier: 1, note: "语义搜索、知识图谱与政企知识库" }
@@ -630,7 +649,7 @@ groups:
       - { code: "601360", name: "三六零", tier: 2, note: "AI搜索与安全入口观察" }
       - { code: "300017", name: "网宿科技", tier: 2, note: "边缘云与AI应用分发观察" }
 
-  - name: AI应用-教育
+  - name: 计算机软件-教育信息化/AI教育
     stocks:
       - { code: "002230", name: "科大讯飞", tier: 1, note: "AI教育与学习机核心" }
       - { code: "000526", name: "学大教育", tier: 2, note: "个性化教育与AI教学观察" }
@@ -638,8 +657,13 @@ groups:
       - { code: "003032", name: "传智教育", tier: 3, note: "IT教育与AI培训观察" }
       - { code: "002607", name: "中公教育", tier: 3, note: "职教与AI学习工具观察" }
 
-  - name: AI应用-医疗
+  - name: 计算机软件-政务/医疗IT
     stocks:
+      - { code: "300271", name: "华宇软件", tier: 1, note: "法律科技与政法智能体" }
+      - { code: "002368", name: "太极股份", tier: 1, note: "政务信创与政务智能体" }
+      - { code: "300075", name: "数字政通", tier: 2, note: "城市治理与政务AI应用" }
+      - { code: "002474", name: "榕基软件", tier: 3, note: "政务软件与智能体观察" }
+      - { code: "002908", name: "德生科技", tier: 2, note: "民生服务与政务AI应用" }
       - { code: "603108", name: "润达医疗", tier: 1, note: "医疗AI与检验数据入口观察" }
       - { code: "300253", name: "卫宁健康", tier: 1, note: "医院信息化与医疗智能体" }
       - { code: "300451", name: "创业慧康", tier: 2, note: "医疗信息化与AI辅助诊疗观察" }
@@ -647,7 +671,7 @@ groups:
       - { code: "002777", name: "久远银海", tier: 2, note: "医保、人社与医疗数据应用" }
       - { code: "300168", name: "万达信息", tier: 2, note: "智慧医疗与城市数据应用" }
 
-  - name: AI应用-金融
+  - name: 计算机软件-金融IT
     stocks:
       - { code: "300033", name: "同花顺", tier: 1, note: "AI投研与金融信息入口" }
       - { code: "600570", name: "恒生电子", tier: 1, note: "金融IT与投研/交易智能体核心" }
@@ -655,7 +679,7 @@ groups:
       - { code: "300803", name: "指南针", tier: 2, note: "金融信息服务与AI投顾弹性" }
       - { code: "301236", name: "软通动力", tier: 2, note: "金融信创与AI软件服务" }
 
-  - name: AI应用-营销/电商
+  - name: 传媒-营销广告
     stocks:
       - { code: "300058", name: "蓝色光标", tier: 1, note: "AI营销与内容生成核心" }
       - { code: "301171", name: "易点天下", tier: 1, note: "AI广告投放与出海营销" }
@@ -664,22 +688,32 @@ groups:
       - { code: "300612", name: "宣亚国际", tier: 3, note: "营销服务与AI内容弹性观察" }
       - { code: "600556", name: "天下秀", tier: 3, note: "红人营销与AI内容观察" }
 
-  - name: AI应用-内容/IP/游戏
+  - name: 传媒-IP/语料/版权
     stocks:
-      - { code: "300418", name: "昆仑万维", tier: 1, note: "AI应用、海外社交与大模型入口" }
       - { code: "300364", name: "中文在线", tier: 1, note: "IP语料与AI内容核心" }
+      - { code: "603533", name: "掌阅科技", tier: 2, note: "阅读平台、IP内容与AI语料观察" }
+      - { code: "000681", name: "视觉中国", tier: 2, note: "版权图片与AI语料/内容合规观察" }
+      - { code: "300182", name: "捷成股份", tier: 2, note: "影视版权库与AI视频内容资产" }
       - { code: "300459", name: "汤姆猫", tier: 2, note: "AI陪伴与IP互动观察" }
+
+  - name: 传媒-影视内容
+    stocks:
+      - { code: "300133", name: "华策影视", tier: 2, note: "影视内容/IP与AI影视制作观察" }
+      - { code: "300413", name: "芒果超媒", tier: 1, note: "长视频内容平台与IP运营核心" }
+      - { code: "300251", name: "光线传媒", tier: 2, note: "动画电影与IP内容观察" }
+      - { code: "601595", name: "上海电影", tier: 2, note: "IP运营与影视内容弹性" }
+      - { code: "300182", name: "捷成股份", tier: 2, note: "影视版权库与内容资产" }
+
+  - name: 游戏-AI游戏/互动娱乐
+    stocks:
+      - { code: "300418", name: "昆仑万维", tier: 1, note: "AI应用、海外社交与游戏互动入口" }
       - { code: "300315", name: "掌趣科技", tier: 2, note: "AI游戏与内容生成观察" }
       - { code: "002555", name: "三七互娱", tier: 2, note: "游戏发行与AI降本增效" }
-      - { code: "000681", name: "视觉中国", tier: 2, note: "版权图片与AI语料/内容合规观察" }
-
-  - name: AI应用-政务/法律
-    stocks:
-      - { code: "300271", name: "华宇软件", tier: 1, note: "法律科技与政法智能体" }
-      - { code: "002368", name: "太极股份", tier: 1, note: "政务信创与政务智能体" }
-      - { code: "300075", name: "数字政通", tier: 2, note: "城市治理与政务AI应用" }
-      - { code: "002474", name: "榕基软件", tier: 3, note: "政务软件与智能体观察" }
-      - { code: "002908", name: "德生科技", tier: 2, note: "民生服务与政务AI应用" }
+      - { code: "002517", name: "恺英网络", tier: 1, note: "游戏基本面与AI互动娱乐弹性" }
+      - { code: "002558", name: "巨人网络", tier: 2, note: "游戏产品与AI应用预期" }
+      - { code: "300002", name: "神州泰岳", tier: 2, note: "游戏出海与NLP/AI应用属性" }
+      - { code: "002624", name: "完美世界", tier: 2, note: "游戏研发与AI降本观察" }
+      - { code: "300494", name: "盛天网络", tier: 3, note: "游戏社交与互动娱乐平台弹性" }
 
   - name: 医药-创新药
     stocks:
