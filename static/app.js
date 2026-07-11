@@ -1,3 +1,25 @@
+const tableColumns = [
+  { key: "code", label: "标的", cls: "col-code", defaultVisible: true },
+  { key: "group", label: "分组", cls: "col-group", defaultVisible: true },
+  { key: "tier", label: "梯度", cls: "col-tier", defaultVisible: true },
+  { key: "price", label: "价格", cls: "col-price", defaultVisible: true },
+  { key: "pct", label: "涨跌幅", cls: "col-pct", defaultVisible: true },
+  { key: "return5d", label: "5日涨幅", cls: "col-return-5d", defaultVisible: true },
+  { key: "return20d", label: "20日涨幅", cls: "col-return-20d", defaultVisible: true },
+  { key: "sparkline", label: "走势", cls: "col-sparkline", defaultVisible: true },
+  { key: "amount", label: "成交额", cls: "col-amount", defaultVisible: true },
+  { key: "mainInflow", label: "主力净流入", cls: "col-main-inflow", defaultVisible: true },
+  { key: "ma5Pos", label: "MA5", cls: "col-ma5-pos", defaultVisible: true },
+  { key: "ma20Pos", label: "MA20", cls: "col-ma20-pos", defaultVisible: true },
+  { key: "ma5Slope", label: "MA5斜率", cls: "col-ma5-slope", defaultVisible: true },
+  { key: "ma10Slope", label: "MA10斜率", cls: "col-ma10-slope", defaultVisible: true },
+  { key: "rsi", label: "RSI", cls: "col-rsi", defaultVisible: true },
+  { key: "volumeRatio", label: "量比", cls: "col-volume-ratio", defaultVisible: true },
+  { key: "signal", label: "信号", cls: "col-signal", defaultVisible: true },
+  { key: "signalDetail", label: "信号说明", cls: "col-signal-detail", defaultVisible: false },
+  { key: "action", label: "动作", cls: "col-action", defaultVisible: false },
+];
+
 const state = {
   dashboard: null,
   stocks: [],
@@ -11,6 +33,7 @@ const state = {
   sectorNotes: [],
   stockNotes: {},
   radarCollapsed: true,
+  visibleColumns: Object.fromEntries(tableColumns.map((column) => [column.key, column.defaultVisible])),
 };
 
 const actionableSignals = new Set(["可试仓", "二次确认", "突破观察"]);
@@ -38,6 +61,7 @@ const groupFamilies = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
+  renderColumnToggles();
   bindEvents();
   bootstrap();
   state.timer = window.setInterval(() => requestRefresh(false), 60000);
@@ -97,6 +121,22 @@ function bindEvents() {
       } else {
         state.sort = { key, direction: defaultSortDirection(key) };
       }
+      renderTable();
+    });
+  });
+}
+
+function renderColumnToggles() {
+  const container = document.getElementById("columnToggles");
+  container.innerHTML = tableColumns.map((column) => `
+    <label>
+      <input type="checkbox" data-column-key="${column.key}" ${state.visibleColumns[column.key] ? "checked" : ""} />
+      ${column.label}
+    </label>
+  `).join("");
+  container.querySelectorAll("input[data-column-key]").forEach((input) => {
+    input.addEventListener("change", (event) => {
+      state.visibleColumns[event.target.dataset.columnKey] = event.target.checked;
       renderTable();
     });
   });
@@ -643,12 +683,14 @@ function renderTable() {
   }).sort(compareByCurrentSort);
 
   const body = document.getElementById("stockBody");
+  syncColumnVisibility();
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="16" class="empty">没有符合筛选条件的标的。</td></tr>`;
+    body.innerHTML = `<tr><td colspan="${visibleColumnCount()}" class="empty">没有符合筛选条件的标的。</td></tr>`;
     return;
   }
 
   body.innerHTML = rows.map((stock) => stockRow(stock)).join("");
+  syncColumnVisibility();
   renderSortHeaders();
   document.querySelectorAll("tr.stock-row").forEach((row) => {
     row.addEventListener("click", () => {
@@ -658,6 +700,18 @@ function renderTable() {
   });
   const expandedStock = rows.find((stock) => stock.code === state.expanded);
   if (expandedStock) initializeStockNotePanel(expandedStock);
+}
+
+function syncColumnVisibility() {
+  tableColumns.forEach((column) => {
+    document.querySelectorAll(`.${column.cls}`).forEach((element) => {
+      element.classList.toggle("hidden-col", !state.visibleColumns[column.key]);
+    });
+  });
+}
+
+function visibleColumnCount() {
+  return Math.max(1, tableColumns.filter((column) => state.visibleColumns[column.key]).length);
 }
 
 function renderSortHeaders() {
@@ -702,6 +756,9 @@ function sortValue(stock, key) {
     main_net_inflow: quote.main_net_inflow,
     rsi14: ind.rsi14,
     volume_ratio: ind.volume_ratio,
+    dev_ma5: ind.dev_ma5,
+    ma5_slope: ind.ma5_slope,
+    ma10_slope: ind.ma10_slope,
     dev_ma20: ind.dev_ma20,
     tier: stock.tier,
   };
@@ -724,7 +781,7 @@ function stockRow(stock) {
   const hiddenGroupTooltip = hiddenGroups.join(" / ");
   return `
     <tr class="stock-row" data-code="${stock.code}">
-      <td>
+      <td class="col-code">
         <div class="stock-name"><button class="star-toggle ${stock.star ? "starred" : ""}" data-code="${stock.code}" title="${stock.star ? "取消星标" : "加星标"}" aria-label="${stock.star ? "取消星标" : "加星标"}">${stock.star ? "★" : "☆"}</button> ${holdingButton(stock)} ${stock.name}</div>
         <div class="stock-code-line">
           <button class="copy-code ${boardCodeClass(stock.code)}" data-code="${stock.code}" title="复制代码" aria-label="复制 ${stock.code}">${stock.code}</button>
@@ -732,23 +789,26 @@ function stockRow(stock) {
           ${stock.watch ? '<span class="watch-mark">观察</span>' : ""}
         </div>
       </td>
-      <td class="group-cell" title="${escapeHtml(groupTooltip)}">
+      <td class="group-cell col-group" title="${escapeHtml(groupTooltip)}">
         <span class="group-main">${escapeHtml(displayedGroup)}</span>${hiddenGroups.length ? `<span class="group-extra" title="${escapeHtml(hiddenGroupTooltip)}" aria-label="其他分组：${escapeHtml(hiddenGroupTooltip)}">另：${escapeHtml(hiddenGroupTooltip)}</span>` : ""}
       </td>
-      <td>${tierBadge(stock.tier)}</td>
-      <td>${formatPrice(stock.price)}</td>
-      <td class="${numClass(pctChg)}">${formatPct(pctChg)}</td>
-      <td class="${numClass(stock.indicators?.return_5d)}">${formatPct(stock.indicators?.return_5d)}</td>
-      <td class="${numClass(stock.indicators?.return_20d)}">${formatPct(stock.indicators?.return_20d)}</td>
-      <td>${sparklineSVG(stock.intraday, pctChg)}</td>
-      <td>${formatMoney(stock.quote?.amount)}</td>
-      <td class="${numClass(stock.quote?.main_net_inflow)}">${formatMoney(stock.quote?.main_net_inflow)}</td>
-      <td>${maBlock(stock.indicators)}</td>
-      <td>${formatNumber(stock.indicators?.rsi14, 1)}</td>
-      <td>${formatNumber(stock.indicators?.volume_ratio, 2)}</td>
-      <td>${signalPill(stock.signal.signal)}</td>
-      <td class="signal-detail">${stock.signal.detail || ""}</td>
-      <td>${stock.signal.action}</td>
+      <td class="col-tier">${tierBadge(stock.tier)}</td>
+      <td class="col-price">${formatPrice(stock.price)}</td>
+      <td class="col-pct ${numClass(pctChg)}">${formatPct(pctChg)}</td>
+      <td class="col-return-5d ${numClass(stock.indicators?.return_5d)}">${formatPct(stock.indicators?.return_5d)}</td>
+      <td class="col-return-20d ${numClass(stock.indicators?.return_20d)}">${formatPct(stock.indicators?.return_20d)}</td>
+      <td class="col-sparkline">${sparklineSVG(stock.intraday, pctChg)}</td>
+      <td class="col-amount">${formatMoney(stock.quote?.amount)}</td>
+      <td class="col-main-inflow ${numClass(stock.quote?.main_net_inflow)}">${formatMoney(stock.quote?.main_net_inflow)}</td>
+      <td class="col-ma5-pos ${numClass(stock.indicators?.dev_ma5)}">${formatPct(stock.indicators?.dev_ma5)}</td>
+      <td class="col-ma20-pos ${numClass(stock.indicators?.dev_ma20)}">${formatPct(stock.indicators?.dev_ma20)}</td>
+      <td class="col-ma5-slope ${numClass(stock.indicators?.ma5_slope)}">${formatPct(stock.indicators?.ma5_slope)}</td>
+      <td class="col-ma10-slope ${numClass(stock.indicators?.ma10_slope)}">${formatPct(stock.indicators?.ma10_slope)}</td>
+      <td class="col-rsi">${formatNumber(stock.indicators?.rsi14, 1)}</td>
+      <td class="col-volume-ratio">${formatNumber(stock.indicators?.volume_ratio, 2)}</td>
+      <td class="col-signal">${signalPill(stock.signal.signal)}</td>
+      <td class="signal-detail col-signal-detail ${hiddenColumnClass("signalDetail")}">${stock.signal.detail || ""}</td>
+      <td class="col-action ${hiddenColumnClass("action")}">${stock.signal.action}</td>
     </tr>
     ${detail}
   `;
@@ -781,7 +841,7 @@ function detailRow(stock) {
   const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
   return `
     <tr class="detail-row">
-      <td colspan="16">
+      <td colspan="${visibleColumnCount()}">
         <div class="detail">
           <section>
             <h3>触发原因</h3>
@@ -962,13 +1022,8 @@ function setStockNoteStatus(panel, message, isError = false) {
   status.className = `stock-note-status ${isError ? "neg" : "muted"}`;
 }
 
-function maBlock(ind = {}) {
-  return `
-    <div class="ma-line">
-      <span>MA5 <span class="${numClass(ind.dev_ma5)}">${formatPct(ind.dev_ma5)}</span></span>
-      <span>MA20 <span class="${numClass(ind.dev_ma20)}">${formatPct(ind.dev_ma20)}</span></span>
-    </div>
-  `;
+function hiddenColumnClass(key) {
+  return state.visibleColumns[key] ? "" : "hidden-col";
 }
 
 function signalPill(signal) {

@@ -84,6 +84,10 @@
           <label><input type="checkbox" id="actionableOnly" /> 买点</label>
           <label><input type="checkbox" id="overheatOnly" /> 过热</label>
           <input id="searchInput" class="search" type="search" placeholder="代码 / 名称" />
+          <details class="column-picker">
+            <summary>显示列</summary>
+            <div id="columnToggles" class="column-toggle-list"></div>
+          </details>
         </div>
       </section>
 
@@ -91,22 +95,25 @@
         <table>
           <thead>
             <tr>
-              <th>标的</th>
-              <th>分组</th>
-              <th data-sort="tier" class="sortable">梯度</th>
-              <th data-sort="price" class="sortable">价格</th>
-              <th data-sort="pct_chg" class="sortable">涨跌幅</th>
-              <th data-sort="return_5d" class="sortable">5日涨幅</th>
-              <th data-sort="return_20d" class="sortable">20日涨幅</th>
-              <th>走势</th>
-              <th data-sort="amount" class="sortable">成交额</th>
-              <th data-sort="main_net_inflow" class="sortable">主力净流入</th>
-              <th data-sort="dev_ma20" class="sortable">MA位置</th>
-              <th data-sort="rsi14" class="sortable">RSI</th>
-              <th data-sort="volume_ratio" class="sortable">量比</th>
-              <th data-sort="signal" class="sortable">信号</th>
-              <th>信号说明</th>
-              <th>动作</th>
+              <th class="col-code">标的</th>
+              <th class="col-group">分组</th>
+              <th class="col-tier sortable" data-sort="tier">梯度</th>
+              <th class="col-price sortable" data-sort="price">价格</th>
+              <th class="col-pct sortable" data-sort="pct_chg">涨跌幅</th>
+              <th class="col-return-5d sortable" data-sort="return_5d">5日涨幅</th>
+              <th class="col-return-20d sortable" data-sort="return_20d">20日涨幅</th>
+              <th class="col-sparkline">走势</th>
+              <th class="col-amount sortable" data-sort="amount">成交额</th>
+              <th class="col-main-inflow sortable" data-sort="main_net_inflow">主力净流入</th>
+              <th class="col-ma5-pos sortable" data-sort="dev_ma5">MA5</th>
+              <th class="col-ma20-pos sortable" data-sort="dev_ma20">MA20</th>
+              <th class="col-ma5-slope sortable" data-sort="ma5_slope">MA5斜率</th>
+              <th class="col-ma10-slope sortable" data-sort="ma10_slope">MA10斜率</th>
+              <th class="col-rsi sortable" data-sort="rsi14">RSI</th>
+              <th class="col-volume-ratio sortable" data-sort="volume_ratio">量比</th>
+              <th class="col-signal sortable" data-sort="signal">信号</th>
+              <th class="col-signal-detail hidden-col">信号说明</th>
+              <th class="col-action hidden-col">动作</th>
             </tr>
           </thead>
           <tbody id="stockBody"></tbody>

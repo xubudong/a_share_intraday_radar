@@ -646,6 +646,37 @@ main {
   white-space: nowrap;
 }
 
+.column-picker {
+  position: relative;
+}
+
+.column-picker summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--slate);
+  white-space: nowrap;
+}
+
+.column-toggle-list {
+  position: absolute;
+  right: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  gap: 6px 12px;
+  min-width: 260px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.hidden-col {
+  display: none !important;
+}
+
 .search {
   height: 32px;
   width: 150px;
@@ -1108,73 +1139,63 @@ tbody tr:hover {
   background: #f8fafc;
 }
 
-th:nth-child(1),
-td:nth-child(1) {
+.col-code {
   width: 130px;
 }
 
-th:nth-child(2),
-td:nth-child(2) {
+.col-group {
   width: 135px;
 }
 
-th:nth-child(3),
-td:nth-child(3) {
+.col-tier {
   width: 56px;
 }
 
-th:nth-child(5),
-td:nth-child(5) {
+.col-price {
   width: 82px;
 }
 
-/* 5日、20日涨幅 — 6th & 7th */
-th:nth-child(6),
-td:nth-child(6),
-th:nth-child(7),
-td:nth-child(7) {
+.col-pct {
+  width: 82px;
+}
+
+.col-return-5d,
+.col-return-20d {
   width: 86px;
 }
 
-/* 走势 (sparkline) column — 8th */
-th:nth-child(8),
-td:nth-child(8) {
+.col-sparkline {
   width: 110px;
 }
 
-/* 成交额, 主力净流入 — 9th & 10th */
-th:nth-child(9),
-td:nth-child(9),
-th:nth-child(10),
-td:nth-child(10) {
+.col-amount,
+.col-main-inflow {
   width: 105px;
 }
 
-/* MA位置 — 11th */
-th:nth-child(11),
-td:nth-child(11) {
-  width: 150px;
-}
-
-/* RSI, 量比 — 12th & 13th */
-th:nth-child(12),
-td:nth-child(12),
-th:nth-child(13),
-td:nth-child(13) {
+.col-ma5-pos,
+.col-ma5-slope,
+.col-ma10-slope,
+.col-ma20-pos {
   width: 82px;
 }
 
-/* 信号 — 14th */
-th:nth-child(14),
-td:nth-child(14) {
+.col-rsi,
+.col-volume-ratio {
+  width: 82px;
+}
+
+.col-signal {
   width: 102px;
 }
 
-/* 信号说明 — 15th */
-th:nth-child(15),
-td:nth-child(15) {
+.col-signal-detail {
   width: 360px;
   min-width: 280px;
+}
+
+.col-action {
+  width: 160px;
 }
 
 .sparkline {
@@ -1412,13 +1433,6 @@ td:nth-child(15) {
 .tier-badge.t3 {
   background: #fef3c7;
   color: var(--amber);
-}
-
-.ma-line {
-  display: grid;
-  gap: 3px;
-  color: var(--muted);
-  font-size: 12px;
 }
 
 .detail-row td {

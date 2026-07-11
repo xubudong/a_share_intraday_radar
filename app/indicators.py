@@ -15,6 +15,14 @@ def rolling_mean(values: list[float], window: int) -> float | None:
     return mean(values[-window:])
 
 
+def moving_average_slope(values: list[float], window: int) -> float | None:
+    if len(values) < window + 1:
+        return None
+    current = rolling_mean(values, window)
+    previous = mean(values[-window - 1 : -1])
+    return pct(current, previous)
+
+
 def rsi(values: list[float], window: int = 14) -> float | None:
     if len(values) < window + 1:
         return None
@@ -77,6 +85,8 @@ def compute_indicators(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "ma10": round_or_none(ma10),
         "ma20": round_or_none(ma20),
         "ma60": round_or_none(ma60),
+        "ma5_slope": round_or_none(moving_average_slope(closes, 5)),
+        "ma10_slope": round_or_none(moving_average_slope(closes, 10)),
         "dev_ma5": round_or_none(pct(close, ma5)),
         "dev_ma10": round_or_none(pct(close, ma10)),
         "dev_ma20": round_or_none(pct(close, ma20)),
