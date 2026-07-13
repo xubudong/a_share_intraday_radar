@@ -87,6 +87,7 @@ def compute_indicators(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "ma60": round_or_none(ma60),
         "ma5_slope": round_or_none(moving_average_slope(closes, 5)),
         "ma10_slope": round_or_none(moving_average_slope(closes, 10)),
+        "ma20_slope": round_or_none(moving_average_slope(closes, 20)),
         "dev_ma5": round_or_none(pct(close, ma5)),
         "dev_ma10": round_or_none(pct(close, ma10)),
         "dev_ma20": round_or_none(pct(close, ma20)),

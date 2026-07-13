@@ -10,9 +10,11 @@ const tableColumns = [
   { key: "amount", label: "成交额", cls: "col-amount", defaultVisible: true },
   { key: "mainInflow", label: "主力净流入", cls: "col-main-inflow", defaultVisible: true },
   { key: "ma5Pos", label: "MA5", cls: "col-ma5-pos", defaultVisible: true },
+  { key: "ma10Pos", label: "MA10", cls: "col-ma10-pos", defaultVisible: true },
   { key: "ma20Pos", label: "MA20", cls: "col-ma20-pos", defaultVisible: true },
   { key: "ma5Slope", label: "MA5斜率", cls: "col-ma5-slope", defaultVisible: true },
   { key: "ma10Slope", label: "MA10斜率", cls: "col-ma10-slope", defaultVisible: true },
+  { key: "ma20Slope", label: "MA20斜率", cls: "col-ma20-slope", defaultVisible: true },
   { key: "rsi", label: "RSI", cls: "col-rsi", defaultVisible: true },
   { key: "volumeRatio", label: "量比", cls: "col-volume-ratio", defaultVisible: true },
   { key: "signal", label: "信号", cls: "col-signal", defaultVisible: true },
@@ -757,9 +759,11 @@ function sortValue(stock, key) {
     rsi14: ind.rsi14,
     volume_ratio: ind.volume_ratio,
     dev_ma5: ind.dev_ma5,
+    dev_ma10: ind.dev_ma10,
+    dev_ma20: ind.dev_ma20,
     ma5_slope: ind.ma5_slope,
     ma10_slope: ind.ma10_slope,
-    dev_ma20: ind.dev_ma20,
+    ma20_slope: ind.ma20_slope,
     tier: stock.tier,
   };
   return values[key];
@@ -801,9 +805,11 @@ function stockRow(stock) {
       <td class="col-amount">${formatMoney(stock.quote?.amount)}</td>
       <td class="col-main-inflow ${numClass(stock.quote?.main_net_inflow)}">${formatMoney(stock.quote?.main_net_inflow)}</td>
       <td class="col-ma5-pos ${numClass(stock.indicators?.dev_ma5)}">${formatPct(stock.indicators?.dev_ma5)}</td>
+      <td class="col-ma10-pos ${numClass(stock.indicators?.dev_ma10)}">${formatPct(stock.indicators?.dev_ma10)}</td>
       <td class="col-ma20-pos ${numClass(stock.indicators?.dev_ma20)}">${formatPct(stock.indicators?.dev_ma20)}</td>
       <td class="col-ma5-slope ${numClass(stock.indicators?.ma5_slope)}">${formatPct(stock.indicators?.ma5_slope)}</td>
       <td class="col-ma10-slope ${numClass(stock.indicators?.ma10_slope)}">${formatPct(stock.indicators?.ma10_slope)}</td>
+      <td class="col-ma20-slope ${numClass(stock.indicators?.ma20_slope)}">${formatPct(stock.indicators?.ma20_slope)}</td>
       <td class="col-rsi">${formatNumber(stock.indicators?.rsi14, 1)}</td>
       <td class="col-volume-ratio">${formatNumber(stock.indicators?.volume_ratio, 2)}</td>
       <td class="col-signal">${signalPill(stock.signal.signal)}</td>

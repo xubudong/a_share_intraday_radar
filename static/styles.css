@@ -1081,7 +1081,7 @@ main {
 
 table {
   width: 100%;
-  min-width: 1680px;
+  min-width: 1844px;
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -1174,9 +1174,11 @@ tbody tr:hover {
 }
 
 .col-ma5-pos,
+.col-ma10-pos,
+.col-ma20-pos,
 .col-ma5-slope,
 .col-ma10-slope,
-.col-ma20-pos {
+.col-ma20-slope {
   width: 82px;
 }
 

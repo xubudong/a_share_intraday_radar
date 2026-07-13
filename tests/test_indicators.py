@@ -34,12 +34,13 @@ def test_period_returns_require_enough_history():
 
 
 def test_compute_indicators_reports_ma_slopes():
-    closes = [10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12]
+    closes = [10.0] * 20 + [11.0]
 
     indicators = compute_indicators(make_rows(closes))
 
-    assert indicators["ma5_slope"] == 1.82
-    assert indicators["ma10_slope"] == 1.9
+    assert indicators["ma5_slope"] == 2.0
+    assert indicators["ma10_slope"] == 1.0
+    assert indicators["ma20_slope"] == 0.5
 
 
 def test_ma_slopes_require_previous_ma():
@@ -47,3 +48,4 @@ def test_ma_slopes_require_previous_ma():
 
     assert indicators["ma5_slope"] == 0.0
     assert indicators["ma10_slope"] is None
+    assert indicators["ma20_slope"] is None
