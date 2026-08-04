@@ -147,6 +147,18 @@ def find_available_port(host: str, start_port: int, attempts: int = 10) -> int |
     return None
 
 
+def process_detach_options() -> dict[str, Any]:
+    if os.name == "nt":
+        return {
+            "creationflags": (
+                subprocess.CREATE_NEW_PROCESS_GROUP
+                | subprocess.DETACHED_PROCESS
+                | subprocess.CREATE_NO_WINDOW
+            )
+        }
+    return {"start_new_session": True}
+
+
 def start(host: str, port: int) -> int:
     record = load_pid_record()
     if valid_pid_record(record):
@@ -181,14 +193,6 @@ def start(host: str, port: int) -> int:
     STDOUT_LOG.write_text("", encoding="utf-8")
     STDERR_LOG.write_text("", encoding="utf-8")
 
-    creationflags = 0
-    if os.name == "nt":
-        creationflags = (
-            subprocess.CREATE_NEW_PROCESS_GROUP
-            | subprocess.DETACHED_PROCESS
-            | subprocess.CREATE_NO_WINDOW
-        )
-
     with STDOUT_LOG.open("ab") as stdout, STDERR_LOG.open("ab") as stderr:
         subprocess.Popen(
             [
@@ -207,7 +211,7 @@ def start(host: str, port: int) -> int:
             stdout=stdout,
             stderr=stderr,
             close_fds=True,
-            creationflags=creationflags,
+            **process_detach_options(),
         )
 
     instance = wait_for_instance(host, port)

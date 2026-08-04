@@ -99,6 +99,12 @@ def test_find_available_port_skips_occupied_ports(monkeypatch):
     assert radar.find_available_port("127.0.0.1", 8030) == 8032
 
 
+def test_process_detach_options_use_new_session_on_linux(monkeypatch):
+    monkeypatch.setattr(radar.os, "name", "posix")
+
+    assert radar.process_detach_options() == {"start_new_session": True}
+
+
 def test_start_services_layout_is_valid():
     assert start_services.validate_project_layout() == []
 
