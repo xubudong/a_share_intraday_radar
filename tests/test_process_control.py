@@ -103,11 +103,13 @@ def test_start_services_layout_is_valid():
     assert start_services.validate_project_layout() == []
 
 
-def test_start_services_main_runs_setup_then_radar(monkeypatch):
+def test_start_services_default_host_is_public():
+    assert start_services.parse_args([]).host == "0.0.0.0"
+
+
+def test_start_services_main_runs_radar_directly(monkeypatch):
     calls = []
 
-    monkeypatch.setattr(start_services, "ensure_venv", lambda: calls.append("venv") or 0)
-    monkeypatch.setattr(start_services, "install_dependencies", lambda: calls.append("install") or 0)
     monkeypatch.setattr(
         start_services,
         "run_radar",
@@ -115,7 +117,7 @@ def test_start_services_main_runs_setup_then_radar(monkeypatch):
     )
 
     assert start_services.main(["--restart", "--host", "127.0.0.1", "--port", "8040"]) == 0
-    assert calls == ["venv", "install", ("restart", "127.0.0.1", 8040)]
+    assert calls == [("restart", "127.0.0.1", 8040)]
 
 
 def test_stop_services_reports_missing_venv(monkeypatch, tmp_path, capsys):

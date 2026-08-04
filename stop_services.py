@@ -30,7 +30,7 @@ def run_stop(host: str, port: int) -> int:
     python = venv_python()
     if not python.exists():
         print(f"未找到虚拟环境 Python：{python}")
-        print("请先运行：py start_services.py --setup-only")
+        print("请先准备 .venv 并安装依赖，或直接使用当前 Python 执行 radar.py stop。")
         return 1
 
     command = [
