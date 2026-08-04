@@ -142,3 +142,91 @@ def test_normal_refresh_only_fetches_missing_history(tmp_path):
 
     assert [stock.code for stock in normal] == ["000003"]
     assert [stock.code for stock in forced] == ["000001", "000002", "000003"]
+
+
+def test_quote_refresh_only_enqueues_history(monkeypatch, tmp_path):
+    service = RadarService.__new__(RadarService)
+    service._lock = service_module.threading.Lock()
+    service._refresh_state_lock = service_module.threading.RLock()
+    service._refreshing = False
+    service._pending_force_history = False
+    service._history_state_lock = service_module.threading.RLock()
+    service._history_refreshing = False
+    service._history_force_pending = False
+    service._history_total = 0
+    service._history_completed = 0
+    service._history_updated = 0
+    service._history_failed = 0
+    service._history_started_at = None
+    service._history_finished_at = None
+    service._history_snapshot_pending = False
+    service._history_thread = None
+    service.pool = [SimpleNamespace(code="000001", name="测试", groups=["测试"])]
+    service.quotes = {}
+    service.history_store = DailyKlineStore(tmp_path / "radar.db")
+    service.intraday = {}
+    service.intraday_loaded_at = {}
+    service.intraday_attempted_at = {}
+    service.market_indices = []
+    service.history_loaded_at = {}
+    service.history_attempted_at = {}
+    service.errors = []
+    service.stocks = []
+    service.last_refresh_at = None
+    service.last_success_at = None
+    service.last_refresh_mode = "none"
+    enqueued = []
+
+    monkeypatch.setattr(service_module, "load_stock_pool", lambda: service.pool)
+    monkeypatch.setattr(
+        service_module,
+        "fetch_realtime_quotes",
+        lambda codes: {"000001": {"price": 10.0}},
+    )
+    service._refresh_market_indices = lambda: None
+    service._refresh_intraday = lambda: None
+    service.build_stocks = lambda: [
+        {
+            "code": "000001",
+            "group": "测试",
+            "groups": ["测试"],
+            "quote": {"pct_chg": 1.0},
+            "signal": {"signal": "观察"},
+        }
+    ]
+    service.save_cache = lambda: None
+    service.start_history_refresh = lambda **kwargs: enqueued.append(kwargs) or {
+        "accepted": True
+    }
+
+    service.refresh(force_history=False)
+
+    assert enqueued == [{"force_history": False, "save_snapshot": False}]
+
+
+def test_running_history_force_request_does_not_requeue_quote_refresh(tmp_path):
+    service = RadarService.__new__(RadarService)
+    service._refresh_state_lock = service_module.threading.RLock()
+    service._refreshing = False
+    service._pending_force_history = False
+    service._history_state_lock = service_module.threading.RLock()
+    service._history_refreshing = True
+    service._history_force_pending = False
+    service._history_snapshot_pending = False
+    service._history_total = 3
+    service._history_completed = 1
+    service._history_updated = 1
+    service._history_failed = 0
+    service._history_started_at = "2026-08-04T10:00:00+08:00"
+    service._history_finished_at = None
+    service.history_store = DailyKlineStore(tmp_path / "radar.db")
+    service.pool = [SimpleNamespace(code="000001")]
+    service.last_refresh_mode = "auto"
+
+    status = service.start_history_refresh(force_history=True, save_snapshot=True)
+    refresh_status = service.refresh_status()
+
+    assert status["accepted"] is False
+    assert status["pending_force"] is True
+    assert service._pending_force_history is False
+    assert refresh_status["pending_force_history"] is True

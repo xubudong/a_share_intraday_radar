@@ -183,6 +183,10 @@ async function requestRefresh(forceHistory) {
     const status = await response.json();
     const dashboard = await loadData();
     if (status.refreshing || dashboard.refresh?.refreshing) {
+      setBusy(true);
+      scheduleRefreshPoll();
+    } else if (dashboard.refresh?.history?.refreshing) {
+      setBusy(false);
       scheduleRefreshPoll();
     } else {
       setBusy(false);
@@ -195,7 +199,8 @@ async function requestRefresh(forceHistory) {
 
 function scheduleRefreshPoll() {
   window.clearTimeout(state.refreshPollTimer);
-  state.refreshPollTimer = window.setTimeout(pollRefresh, 1500);
+  const delay = state.dashboard?.refresh?.refreshing ? 1500 : 5000;
+  state.refreshPollTimer = window.setTimeout(pollRefresh, delay);
 }
 
 async function pollRefresh() {
@@ -204,6 +209,12 @@ async function pollRefresh() {
     state.dashboard = dashboard;
     renderHeader();
     if (dashboard.refresh?.refreshing) {
+      setBusy(true);
+      scheduleRefreshPoll();
+      return;
+    }
+    if (dashboard.refresh?.history?.refreshing) {
+      setBusy(false);
       scheduleRefreshPoll();
       return;
     }
@@ -247,12 +258,26 @@ function renderHeader() {
   document.getElementById("lastUpdated").textContent = `刷新：${formatTime(dashboard.updated_at)}`;
   const source = dashboard.data_source || {};
   const refresh = dashboard.refresh || {};
+  const history = refresh.history || {};
   const errCount = (source.errors || []).length;
-  document.getElementById("dataStatus").textContent = refresh.refreshing
-    ? `数据源：后台刷新中${refresh.pending_force_history ? "，已排队历史刷新" : ""}`
-    : errCount > 0
-      ? `数据源：部分异常 ${errCount} 条`
-      : "数据源：EastMoney 正常";
+  if (refresh.refreshing) {
+    document.getElementById("dataStatus").textContent =
+      `数据源：实时刷新中${refresh.pending_force_history ? "，已排队日K全量刷新" : ""}`;
+  } else if (history.refreshing) {
+    const total = history.total || 0;
+    const completed = history.completed || 0;
+    const cached = history.cached ?? "--";
+    const missing = history.missing ?? "--";
+    document.getElementById("dataStatus").textContent =
+      `数据源：EastMoney 正常，日K后台补全 ${completed}/${total}，缓存 ${cached}，缺失 ${missing}`;
+  } else if ((history.missing || 0) > 0) {
+    document.getElementById("dataStatus").textContent =
+      `数据源：EastMoney 正常，日K缓存 ${history.cached ?? "--"}，缺失 ${history.missing}`;
+  } else if (errCount > 0) {
+    document.getElementById("dataStatus").textContent = `数据源：部分异常 ${errCount} 条`;
+  } else {
+    document.getElementById("dataStatus").textContent = "数据源：EastMoney 正常";
+  }
 }
 
 function renderSummary() {

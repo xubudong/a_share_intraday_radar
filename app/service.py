@@ -62,6 +62,17 @@ class RadarService:
         self._refreshing = False
         self._pending_force_history = False
         self._refresh_thread: threading.Thread | None = None
+        self._history_state_lock = threading.RLock()
+        self._history_refreshing = False
+        self._history_thread: threading.Thread | None = None
+        self._history_total = 0
+        self._history_completed = 0
+        self._history_updated = 0
+        self._history_failed = 0
+        self._history_started_at: str | None = None
+        self._history_finished_at: str | None = None
+        self._history_force_pending = False
+        self._history_snapshot_pending = False
         self.pool = load_stock_pool()
         self.quotes: dict[str, dict[str, Any]] = {}
         self.history_store = DailyKlineStore(DB_PATH)
@@ -79,7 +90,7 @@ class RadarService:
         self.load_cache()
 
     def start_refresh(self, force_history: bool = False) -> dict[str, Any]:
-        """Start one background refresh and coalesce duplicate requests."""
+        """Start one quick quote refresh and coalesce duplicate requests."""
         with self._refresh_state_lock:
             if self._refreshing:
                 if force_history:
@@ -117,14 +128,152 @@ class RadarService:
 
     def refresh_status(self, accepted: bool | None = None) -> dict[str, Any]:
         with self._refresh_state_lock:
+            history = self.history_refresh_status()
             status = {
                 "refreshing": self._refreshing,
-                "pending_force_history": self._pending_force_history,
+                "pending_force_history": (
+                    self._pending_force_history or history.get("pending_force", False)
+                ),
                 "mode": self.last_refresh_mode,
+                "history": history,
             }
             if accepted is not None:
                 status["accepted"] = accepted
             return status
+
+    def start_history_refresh(
+        self,
+        *,
+        force_history: bool = False,
+        save_snapshot: bool = False,
+    ) -> dict[str, Any]:
+        """Start one background daily-kline refresh without blocking quote refreshes."""
+        lock = getattr(self, "_history_state_lock", None)
+        if lock is None:
+            return {"refreshing": False, "accepted": False}
+        with lock:
+            if self._history_refreshing:
+                if force_history:
+                    self._history_force_pending = True
+                    self._history_snapshot_pending = (
+                        self._history_snapshot_pending or save_snapshot
+                    )
+                return self.history_refresh_status(accepted=False)
+
+            candidates = self.stocks_requiring_history(force_history)
+            if not candidates:
+                self._history_total = 0
+                self._history_completed = 0
+                self._history_updated = 0
+                self._history_failed = 0
+                self._history_finished_at = now_iso()
+                return self.history_refresh_status(accepted=False)
+
+            self._history_refreshing = True
+            self._history_force_pending = False
+            self._history_snapshot_pending = save_snapshot
+            self._history_total = len(candidates)
+            self._history_completed = 0
+            self._history_updated = 0
+            self._history_failed = 0
+            self._history_started_at = now_iso()
+            self._history_finished_at = None
+            thread = threading.Thread(
+                target=self._run_history_refresh_queue,
+                args=(candidates, force_history, save_snapshot),
+                daemon=True,
+            )
+            self._history_thread = thread
+            thread.start()
+            return self.history_refresh_status(accepted=True)
+
+    def _run_history_refresh_queue(
+        self,
+        candidates: list[StockConfig],
+        force_history: bool,
+        save_snapshot: bool,
+    ) -> None:
+        current_candidates = candidates
+        current_force_history = force_history
+        current_save_snapshot = save_snapshot
+        while True:
+            try:
+                self._refresh_daily_klines(
+                    current_candidates,
+                    force_history=current_force_history,
+                )
+                with self._lock:
+                    self.stocks = self.build_stocks()
+                    if self.stocks:
+                        self.last_success_at = now_iso()
+                        self.save_cache()
+                        if current_save_snapshot:
+                            self.save_snapshot()
+            except Exception as exc:  # pragma: no cover - last-resort worker protection
+                self.errors.append(
+                    {"scope": "history", "message": str(exc), "time": now_iso()}
+                )
+
+            with self._history_state_lock:
+                if self._history_force_pending:
+                    self._history_force_pending = False
+                    current_force_history = True
+                    current_save_snapshot = (
+                        current_save_snapshot or self._history_snapshot_pending
+                    )
+                    self._history_snapshot_pending = False
+                    current_candidates = self.stocks_requiring_history(True)
+                    self._history_total = len(current_candidates)
+                    self._history_completed = 0
+                    self._history_updated = 0
+                    self._history_failed = 0
+                    self._history_started_at = now_iso()
+                    self._history_finished_at = None
+                    if current_candidates:
+                        continue
+
+                self._history_refreshing = False
+                self._history_thread = None
+                self._history_finished_at = now_iso()
+                self._history_snapshot_pending = False
+                return
+
+    def history_refresh_status(self, accepted: bool | None = None) -> dict[str, Any]:
+        lock = getattr(self, "_history_state_lock", None)
+        if lock is None:
+            status = {
+                "refreshing": False,
+                "pending_force": False,
+                "total": 0,
+                "completed": 0,
+                "updated": 0,
+                "failed": 0,
+                "cached": 0,
+                "missing": 0,
+                "progress": 0,
+            }
+        else:
+            with lock:
+                total = getattr(self, "_history_total", 0)
+                completed = getattr(self, "_history_completed", 0)
+                cached = self.history_store.count_codes() if hasattr(self, "history_store") else 0
+                pool_size = len(getattr(self, "pool", []) or [])
+                status = {
+                    "refreshing": getattr(self, "_history_refreshing", False),
+                    "pending_force": getattr(self, "_history_force_pending", False),
+                    "total": total,
+                    "completed": completed,
+                    "updated": getattr(self, "_history_updated", 0),
+                    "failed": getattr(self, "_history_failed", 0),
+                    "cached": cached,
+                    "missing": max(0, pool_size - cached),
+                    "started_at": getattr(self, "_history_started_at", None),
+                    "finished_at": getattr(self, "_history_finished_at", None),
+                    "progress": round(completed / total * 100, 1) if total else 0,
+                }
+        if accepted is not None:
+            status["accepted"] = accepted
+        return status
 
     def load_cache(self) -> None:
         if not CACHE_PATH.exists():
@@ -207,17 +356,16 @@ class RadarService:
 
             self._refresh_market_indices()
 
-            history_stocks = self.stocks_requiring_history(force_history)
-            self._refresh_daily_klines(history_stocks, force_history=force_history)
-
             self._refresh_intraday()
             self.stocks = self.build_stocks()
+            self.start_history_refresh(
+                force_history=force_history,
+                save_snapshot=force_history,
+            )
 
             if self.stocks:
                 self.last_success_at = now_iso()
                 self.save_cache()
-                if force_history:
-                    self.save_snapshot()
             return self.dashboard()
 
     def stocks_requiring_history(self, force_history: bool) -> list[StockConfig]:
@@ -259,13 +407,19 @@ class RadarService:
                 }
                 for future in as_completed(futures):
                     stock = futures[future]
+                    progress_updated = False
+                    progress_failed = False
                     try:
                         rows = future.result()
                         if rows:
                             self.history_store.replace_rows(stock.code, rows)
                             self.history_loaded_at[stock.code] = time.time()
                             updated += 1
+                            progress_updated = True
+                        else:
+                            progress_failed = True
                     except Exception as exc:
+                        progress_failed = True
                         self.errors.append(
                             {
                                 "scope": "history",
@@ -275,6 +429,15 @@ class RadarService:
                                 "time": now_iso(),
                             }
                         )
+                    finally:
+                        lock = getattr(self, "_history_state_lock", None)
+                        if lock is not None:
+                            with lock:
+                                self._history_completed += 1
+                                if progress_updated:
+                                    self._history_updated += 1
+                                if progress_failed:
+                                    self._history_failed += 1
 
             if updated:
                 self.save_cache()
@@ -615,6 +778,7 @@ class RadarService:
             "last_success_at": self.last_success_at,
             "cache_path": str(CACHE_PATH),
             "db_path": str(DB_PATH),
+            "history": self.history_refresh_status(),
             "errors": self.errors[-20:],
         }
 
