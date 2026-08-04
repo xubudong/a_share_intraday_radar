@@ -75,3 +75,22 @@ def test_daily_kline_refresh_batches_and_saves(monkeypatch):
     assert calls == ["000000", "000001", "000002", "000003", "000004"]
     assert saves == [2, 4, 5]
     assert set(service.klines) == set(calls)
+
+
+def test_normal_refresh_only_fetches_missing_history():
+    service = RadarService.__new__(RadarService)
+    service.pool = [
+        SimpleNamespace(code="000001"),
+        SimpleNamespace(code="000002"),
+        SimpleNamespace(code="000003"),
+    ]
+    service.klines = {
+        "000001": [{"date": "2026-08-01", "close": 10.0}],
+        "000002": [],
+    }
+
+    normal = service.stocks_requiring_history(False)
+    forced = service.stocks_requiring_history(True)
+
+    assert [stock.code for stock in normal] == ["000002", "000003"]
+    assert [stock.code for stock in forced] == ["000001", "000002", "000003"]

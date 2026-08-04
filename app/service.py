@@ -40,7 +40,6 @@ def positive_int_env(name: str, default: int) -> int:
 
 CACHE_PATH = ROOT_DIR / "data" / "state_cache.json"
 SNAPSHOTS_DIR = ROOT_DIR / "data" / "snapshots"
-HISTORY_REFRESH_SECONDS = 30 * 60
 FETCH_WORKERS = positive_int_env("HISTORY_FETCH_WORKERS", 2)
 HISTORY_BATCH_SIZE = positive_int_env("HISTORY_BATCH_SIZE", 40)
 INTRADAY_REFRESH_SECONDS = 5 * 60
@@ -194,12 +193,8 @@ class RadarService:
 
             self._refresh_market_indices()
 
-            stale_stocks = [
-                stock
-                for stock in self.pool
-                if force_history or self.history_is_stale(stock.code)
-            ]
-            self._refresh_daily_klines(stale_stocks, force_history=force_history)
+            history_stocks = self.stocks_requiring_history(force_history)
+            self._refresh_daily_klines(history_stocks, force_history=force_history)
 
             self._refresh_intraday()
             self.stocks = self.build_stocks()
@@ -211,11 +206,10 @@ class RadarService:
                     self.save_snapshot()
             return self.dashboard()
 
-    def history_is_stale(self, code: str) -> bool:
-        if code not in self.klines:
-            return True
-        loaded_at = float(self.history_loaded_at.get(code) or 0)
-        return time.time() - loaded_at > HISTORY_REFRESH_SECONDS
+    def stocks_requiring_history(self, force_history: bool) -> list[StockConfig]:
+        if force_history:
+            return list(self.pool)
+        return [stock for stock in self.pool if not self.klines.get(stock.code)]
 
     def _refresh_daily_klines(self, stocks: list[StockConfig], *, force_history: bool) -> None:
         if not stocks:
