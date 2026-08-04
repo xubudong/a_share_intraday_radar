@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import sys
 import threading
 import time
 from collections import Counter, defaultdict
@@ -27,10 +29,20 @@ try:
     SH_TZ = ZoneInfo("Asia/Shanghai")
 except Exception:  # Windows embeddable runtimes may not include IANA tzdata.
     SH_TZ = timezone(timedelta(hours=8), name="Asia/Shanghai")
+
+
+def positive_int_env(name: str, default: int) -> int:
+    try:
+        return max(1, int(os.getenv(name, str(default))))
+    except ValueError:
+        return default
+
+
 CACHE_PATH = ROOT_DIR / "data" / "state_cache.json"
 SNAPSHOTS_DIR = ROOT_DIR / "data" / "snapshots"
 HISTORY_REFRESH_SECONDS = 30 * 60
-FETCH_WORKERS = 6
+FETCH_WORKERS = positive_int_env("HISTORY_FETCH_WORKERS", 2)
+HISTORY_BATCH_SIZE = positive_int_env("HISTORY_BATCH_SIZE", 40)
 INTRADAY_REFRESH_SECONDS = 5 * 60
 INTRADAY_RETRY_SECONDS = 45
 INTRADAY_MAX_PER_REFRESH = 24
@@ -187,28 +199,7 @@ class RadarService:
                 for stock in self.pool
                 if force_history or self.history_is_stale(stock.code)
             ]
-            with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as executor:
-                futures = {
-                    executor.submit(fetch_daily_klines, stock.code): stock
-                    for stock in stale_stocks
-                }
-                for future in as_completed(futures):
-                    stock = futures[future]
-                    try:
-                        rows = future.result()
-                        if rows:
-                            self.klines[stock.code] = rows
-                            self.history_loaded_at[stock.code] = time.time()
-                    except Exception as exc:
-                        self.errors.append(
-                            {
-                                "scope": "history",
-                                "code": stock.code,
-                                "name": stock.name,
-                                "message": str(exc),
-                                "time": now_iso(),
-                            }
-                        )
+            self._refresh_daily_klines(stale_stocks, force_history=force_history)
 
             self._refresh_intraday()
             self.stocks = self.build_stocks()
@@ -225,6 +216,50 @@ class RadarService:
             return True
         loaded_at = float(self.history_loaded_at.get(code) or 0)
         return time.time() - loaded_at > HISTORY_REFRESH_SECONDS
+
+    def _refresh_daily_klines(self, stocks: list[StockConfig], *, force_history: bool) -> None:
+        if not stocks:
+            return
+
+        service_log(
+            f"开始刷新日K：{len(stocks)} 只，"
+            f"force_history={force_history}，workers={FETCH_WORKERS}，batch={HISTORY_BATCH_SIZE}"
+        )
+        total = len(stocks)
+        for start in range(0, total, HISTORY_BATCH_SIZE):
+            batch = stocks[start : start + HISTORY_BATCH_SIZE]
+            batch_no = start // HISTORY_BATCH_SIZE + 1
+            batch_total = (total + HISTORY_BATCH_SIZE - 1) // HISTORY_BATCH_SIZE
+            updated = 0
+            service_log(f"刷新日K批次 {batch_no}/{batch_total}：{len(batch)} 只")
+
+            with ThreadPoolExecutor(max_workers=max(1, min(FETCH_WORKERS, len(batch)))) as executor:
+                futures = {
+                    executor.submit(fetch_daily_klines, stock.code): stock
+                    for stock in batch
+                }
+                for future in as_completed(futures):
+                    stock = futures[future]
+                    try:
+                        rows = future.result()
+                        if rows:
+                            self.klines[stock.code] = rows
+                            self.history_loaded_at[stock.code] = time.time()
+                            updated += 1
+                    except Exception as exc:
+                        self.errors.append(
+                            {
+                                "scope": "history",
+                                "code": stock.code,
+                                "name": stock.name,
+                                "message": str(exc),
+                                "time": now_iso(),
+                            }
+                        )
+
+            if updated:
+                self.save_cache()
+            service_log(f"完成日K批次 {batch_no}/{batch_total}：成功 {updated}/{len(batch)}")
 
     def build_stocks(self) -> list[dict[str, Any]]:
         items = []
@@ -631,6 +666,10 @@ def market_session() -> dict[str, Any]:
 
 def now_iso() -> str:
     return datetime.now(SH_TZ).isoformat(timespec="seconds")
+
+
+def service_log(message: str) -> None:
+    print(f"[{now_iso()}] {message}", file=sys.stderr, flush=True)
 
 
 radar_service = RadarService()

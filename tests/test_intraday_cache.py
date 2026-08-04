@@ -46,3 +46,32 @@ def test_intraday_refresh_limits_batch_and_keeps_recent_data(monkeypatch):
     assert set(calls) == {"000002", "000003"}
     assert len(calls) == 2
     assert service.intraday["000001"] == [9.9, 10.0]
+
+
+def test_daily_kline_refresh_batches_and_saves(monkeypatch):
+    service = RadarService.__new__(RadarService)
+    service.klines = {}
+    service.history_loaded_at = {}
+    service.errors = []
+    stocks = [
+        SimpleNamespace(code=f"00000{index}", name=f"测试{index}")
+        for index in range(5)
+    ]
+    calls = []
+    saves = []
+
+    monkeypatch.setattr(service_module, "HISTORY_BATCH_SIZE", 2)
+    monkeypatch.setattr(service_module, "FETCH_WORKERS", 1)
+    monkeypatch.setattr(service_module, "service_log", lambda message: None)
+    monkeypatch.setattr(
+        service_module,
+        "fetch_daily_klines",
+        lambda code: calls.append(code) or [{"date": "2026-08-04", "close": 10.0}],
+    )
+    service.save_cache = lambda: saves.append(len(service.klines))
+
+    service._refresh_daily_klines(stocks, force_history=True)
+
+    assert calls == ["000000", "000001", "000002", "000003", "000004"]
+    assert saves == [2, 4, 5]
+    assert set(service.klines) == set(calls)
