@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 data/state_cache.json
+data/radar.db
+data/radar.db-*
 data/snapshots/
 data/sentiment/
 data/sentiment_marks.json

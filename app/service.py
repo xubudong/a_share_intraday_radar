@@ -21,6 +21,7 @@ from .eastmoney import (
     fetch_market_indices,
     fetch_realtime_quotes,
 )
+from .history_store import DailyKlineStore
 from .indicators import compute_indicators
 from .signals import evaluate_signal
 
@@ -39,10 +40,12 @@ def positive_int_env(name: str, default: int) -> int:
 
 
 CACHE_PATH = ROOT_DIR / "data" / "state_cache.json"
+DB_PATH = ROOT_DIR / "data" / "radar.db"
 SNAPSHOTS_DIR = ROOT_DIR / "data" / "snapshots"
 FETCH_WORKERS = positive_int_env("HISTORY_FETCH_WORKERS", 2)
 HISTORY_BATCH_SIZE = positive_int_env("HISTORY_BATCH_SIZE", 40)
 HISTORY_RETRY_SECONDS = positive_int_env("HISTORY_RETRY_SECONDS", 30 * 60)
+HISTORY_WINDOW = positive_int_env("HISTORY_WINDOW", 220)
 INTRADAY_REFRESH_SECONDS = 5 * 60
 INTRADAY_RETRY_SECONDS = 45
 INTRADAY_MAX_PER_REFRESH = 24
@@ -61,7 +64,7 @@ class RadarService:
         self._refresh_thread: threading.Thread | None = None
         self.pool = load_stock_pool()
         self.quotes: dict[str, dict[str, Any]] = {}
-        self.klines: dict[str, list[dict[str, Any]]] = {}
+        self.history_store = DailyKlineStore(DB_PATH)
         self.intraday: dict[str, list[float]] = {}
         self.intraday_loaded_at: dict[str, float] = {}
         self.intraday_attempted_at: dict[str, float] = {}
@@ -129,7 +132,6 @@ class RadarService:
         try:
             data = json.loads(CACHE_PATH.read_text(encoding="utf-8"))
             self.quotes = data.get("quotes", {})
-            self.klines = data.get("klines", {})
             self.intraday = data.get("intraday", {})
             self.intraday_loaded_at = data.get("intraday_loaded_at", {})
             self.intraday_attempted_at = data.get("intraday_attempted_at", {})
@@ -137,6 +139,10 @@ class RadarService:
             self.history_loaded_at = data.get("history_loaded_at", {})
             self.history_attempted_at = data.get("history_attempted_at", {})
             self.last_success_at = data.get("last_success_at")
+            migrated = self.history_store.migrate_from_cache(data.get("klines", {}))
+            if migrated:
+                service_log(f"已迁移旧日K缓存到 SQLite：{migrated} 只")
+                self.save_cache()
             self.stocks = self.build_stocks()
         except Exception as exc:  # pragma: no cover - cache corruption should not block app
             self.errors.append({"scope": "cache", "message": str(exc), "time": now_iso()})
@@ -145,7 +151,6 @@ class RadarService:
         CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
         payload = {
             "quotes": self.quotes,
-            "klines": self.klines,
             "intraday": self.intraday,
             "intraday_loaded_at": self.intraday_loaded_at,
             "intraday_attempted_at": self.intraday_attempted_at,
@@ -166,7 +171,7 @@ class RadarService:
             codes = [stock.code for stock in self.pool]
             valid_codes = set(codes)
             self.quotes = {code: value for code, value in self.quotes.items() if code in valid_codes}
-            self.klines = {code: value for code, value in self.klines.items() if code in valid_codes}
+            self.history_store.prune_codes(valid_codes)
             self.intraday = {code: value for code, value in self.intraday.items() if code in valid_codes}
             self.intraday_loaded_at = {
                 code: value
@@ -221,7 +226,7 @@ class RadarService:
         return [
             stock
             for stock in self.pool
-            if not self.klines.get(stock.code) and self.history_retry_is_due(stock.code)
+            if not self.history_store.has_rows(stock.code) and self.history_retry_is_due(stock.code)
         ]
 
     def history_retry_is_due(self, code: str) -> bool:
@@ -257,7 +262,7 @@ class RadarService:
                     try:
                         rows = future.result()
                         if rows:
-                            self.klines[stock.code] = rows
+                            self.history_store.replace_rows(stock.code, rows)
                             self.history_loaded_at[stock.code] = time.time()
                             updated += 1
                     except Exception as exc:
@@ -279,7 +284,10 @@ class RadarService:
         items = []
         for stock in self.pool:
             quote = self.quotes.get(stock.code, {})
-            rows = merge_intraday_quote(self.klines.get(stock.code, []), quote)
+            rows = merge_intraday_quote(
+                self.history_store.get_rows(stock.code, limit=HISTORY_WINDOW),
+                quote,
+            )
             indicators = compute_indicators(rows)
             price = quote.get("price") or (rows[-1]["close"] if rows else None)
             starred = star_store.is_starred(stock.code)
@@ -599,13 +607,14 @@ class RadarService:
             "pending_force_history": self._pending_force_history,
             "pool_size": len(self.pool),
             "quote_count": len(self.quotes),
-            "kline_count": len(self.klines),
+            "kline_count": self.history_store.count_codes(),
             "indicator_count": has_indicators,
             "intraday_count": has_intraday,
             "market_index_count": len(getattr(self, "market_indices", [])),
             "last_refresh_at": self.last_refresh_at,
             "last_success_at": self.last_success_at,
             "cache_path": str(CACHE_PATH),
+            "db_path": str(DB_PATH),
             "errors": self.errors[-20:],
         }
 
