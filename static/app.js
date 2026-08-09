@@ -89,6 +89,11 @@ function bindEvents() {
   });
   document.getElementById("searchInput").addEventListener("input", renderTable);
   document.addEventListener("click", (event) => {
+    const quoteLink = event.target.closest(".stock-code-link");
+    if (quoteLink) {
+      event.stopPropagation();
+      return;
+    }
     const copyBtn = event.target.closest(".copy-code");
     if (copyBtn) {
       event.stopPropagation();
@@ -399,7 +404,7 @@ function renderRadar() {
         <span>${stock.star ? '<button class="star-toggle starred" data-code="' + stock.code + '" title="取消星标" aria-label="取消星标">★</button> ' : '<button class="star-toggle" data-code="' + stock.code + '" title="加星标" aria-label="加星标">☆</button> '}${holdingButton(stock)} ${stock.name}</span>
         ${signalPill(stock.signal.signal)}
       </div>
-      <div class="stock-code">${stock.code}${boardBadge(stock.code)} · ${stock.group}</div>
+      <div class="stock-code">${stockCodeLink(stock.code)}${boardBadge(stock.code)} · ${stock.group}</div>
       <div class="radar-metrics">
         <span>价格 ${formatPrice(stock.price)}</span>
         <span class="${numClass(stock.quote?.pct_chg)}">${formatPct(stock.quote?.pct_chg)}</span>
@@ -813,7 +818,8 @@ function stockRow(stock) {
       <td class="col-code">
         <div class="stock-name"><button class="star-toggle ${stock.star ? "starred" : ""}" data-code="${stock.code}" title="${stock.star ? "取消星标" : "加星标"}" aria-label="${stock.star ? "取消星标" : "加星标"}">${stock.star ? "★" : "☆"}</button> ${holdingButton(stock)} ${stock.name}</div>
         <div class="stock-code-line">
-          <button class="copy-code ${boardCodeClass(stock.code)}" data-code="${stock.code}" title="复制代码" aria-label="复制 ${stock.code}">${stock.code}</button>
+          ${stockCodeLink(stock.code)}
+          <button class="copy-code" data-code="${stock.code}" title="复制代码" aria-label="复制 ${stock.code}">复制</button>
           ${boardBadge(stock.code)}
           ${stock.watch ? '<span class="watch-mark">观察</span>' : ""}
         </div>
@@ -858,6 +864,18 @@ function stockBoard(code) {
 
 function boardCodeClass(code) {
   return stockBoard(code) ? "restricted-board-code" : "";
+}
+
+function quoteUrl(code) {
+  const value = String(code || "").trim();
+  const prefix = value.startsWith("6") ? "sh" : "sz";
+  return `https://quote.eastmoney.com/${prefix}${value}.html`;
+}
+
+function stockCodeLink(code) {
+  const value = String(code || "").trim();
+  if (!value) return "";
+  return `<a class="stock-code-link ${boardCodeClass(value)}" href="${quoteUrl(value)}" target="_blank" rel="noopener noreferrer" title="打开东方财富行情 ${value}">${escapeHtml(value)}</a>`;
 }
 
 function boardBadge(code) {

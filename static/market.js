@@ -357,13 +357,25 @@ function matchTags(item) {
     <div class="match-tags">
       ${stocks.slice(0, 8).map((stock) => `
         <span class="match-tag stock" title="${escapeHtml((stock.groups || []).join(" / "))}">
-          ${escapeHtml(stock.name)} ${escapeHtml(stock.code)}
+          ${escapeHtml(stock.name)} ${stockCodeLink(stock.code)}
         </span>
       `).join("")}
       ${groups.slice(0, 8).map((group) => `<span class="match-tag group">${escapeHtml(group)}</span>`).join("")}
       ${reasons.length ? `<span class="match-reason">${escapeHtml(reasons.slice(0, 3).join("；"))}</span>` : ""}
     </div>
   `;
+}
+
+function quoteUrl(code) {
+  const value = String(code || "").trim();
+  const prefix = value.startsWith("6") ? "sh" : "sz";
+  return `https://quote.eastmoney.com/${prefix}${value}.html`;
+}
+
+function stockCodeLink(code) {
+  const value = String(code || "").trim();
+  if (!value) return "";
+  return `<a class="stock-code-link" href="${quoteUrl(value)}" target="_blank" rel="noopener noreferrer" title="打开东方财富行情 ${value}" onclick="event.stopPropagation()">${escapeHtml(value)}</a>`;
 }
 
 function importanceBadge(item) {

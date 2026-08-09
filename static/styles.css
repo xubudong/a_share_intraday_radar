@@ -1012,6 +1012,11 @@ main {
   color: var(--blue);
 }
 
+.match-tag .stock-code-link {
+  margin-left: 4px;
+  color: inherit;
+}
+
 .match-tag.group {
   background: #e6fffb;
   color: var(--teal);
@@ -1229,6 +1234,24 @@ tbody tr:hover {
   align-items: center;
   gap: 6px;
   margin-top: 3px;
+}
+
+.stock-code-link {
+  color: #2563eb;
+  font-weight: 700;
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+
+.stock-code-link:hover {
+  text-decoration: underline;
+}
+
+.stock-code-link.restricted-board-code {
+  color: var(--amber);
+  font-weight: 800;
+  text-decoration: underline dotted currentColor 2px;
+  text-underline-offset: 3px;
 }
 
 .group-cell {
