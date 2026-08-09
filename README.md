@@ -4,38 +4,37 @@
 
 ## 启动
 
-推荐在当前 PowerShell / CMD 窗口运行：
+Windows 日常使用可直接双击 `start_hidden.vbs`，它通过项目 `.venv` 中的 `pythonw.exe` 在后台启动，不显示命令行窗口。需要查看即时错误时双击 `start.bat`，停止服务使用 `stop.bat`。
+
+统一管理入口支持 `start`、`stop`、`restart` 和 `status`：
 
 ```powershell
-py start_services.py
+.\manage.ps1 start
+.\manage.ps1 status
+.\manage.ps1 restart
+.\manage.ps1 stop
 ```
 
-停止服务：
+Linux / VPS 使用：
 
-```powershell
-py stop_services.py
+```sh
+./manage.sh start
+./manage.sh status
+./manage.sh restart
+./manage.sh stop
 ```
 
-`start_services.py` 只负责启动/重启服务，不会创建虚拟环境或安装依赖；请先在目标环境中准备好 Python 依赖。`start.bat` / `stop.bat` 仍保留为兼容入口，但主要逻辑已经迁移到 Python 脚本。
+所有入口最终都调用 `scripts/manage.py`。启动脚本不会创建虚拟环境、安装依赖或回退到系统 Python；缺少项目 `.venv` 时会明确报错退出。`start_services.py` 和 `stop_services.py` 仅作为旧入口兼容保留。
 
-也可以在虚拟环境中直接使用底层 Python 控制器：
+控制器会记录 PID 和日志，并通过项目身份接口与 PID 文件识别进程，避免误停其他 Python 服务。日志文件为 `.radar.out.log`、`.radar.err.log`；无窗口启动器的管理日志为 `.radar.launch.log`。
 
-```powershell
-.\.venv\Scripts\python.exe radar.py start
-.\.venv\Scripts\python.exe radar.py status
-.\.venv\Scripts\python.exe radar.py restart
-.\.venv\Scripts\python.exe radar.py stop
-```
-
-首次部署请先创建虚拟环境并安装依赖，再运行 `py start_services.py`。控制器会通过项目身份接口和 PID 文件双重识别进程，避免误停其他 Python 服务。
-
-默认使用 `8030` 端口；如果该端口被无法接管的当前项目旧实例占用，控制器会自动选择后续空闲端口，并在启动信息中打印实际访问地址。`stop.bat` 会根据 PID 文件停止实际端口上的实例。
+默认使用 `8030` 端口；如果该端口被无法接管的当前项目旧实例占用，控制器会自动选择后续空闲端口，并在启动信息中打印实际访问地址。停止命令会根据 PID 文件停止实际端口上的实例。
 
 ```powershell
 cd D:\codex_project\a_share_intraday_radar
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-py start_services.py
+.\manage.ps1 start
 ```
 
 默认访问地址：`http://0.0.0.0:8030`
@@ -44,7 +43,7 @@ py start_services.py
 
 ```powershell
 $env:WEB_PORT = "8031"
-py start_services.py
+.\manage.ps1 start
 ```
 
 ## 功能

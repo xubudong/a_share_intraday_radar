@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import radar
 import start_services
 import stop_services
 from app.instance import APP_ID, root_fingerprint
+from scripts import manage
 
 
 def test_instance_endpoint_identifies_current_project():
@@ -105,6 +107,23 @@ def test_process_detach_options_use_new_session_on_linux(monkeypatch):
     assert radar.process_detach_options() == {"start_new_session": True}
 
 
+def test_force_terminate_uses_process_tree_on_windows(monkeypatch):
+    calls = []
+
+    class Result:
+        returncode = 0
+
+    monkeypatch.setattr(radar.os, "name", "nt")
+    monkeypatch.setattr(
+        radar.subprocess,
+        "run",
+        lambda command, **kwargs: calls.append((command, kwargs)) or Result(),
+    )
+
+    assert radar.force_terminate_process_tree(43210) is True
+    assert calls[0][0] == ["taskkill", "/PID", "43210", "/T", "/F"]
+
+
 def test_start_services_layout_is_valid():
     assert start_services.validate_project_layout() == []
 
@@ -113,12 +132,12 @@ def test_start_services_default_host_is_public():
     assert start_services.parse_args([]).host == "0.0.0.0"
 
 
-def test_start_services_main_runs_radar_directly(monkeypatch):
+def test_start_services_main_uses_unified_manager(monkeypatch):
     calls = []
 
     monkeypatch.setattr(
         start_services,
-        "run_radar",
+        "run_manager",
         lambda command, host, port: calls.append((command, host, port)) or 0,
     )
 
@@ -126,9 +145,39 @@ def test_start_services_main_runs_radar_directly(monkeypatch):
     assert calls == [("restart", "127.0.0.1", 8040)]
 
 
+def test_windows_hidden_launcher_runs_without_visible_window():
+    launcher = Path(__file__).resolve().parents[1] / "start_hidden.vbs"
+    content = launcher.read_text(encoding="ascii")
+
+    assert "pythonw.exe" in content
+    assert "scripts\\manage.py" in content
+    assert "shell.Run command, 0, False" in content
+    assert "python.exe" not in content
+
+
+def test_manager_accepts_only_project_virtualenv(monkeypatch, tmp_path, capsys):
+    expected = tmp_path / "python.exe"
+    expected.touch()
+    monkeypatch.setattr(manage, "expected_interpreters", lambda: {expected})
+    monkeypatch.setattr(manage.sys, "executable", str(tmp_path / "system-python.exe"))
+
+    assert manage.validate_runtime() == 1
+    assert "不属于项目 .venv" in capsys.readouterr().out
+
+
+def test_manager_forwards_command_to_controller(monkeypatch):
+    calls = []
+    monkeypatch.setattr(manage, "configure_hidden_output", lambda: None)
+    monkeypatch.setattr(manage, "validate_runtime", lambda: 0)
+    monkeypatch.setattr(radar, "main", lambda argv=None: calls.append(argv) or 0)
+
+    assert manage.main(["status", "--port", "8040"]) == 0
+    assert calls == [["status", "--port", "8040"]]
+
+
 def test_stop_services_reports_missing_venv(monkeypatch, tmp_path, capsys):
     missing_python = tmp_path / ".venv" / "Scripts" / "python.exe"
     monkeypatch.setattr(stop_services, "venv_python", lambda: missing_python)
 
     assert stop_services.run_stop("127.0.0.1", 8030) == 1
-    assert "未找到虚拟环境 Python" in capsys.readouterr().out
+    assert "未找到项目虚拟环境 Python" in capsys.readouterr().out

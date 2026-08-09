@@ -15,3 +15,5 @@ config/star_state.json
 .radar.pid
 .radar.out.log
 .radar.err.log
+.radar.launch.log
+*.lnk

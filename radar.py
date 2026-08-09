@@ -24,12 +24,12 @@ DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8030
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="A Share Intraday Radar process controller.")
     parser.add_argument("command", choices=("start", "stop", "restart", "status"))
     parser.add_argument("--host", default=os.getenv("WEB_HOST", DEFAULT_HOST))
     parser.add_argument("--port", type=int, default=int(os.getenv("WEB_PORT", DEFAULT_PORT)))
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def probe_host(host: str) -> str:
@@ -159,6 +159,33 @@ def process_detach_options() -> dict[str, Any]:
     return {"start_new_session": True}
 
 
+def wait_for_port_close(host: str, port: int, timeout: float) -> bool:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if not port_is_open(host, port):
+            return True
+        time.sleep(0.25)
+    return not port_is_open(host, port)
+
+
+def force_terminate_process_tree(pid: int) -> bool:
+    if os.name == "nt":
+        result = subprocess.run(
+            ["taskkill", "/PID", str(pid), "/T", "/F"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="ignore",
+            check=False,
+        )
+        return result.returncode == 0
+    try:
+        os.kill(pid, signal.SIGKILL)
+        return True
+    except (ProcessLookupError, PermissionError):
+        return False
+
+
 def start(host: str, port: int) -> int:
     record = load_pid_record()
     if valid_pid_record(record):
@@ -223,7 +250,10 @@ def start(host: str, port: int) -> int:
                 print(tail)
         return 1
 
-    print(f"启动成功：PID {instance['pid']}，http://{probe_host(host)}:{port}")
+    print(f"启动成功：PID {instance['pid']}，端口 {port}")
+    print(f"访问地址：http://{probe_host(host)}:{port}")
+    print(f"标准日志：{STDOUT_LOG}")
+    print(f"错误日志：{STDERR_LOG}")
     return 0
 
 
@@ -263,14 +293,18 @@ def stop(host: str, port: int) -> int:
         except PermissionError:
             denied_pids.append(pid)
 
-    deadline = time.monotonic() + 8
-    while time.monotonic() < deadline:
-        if not port_is_open(host, port):
-            remove_pid_file()
-            pids_text = ", ".join(str(pid) for pid in stopped_pids) or "已退出"
-            print(f"停止成功：PID {pids_text}")
-            return 0
-        time.sleep(0.25)
+    if wait_for_port_close(host, port, timeout=8):
+        remove_pid_file()
+        pids_text = ", ".join(str(pid) for pid in stopped_pids) or "已退出"
+        print(f"停止成功：PID {pids_text}")
+        return 0
+
+    forced_pids = [pid for pid in stopped_pids if force_terminate_process_tree(pid)]
+    if forced_pids and wait_for_port_close(host, port, timeout=5):
+        remove_pid_file()
+        pids_text = ", ".join(str(pid) for pid in forced_pids)
+        print(f"停止成功（超时后已结束进程树）：PID {pids_text}")
+        return 0
 
     denied_text = f"；无权限 PID：{', '.join(map(str, denied_pids))}" if denied_pids else ""
     print(f"停止失败：端口 {port} 在超时后仍被占用{denied_text}。")
@@ -305,8 +339,8 @@ def status(host: str, port: int) -> int:
     return 1
 
 
-def main() -> int:
-    args = parse_args()
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
     if args.command == "start":
         return start(args.host, args.port)
     if args.command == "stop":
