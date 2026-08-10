@@ -20,12 +20,55 @@ from app.instance import APP_ID, root_fingerprint
 PID_FILE = ROOT_DIR / ".radar.pid"
 STDOUT_LOG = ROOT_DIR / ".radar.out.log"
 STDERR_LOG = ROOT_DIR / ".radar.err.log"
+LAUNCH_LOG = ROOT_DIR / ".radar.launch.log"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8030
+_launch_log_stream: Any | None = None
+
+
+def project_python() -> Path:
+    relative = "Scripts/python.exe" if os.name == "nt" else "bin/python"
+    return ROOT_DIR / ".venv" / relative
+
+
+def project_pythonw() -> Path | None:
+    if os.name != "nt":
+        return None
+    return ROOT_DIR / ".venv" / "Scripts" / "pythonw.exe"
+
+
+def configure_hidden_output() -> None:
+    global _launch_log_stream
+    if sys.stdout is not None and sys.stderr is not None:
+        return
+    _launch_log_stream = LAUNCH_LOG.open("a", encoding="utf-8", buffering=1)
+    if sys.stdout is None:
+        sys.stdout = _launch_log_stream
+    if sys.stderr is None:
+        sys.stderr = _launch_log_stream
+
+
+def validate_runtime() -> bool:
+    expected = project_python()
+    if not expected.exists():
+        print(f"未找到项目虚拟环境 Python：{expected}")
+        return False
+
+    allowed = {os.path.normcase(os.path.abspath(expected))}
+    pythonw = project_pythonw()
+    if pythonw and pythonw.exists():
+        allowed.add(os.path.normcase(os.path.abspath(pythonw)))
+
+    current_path = os.path.normcase(os.path.abspath(sys.executable))
+    if current_path not in allowed:
+        print(f"当前解释器不属于项目 .venv：{sys.executable}")
+        print(f"请使用：{expected} manage.py <start|stop|restart|status>")
+        return False
+    return True
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="A Share Intraday Radar process controller.")
+    parser = argparse.ArgumentParser(description="A Share Intraday Radar process manager.")
     parser.add_argument("command", choices=("start", "stop", "restart", "status"))
     parser.add_argument("--host", default=os.getenv("WEB_HOST", DEFAULT_HOST))
     parser.add_argument("--port", type=int, default=int(os.getenv("WEB_PORT", DEFAULT_PORT)))
@@ -340,6 +383,9 @@ def status(host: str, port: int) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    configure_hidden_output()
+    if not validate_runtime():
+        return 1
     args = parse_args(argv)
     if args.command == "start":
         return start(args.host, args.port)

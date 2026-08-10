@@ -13,7 +13,7 @@ Set shell = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
 root = fso.GetParentFolderName(WScript.ScriptFullName)
-managerPath = root & "\scripts\manage.py"
+managerPath = root & "\manage.py"
 pythonwPath = root & "\.venv\Scripts\pythonw.exe"
 
 If Not fso.FileExists(pythonwPath) Then

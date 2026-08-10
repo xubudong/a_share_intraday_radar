@@ -1,6 +1,8 @@
 .venv/
+.tmp/
 __pycache__/
 *.py[cod]
+*.pdf
 .pytest_cache/
 data/state_cache.json
 data/radar.db

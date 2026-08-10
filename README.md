@@ -4,29 +4,32 @@
 
 ## 启动
 
-Windows 日常使用可直接双击 `start_hidden.vbs`，它通过项目 `.venv` 中的 `pythonw.exe` 在后台启动，不显示命令行窗口。需要查看即时错误时双击 `start.bat`，停止服务使用 `stop.bat`。
-
-统一管理入口支持 `start`、`stop`、`restart` 和 `status`：
+Windows 使用：
 
 ```powershell
-.\manage.ps1 start
-.\manage.ps1 status
-.\manage.ps1 restart
-.\manage.ps1 stop
+.\start.ps1
+.\stop.ps1
 ```
+
+`start.ps1` 会异步提交后台启动任务后立即退出，双击时终端只会短暂闪现，不会等待服务完成就绪检查。
+
+需要双击后无窗口启动时使用 `start_hidden.vbs`。它通过项目 `pythonw.exe` 直接调用 `manage.py`，不会创建 PowerShell 或 Windows Terminal 窗口；管理输出写入 `.radar.launch.log`。
 
 Linux / VPS 使用：
 
 ```sh
-./manage.sh start
-./manage.sh status
-./manage.sh restart
-./manage.sh stop
+./start.sh
+./stop.sh
 ```
 
-所有入口最终都调用 `scripts/manage.py`。启动脚本不会创建虚拟环境、安装依赖或回退到系统 Python；缺少项目 `.venv` 时会明确报错退出。`start_services.py` 和 `stop_services.py` 仅作为旧入口兼容保留。
+根目录 `manage.py` 统一提供 `start`、`stop`、`restart` 和 `status`。启动脚本不会创建虚拟环境、安装依赖或回退到系统 Python；缺少项目 `.venv` 时会明确报错退出。
 
-控制器会记录 PID 和日志，并通过项目身份接口与 PID 文件识别进程，避免误停其他 Python 服务。日志文件为 `.radar.out.log`、`.radar.err.log`；无窗口启动器的管理日志为 `.radar.launch.log`。
+```powershell
+.\.venv\Scripts\python.exe manage.py status
+.\.venv\Scripts\python.exe manage.py restart
+```
+
+控制器会记录 PID 和日志，并通过项目身份接口与 PID 文件识别进程，避免误停其他 Python 服务。日志文件为 `.radar.out.log` 和 `.radar.err.log`。
 
 默认使用 `8030` 端口；如果该端口被无法接管的当前项目旧实例占用，控制器会自动选择后续空闲端口，并在启动信息中打印实际访问地址。停止命令会根据 PID 文件停止实际端口上的实例。
 
@@ -34,16 +37,16 @@ Linux / VPS 使用：
 cd D:\codex_project\a_share_intraday_radar
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\manage.ps1 start
+.\start.ps1
 ```
 
-默认访问地址：`http://0.0.0.0:8030`
+默认访问地址：`http://127.0.0.1:8030`
 
 可覆盖端口：
 
 ```powershell
 $env:WEB_PORT = "8031"
-.\manage.ps1 start
+.\start.ps1
 ```
 
 ## 功能
