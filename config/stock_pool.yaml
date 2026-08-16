@@ -27,13 +27,17 @@ groups:
       - { code: "002916", name: "深南电路", tier: 1 }
       - { code: "603228", name: "景旺电子", tier: 2 }
 
-  - name: 光纤
+  - name: 光通信-光材料/光纤光缆
     stocks:
-      - { code: "601869", name: "长飞光纤", tier: 1 }
-      - { code: "600487", name: "亨通光电", tier: 1 }
-      - { code: "600522", name: "中天科技", tier: 2 }
-      - { code: "600498", name: "烽火通信", tier: 2 }
-      - { code: "002491", name: "通鼎互联", tier: 3 }
+      - { code: "601869", name: "长飞光纤", tier: 1, note: "光纤预制棒、光纤光缆龙头" }
+      - { code: "600487", name: "亨通光电", tier: 1, note: "光纤光缆与通信网络材料核心" }
+      - { code: "600522", name: "中天科技", tier: 2, note: "光纤光缆与海缆平台" }
+      - { code: "002222", name: "福晶科技", tier: 2, note: "光学晶体与激光材料观察" }
+      - { code: "603688", name: "石英股份", tier: 2, note: "高纯石英材料，半导体/光学材料协同" }
+      - { code: "300395", name: "菲利华", tier: 2, note: "石英玻璃与特种光学材料观察" }
+      - { code: "688143", name: "长盈通", tier: 2, note: "特种光纤与光纤环二线弹性" }
+      - { code: "600498", name: "烽火通信", tier: 2, note: "光通信设备与光纤链平台" }
+      - { code: "002491", name: "通鼎互联", tier: 3, note: "光纤光缆弹性观察" }
       - { code: "600105", name: "永鼎股份", tier: 3, note: "光纤光缆与通信线缆高弹性观察" }
 
   - name: 工业气体
@@ -368,39 +372,43 @@ groups:
       - { code: "688630", name: "芯碁微装", tier: 2, note: "直写光刻设备观察" }
       - { code: "688419", name: "耐科装备", tier: 2, note: "封装与塑封设备观察" }
 
-  - name: 光模块-整机
+  - name: 光通信-光芯片
+    stocks:
+      - { code: "002281", name: "光迅科技", tier: 1, note: "光芯片、光器件、光模块平台核心" }
+      - { code: "688498", name: "源杰科技", tier: 1, note: "高速激光器芯片弹性核心" }
+      - { code: "688313", name: "仕佳光子", tier: 2, note: "AWG/PLC与光芯片观察" }
+      - { code: "688048", name: "长光华芯", tier: 2, note: "半导体激光芯片二线弹性" }
+      - { code: "000988", name: "华工科技", tier: 2, note: "光芯片、激光器与光模块平台" }
+
+  - name: 光通信-光器件/光引擎
+    stocks:
+      - { code: "300394", name: "天孚通信", tier: 1, note: "光器件与光引擎龙头锚" }
+      - { code: "300620", name: "光库科技", tier: 1, note: "铌酸锂调制器、光纤器件与光器件平台" }
+      - { code: "300570", name: "太辰光", tier: 2, note: "光连接器、陶瓷插芯与连接组件" }
+      - { code: "300548", name: "博创科技", tier: 2, note: "光器件与硅光封装观察" }
+      - { code: "688205", name: "德科立", tier: 2, note: "光模块、光放大器与传输器件弹性" }
+      - { code: "688195", name: "腾景科技", tier: 2, note: "精密光学元件" }
+      - { code: "301183", name: "东田微", tier: 2, note: "光学元件与AI硬件观察" }
+      - { code: "002902", name: "铭普光磁", tier: 3, note: "光通信与磁性器件弹性观察" }
+
+  - name: 光通信-光模块整机
     stocks:
       - { code: "300308", name: "中际旭创", tier: 1, note: "龙头锚" }
       - { code: "300502", name: "新易盛", tier: 1, note: "龙头锚" }
-      - { code: "002281", name: "光迅科技", tier: 2 }
-      - { code: "000988", name: "华工科技", tier: 2 }
+      - { code: "002281", name: "光迅科技", tier: 1, note: "光芯片、光器件、光模块平台核心" }
+      - { code: "000988", name: "华工科技", tier: 2, note: "光芯片、激光器与光模块平台" }
       - { code: "603083", name: "剑桥科技", tier: 2, note: "高弹性观察" }
       - { code: "301205", name: "联特科技", tier: 3, note: "高弹性观察" }
 
-  - name: 光模块-上游光器件
-    stocks:
-      - { code: "300394", name: "天孚通信", tier: 1, note: "光器件龙头锚" }
-      - { code: "688498", name: "源杰科技", tier: 2, note: "光芯片" }
-      - { code: "300570", name: "太辰光", tier: 2, note: "连接器件" }
-      - { code: "300620", name: "光库科技", tier: 2, note: "光器件" }
-      - { code: "688313", name: "仕佳光子", tier: 2, note: "光芯片" }
-
-  - name: 光模块-CPO硅光
+  - name: 光通信-CPO/硅光
     stocks:
       - { code: "300394", name: "天孚通信", tier: 1, note: "CPO器件龙头锚" }
       - { code: "688498", name: "源杰科技", tier: 2, note: "光芯片" }
       - { code: "300620", name: "光库科技", tier: 2, note: "薄膜铌酸锂与光器件观察" }
       - { code: "688313", name: "仕佳光子", tier: 2, note: "AWG与光芯片观察" }
+      - { code: "300548", name: "博创科技", tier: 2, note: "硅光封装与光器件观察" }
 
-  - name: 光模块-二线器件
-    stocks:
-      - { code: "300548", name: "博创科技", tier: 2, note: "光器件与硅光封装观察" }
-      - { code: "688205", name: "德科立", tier: 2, note: "光模块与光放大器二线弹性" }
-      - { code: "301183", name: "东田微", tier: 2, note: "光学元件与AI硬件观察" }
-      - { code: "688195", name: "腾景科技", tier: 2, note: "精密光学元件" }
-      - { code: "002902", name: "铭普光磁", tier: 3, note: "光通信与磁性器件弹性观察" }
-
-  - name: 光模块-高速连接/网络设备
+  - name: 光通信-高速连接/网络设备
     stocks:
       - { code: "300913", name: "兆龙互连", tier: 2, note: "高速铜缆与数据中心连接观察" }
       - { code: "301191", name: "菲菱科思", tier: 2, note: "网络设备与交换机代工观察" }

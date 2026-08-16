@@ -48,7 +48,7 @@ const groupFamilies = [
   { label: "有色", prefixes: ["有色-"] },
   { label: "新能源", prefixes: ["新能源-"], groups: ["铜箔"] },
   { label: "芯片", prefixes: ["半导体芯片-"], groups: ["存储芯片", "先进封装"] },
-  { label: "光通信", prefixes: ["光模块-"], groups: ["光纤"] },
+  { label: "光通信", prefixes: ["光通信-"] },
   { label: "半导体材料", prefixes: ["半导体材料-"] },
   { label: "半导体设备", prefixes: ["半导体设备-"] },
   { label: "电网设备", prefixes: ["电网设备-"] },

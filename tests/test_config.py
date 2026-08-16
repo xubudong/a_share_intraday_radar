@@ -30,7 +30,7 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert stocks_by_code["300476"].group == "PCB"
     assert stocks_by_code["300476"].tier == 1
     assert "002962" not in stocks_by_code
-    assert stocks_by_code["600105"].group == "光纤"
+    assert stocks_by_code["600105"].group == "光通信-光材料/光纤光缆"
     assert stocks_by_code["600105"].tier == 3
 
     expected_groups = {
@@ -68,11 +68,12 @@ def test_requested_sector_groups_and_tiers_are_present():
         "半导体设备-检测/量测",
         "半导体设备-零部件/工艺系统",
         "半导体设备-光刻/涂胶显影配套",
-        "光模块-整机",
-        "光模块-上游光器件",
-        "光模块-CPO硅光",
-        "光模块-二线器件",
-        "光模块-高速连接/网络设备",
+        "光通信-光芯片",
+        "光通信-光器件/光引擎",
+        "光通信-光材料/光纤光缆",
+        "光通信-光模块整机",
+        "光通信-CPO/硅光",
+        "光通信-高速连接/网络设备",
         "新能源-锂电设备",
         "新能源-锂电电芯/储能",
         "新能源-锂电材料-正极",
@@ -128,9 +129,12 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert {"半导体芯片-AI芯片", "半导体芯片-设计"} <= set(
         stocks_by_code["300474"].groups
     )
-    assert {"光模块-上游光器件", "光模块-CPO硅光"} <= set(
+    assert {"光通信-光器件/光引擎", "光通信-CPO/硅光"} <= set(
         stocks_by_code["300394"].groups
     )
+    assert stocks_by_code["688498"].group == "光通信-光芯片"
+    assert stocks_by_code["688048"].group == "光通信-光芯片"
+    assert stocks_by_code["002222"].group == "光通信-光材料/光纤光缆"
     assert stocks_by_code["300450"].tier == 1
     assert stocks_by_code["688006"].tier == 1
     assert stocks_by_code["301325"].group == "新能源-锂电设备"
@@ -162,8 +166,8 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert stocks_by_code["688361"].group == "半导体设备-检测/量测"
     assert stocks_by_code["688409"].group == "半导体设备-零部件/工艺系统"
     assert stocks_by_code["688037"].group == "半导体设备-光刻/涂胶显影配套"
-    assert stocks_by_code["300548"].group == "光模块-二线器件"
-    assert stocks_by_code["300913"].group == "光模块-高速连接/网络设备"
+    assert stocks_by_code["300548"].group == "光通信-光器件/光引擎"
+    assert stocks_by_code["300913"].group == "光通信-高速连接/网络设备"
     assert {"半导体芯片-端侧AI/AIoT", "半导体芯片-CIS/视觉感知"} <= set(
         stocks_by_code["300613"].groups
     )
