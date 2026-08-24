@@ -493,11 +493,7 @@ class RadarService:
                 group_stats[group]["total"] += 1
                 group_stats[group]["signals"][stock["signal"]["signal"]] += 1
 
-        radar = [
-            stock
-            for stock in self.stocks
-            if stock["signal"]["signal"] in {"可试仓", "二次确认", "突破观察"}
-        ][:12]
+        radar = [stock for stock in self.stocks if stock["signal"]["signal"] == "买入"][:12]
 
         # ── 涨跌统计 ──
         up, down, flat, pcts = 0, 0, 0, []
@@ -552,9 +548,9 @@ class RadarService:
                 "stars": star_store.count,
                 "holdings": getattr(star_store, "holding_count", 0),
                 "group_stars": star_store.group_count,
-                "actionable": sum(signal_counts[s] for s in ["可试仓", "二次确认", "突破观察"]),
-                "overheated": signal_counts["过热不追"],
-                "weak": signal_counts["走弱剔除"],
+                "buy": signal_counts["买入"],
+                "reduce": signal_counts["减仓"],
+                "exit": signal_counts["剔除"],
                 "up": up,
                 "down": down,
                 "flat": flat,

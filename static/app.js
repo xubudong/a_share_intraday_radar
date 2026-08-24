@@ -38,7 +38,7 @@ const state = {
   visibleColumns: Object.fromEntries(tableColumns.map((column) => [column.key, column.defaultVisible])),
 };
 
-const actionableSignals = new Set(["可试仓", "二次确认", "突破观察"]);
+const actionableSignals = new Set(["买入"]);
 const groupFamilies = [
   {
     label: "电子元件",
@@ -84,7 +84,7 @@ function bindEvents() {
     populateNoteEditor();
   });
   document.getElementById("noteDate").addEventListener("change", populateNoteEditor);
-  ["starOnly", "holdingOnly", "actionableOnly", "overheatOnly"].forEach((id) => {
+  ["starOnly", "holdingOnly", "actionableOnly", "reduceOnly"].forEach((id) => {
     document.getElementById(id).addEventListener("change", renderTable);
   });
   document.getElementById("searchInput").addEventListener("input", renderTable);
@@ -290,9 +290,9 @@ function renderSummary() {
   const items = [
     ["全池", summary.total ?? "--"],
     ["星标", summary.stars ?? "--"],
-    ["买点", summary.actionable ?? "--"],
-    ["过热", summary.overheated ?? "--"],
-    ["走弱", summary.weak ?? "--"],
+    ["买入", summary.buy ?? summary.actionable ?? "--"],
+    ["减仓", summary.reduce ?? summary.overheated ?? "--"],
+    ["剔除", summary.exit ?? summary.weak ?? "--"],
   ];
   const up = summary.up ?? 0;
   const down = summary.down ?? 0;
@@ -402,7 +402,7 @@ function renderRadar() {
     <article class="radar-card">
       <div class="radar-title">
         <span>${stock.star ? '<button class="star-toggle starred" data-code="' + stock.code + '" title="取消星标" aria-label="取消星标">★</button> ' : '<button class="star-toggle" data-code="' + stock.code + '" title="加星标" aria-label="加星标">☆</button> '}${holdingButton(stock)} ${stock.name}</span>
-        ${signalPill(stock.signal.signal)}
+        ${signalPill(stock.signal)}
       </div>
       <div class="stock-code">${stockCodeLink(stock.code)}${boardBadge(stock.code)} · ${stock.group}</div>
       <div class="radar-metrics">
@@ -697,7 +697,7 @@ function renderTable() {
   const starOnly = document.getElementById("starOnly").checked;
   const holdingOnly = document.getElementById("holdingOnly").checked;
   const actionableOnly = document.getElementById("actionableOnly").checked;
-  const overheatOnly = document.getElementById("overheatOnly").checked;
+  const reduceOnly = document.getElementById("reduceOnly").checked;
   const query = document.getElementById("searchInput").value.trim();
   const rows = state.stocks.filter((stock) => {
     const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
@@ -709,7 +709,7 @@ function renderTable() {
     if (starOnly && !stock.star) return false;
     if (holdingOnly && !stock.holding) return false;
     if (actionableOnly && !actionableSignals.has(stock.signal.signal)) return false;
-    if (overheatOnly && stock.signal.signal !== "过热不追") return false;
+    if (reduceOnly && stock.signal.signal !== "减仓") return false;
     if (query && !`${stock.code}${stock.name}`.includes(query)) return false;
     return true;
   }).sort(compareByCurrentSort);
@@ -843,7 +843,7 @@ function stockRow(stock) {
       <td class="col-ma20-slope ${numClass(stock.indicators?.ma20_slope)}">${formatPct(stock.indicators?.ma20_slope)}</td>
       <td class="col-rsi">${formatNumber(stock.indicators?.rsi14, 1)}</td>
       <td class="col-volume-ratio">${formatNumber(stock.indicators?.volume_ratio, 2)}</td>
-      <td class="col-signal">${signalPill(stock.signal.signal)}</td>
+      <td class="col-signal">${signalPill(stock.signal)}</td>
       <td class="signal-detail col-signal-detail ${hiddenColumnClass("signalDetail")}">${stock.signal.detail || ""}</td>
       <td class="col-action ${hiddenColumnClass("action")}">${stock.signal.action}</td>
     </tr>
@@ -1075,16 +1075,17 @@ function hiddenColumnClass(key) {
   return state.visibleColumns[key] ? "" : "hidden-col";
 }
 
-function signalPill(signal) {
+function signalPill(signalInfo) {
+  const info = typeof signalInfo === "string" ? { signal: signalInfo } : (signalInfo || {});
+  const signal = info.signal || "观察";
+  const reason = info.detail || (info.reasons || []).join("；") || "暂无具体原因";
+  const tooltip = `${signal}：${reason}`;
   const cls = {
-    "可试仓": "buy",
-    "二次确认": "watch",
-    "突破观察": "watch",
-    "等回踩": "wait",
-    "过热不追": "hot",
-    "走弱剔除": "weak",
+    "买入": "buy",
+    "减仓": "wait",
+    "剔除": "weak",
   }[signal] || "neutral";
-  return `<span class="signal-pill ${cls}">${signal}</span>`;
+  return `<span class="signal-pill ${cls}" title="${escapeHtml(tooltip)}" aria-label="${escapeHtml(tooltip)}">${escapeHtml(signal)}</span>`;
 }
 
 function tierBadge(tier) {
@@ -1274,9 +1275,9 @@ async function openSnapshotPanel() {
         <div class="snapshot-item ${isActive ? "active" : ""}" data-id="${s.id}">
           <div class="snapshot-time">${formatTime(s.created_at)}</div>
           <div class="snapshot-stats">
-            <span>买点 ${sum.actionable ?? "--"}</span>
-            <span>过热 ${sum.overheated ?? "--"}</span>
-            <span>走弱 ${sum.weak ?? "--"}</span>
+            <span>买入 ${sum.buy ?? sum.actionable ?? "--"}</span>
+            <span>减仓 ${sum.reduce ?? sum.overheated ?? "--"}</span>
+            <span>剔除 ${sum.exit ?? sum.weak ?? "--"}</span>
             <span>${s.stock_count}只</span>
           </div>
           <div class="snapshot-actions">
