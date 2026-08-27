@@ -60,6 +60,14 @@ const groupFamilies = [
   { label: "游戏", prefixes: ["游戏-"] },
   { label: "数据安全", prefixes: ["数据安全-"] },
   { label: "医药", prefixes: ["医药-"] },
+  { label: "大金融", prefixes: ["大金融-"] },
+  { label: "消费", prefixes: ["消费-"] },
+  { label: "地产链", prefixes: ["地产链-"] },
+  { label: "红利资产", prefixes: ["红利资产-"] },
+  { label: "交通运输", prefixes: ["交通运输-"] },
+  { label: "农业", prefixes: ["农业-"] },
+  { label: "建筑建材", prefixes: ["建筑建材-"] },
+  { label: "石油石化", prefixes: ["石油石化-"] },
 ];
 
 document.addEventListener("DOMContentLoaded", () => {

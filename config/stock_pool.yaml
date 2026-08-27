@@ -824,3 +824,175 @@ groups:
       - { code: "688315", name: "诺禾致源", tier: 2, note: "基因测序服务" }
       - { code: "688265", name: "南模生物", tier: 2, note: "实验动物模型" }
       - { code: "300725", name: "药石科技", tier: 2, note: "分子砌块与药物发现上游" }
+
+  - name: 大金融-证券
+    stocks:
+      - { code: "600030", name: "中信证券", tier: 1, note: "券商龙头，牛市和成交放量核心锚" }
+      - { code: "300059", name: "东方财富", tier: 1, note: "互联网券商与财富管理弹性核心" }
+      - { code: "601688", name: "华泰证券", tier: 1, note: "头部券商与财富管理平台" }
+      - { code: "600999", name: "招商证券", tier: 2, note: "综合券商稳健观察" }
+      - { code: "601377", name: "兴业证券", tier: 2, note: "券商弹性观察" }
+      - { code: "601099", name: "太平洋", tier: 3, note: "小券商高弹性风向标" }
+
+  - name: 大金融-银行
+    stocks:
+      - { code: "601398", name: "工商银行", tier: 1, note: "国有大行红利底仓锚" }
+      - { code: "601939", name: "建设银行", tier: 1, note: "国有大行与高股息核心" }
+      - { code: "601288", name: "农业银行", tier: 1, note: "红利资产与指数权重核心" }
+      - { code: "601988", name: "中国银行", tier: 1, note: "国有大行与红利配置" }
+      - { code: "600036", name: "招商银行", tier: 1, note: "股份行龙头，零售银行核心" }
+      - { code: "002142", name: "宁波银行", tier: 2, note: "优质区域行弹性" }
+      - { code: "600919", name: "江苏银行", tier: 2, note: "区域银行高股息与业绩弹性" }
+      - { code: "601838", name: "成都银行", tier: 2, note: "区域经济弹性银行" }
+
+  - name: 大金融-保险
+    stocks:
+      - { code: "601318", name: "中国平安", tier: 1, note: "保险龙头，金融权重核心" }
+      - { code: "601601", name: "中国太保", tier: 1, note: "寿险财险综合龙头" }
+      - { code: "601628", name: "中国人寿", tier: 1, note: "寿险权重核心" }
+      - { code: "601336", name: "新华保险", tier: 2, note: "寿险弹性观察" }
+      - { code: "601319", name: "中国人保", tier: 2, note: "财险与金融权重观察" }
+
+  - name: 消费-白酒/食品饮料
+    stocks:
+      - { code: "600519", name: "贵州茅台", tier: 1, note: "白酒绝对龙头，消费风格锚" }
+      - { code: "000858", name: "五粮液", tier: 1, note: "浓香白酒龙头" }
+      - { code: "000568", name: "泸州老窖", tier: 1, note: "高端白酒核心" }
+      - { code: "600809", name: "山西汾酒", tier: 2, note: "清香白酒龙头与弹性观察" }
+      - { code: "600887", name: "伊利股份", tier: 1, note: "乳制品龙头" }
+      - { code: "603288", name: "海天味业", tier: 2, note: "调味品龙头，消费修复观察" }
+      - { code: "605499", name: "东鹏饮料", tier: 1, note: "功能饮料高景气核心" }
+      - { code: "603345", name: "安井食品", tier: 2, note: "速冻食品龙头" }
+
+  - name: 消费-家电
+    stocks:
+      - { code: "000333", name: "美的集团", tier: 1, note: "白电龙头，消费蓝筹核心" }
+      - { code: "000651", name: "格力电器", tier: 1, note: "空调龙头与高股息消费" }
+      - { code: "600690", name: "海尔智家", tier: 1, note: "白电出海与高端化核心" }
+      - { code: "688169", name: "石头科技", tier: 2, note: "清洁电器与消费科技观察" }
+      - { code: "603486", name: "科沃斯", tier: 2, note: "服务机器人与家电消费弹性" }
+      - { code: "000921", name: "海信家电", tier: 2, note: "白电与出海弹性观察" }
+
+  - name: 消费-零售/免税
+    stocks:
+      - { code: "601888", name: "中国中免", tier: 1, note: "免税龙头，消费复苏风向标" }
+      - { code: "600415", name: "小商品城", tier: 2, note: "义乌小商品与跨境贸易观察" }
+      - { code: "600859", name: "王府井", tier: 2, note: "百货零售与免税弹性" }
+      - { code: "600729", name: "重庆百货", tier: 2, note: "区域零售与消费修复" }
+      - { code: "601933", name: "永辉超市", tier: 3, note: "商超弹性观察" }
+
+  - name: 消费-旅游酒店
+    stocks:
+      - { code: "300144", name: "宋城演艺", tier: 1, note: "景区演艺龙头，出行消费弹性" }
+      - { code: "600754", name: "锦江酒店", tier: 1, note: "酒店龙头，商旅复苏核心" }
+      - { code: "600258", name: "首旅酒店", tier: 2, note: "酒店修复观察" }
+      - { code: "000888", name: "峨眉山A", tier: 2, note: "景区旅游弹性" }
+      - { code: "603099", name: "长白山", tier: 2, note: "景区旅游高弹性" }
+      - { code: "002707", name: "众信旅游", tier: 3, note: "出境游弹性观察" }
+
+  - name: 地产链-开发/物业
+    stocks:
+      - { code: "600048", name: "保利发展", tier: 1, note: "央企地产龙头，地产政策锚" }
+      - { code: "001979", name: "招商蛇口", tier: 1, note: "央企地产与园区开发核心" }
+      - { code: "002244", name: "滨江集团", tier: 2, note: "优质民营房企观察" }
+      - { code: "000002", name: "万科A", tier: 2, note: "地产龙头修复观察" }
+      - { code: "600325", name: "华发股份", tier: 2, note: "区域国企地产弹性" }
+      - { code: "600383", name: "金地集团", tier: 3, note: "地产修复弹性观察" }
+
+  - name: 地产链-家居/建材
+    stocks:
+      - { code: "002271", name: "东方雨虹", tier: 1, note: "防水材料龙头，地产链修复核心" }
+      - { code: "000786", name: "北新建材", tier: 1, note: "石膏板与建材龙头" }
+      - { code: "603737", name: "三棵树", tier: 2, note: "涂料龙头，地产后周期观察" }
+      - { code: "603833", name: "欧派家居", tier: 1, note: "定制家居龙头" }
+      - { code: "002572", name: "索菲亚", tier: 2, note: "定制家居修复弹性" }
+      - { code: "603816", name: "顾家家居", tier: 2, note: "软体家居龙头" }
+      - { code: "002372", name: "伟星新材", tier: 2, note: "管材龙头与地产后周期" }
+
+  - name: 红利资产-煤炭
+    stocks:
+      - { code: "601088", name: "中国神华", tier: 1, note: "煤炭高股息龙头，红利资产锚" }
+      - { code: "601225", name: "陕西煤业", tier: 1, note: "煤炭龙头与高分红核心" }
+      - { code: "600188", name: "兖矿能源", tier: 1, note: "动力煤/化工平台，红利弹性" }
+      - { code: "601898", name: "中煤能源", tier: 2, note: "煤炭央企观察" }
+      - { code: "600546", name: "山煤国际", tier: 2, note: "煤炭弹性观察" }
+      - { code: "600985", name: "淮北矿业", tier: 2, note: "焦煤与煤化工观察" }
+
+  - name: 红利资产-电力/公用事业
+    stocks:
+      - { code: "600900", name: "长江电力", tier: 1, note: "水电高股息核心，红利底仓锚" }
+      - { code: "600025", name: "华能水电", tier: 1, note: "水电红利资产" }
+      - { code: "600886", name: "国投电力", tier: 1, note: "水火风光综合电力核心" }
+      - { code: "601985", name: "中国核电", tier: 1, note: "核电运营龙头" }
+      - { code: "600027", name: "华电国际", tier: 2, note: "火电盈利修复观察" }
+      - { code: "600011", name: "华能国际", tier: 2, note: "火电运营龙头" }
+      - { code: "600905", name: "三峡能源", tier: 2, note: "新能源运营商观察" }
+
+  - name: 交通运输-航运/港口
+    stocks:
+      - { code: "601919", name: "中远海控", tier: 1, note: "集运龙头，航运景气核心" }
+      - { code: "601872", name: "招商轮船", tier: 1, note: "油运/干散/集运平台" }
+      - { code: "600026", name: "中远海能", tier: 2, note: "油运景气弹性" }
+      - { code: "600018", name: "上港集团", tier: 1, note: "港口龙头，高股息属性" }
+      - { code: "601000", name: "唐山港", tier: 2, note: "港口红利观察" }
+
+  - name: 交通运输-航空机场/快递
+    stocks:
+      - { code: "601021", name: "春秋航空", tier: 1, note: "低成本航空龙头" }
+      - { code: "601111", name: "中国国航", tier: 1, note: "航空权重与出行修复" }
+      - { code: "600009", name: "上海机场", tier: 1, note: "机场免税与出入境修复核心" }
+      - { code: "002352", name: "顺丰控股", tier: 1, note: "快递物流龙头" }
+      - { code: "600233", name: "圆通速递", tier: 2, note: "快递价格修复观察" }
+      - { code: "002120", name: "韵达股份", tier: 2, note: "快递弹性观察" }
+
+  - name: 农业-养殖/饲料
+    stocks:
+      - { code: "002714", name: "牧原股份", tier: 1, note: "生猪养殖龙头，猪周期核心" }
+      - { code: "300498", name: "温氏股份", tier: 1, note: "生猪与黄羽鸡养殖龙头" }
+      - { code: "000876", name: "新希望", tier: 2, note: "饲料与养殖平台" }
+      - { code: "002311", name: "海大集团", tier: 1, note: "饲料龙头，养殖景气锚" }
+      - { code: "002567", name: "唐人神", tier: 2, note: "生猪养殖弹性" }
+      - { code: "603477", name: "巨星农牧", tier: 2, note: "养殖弹性观察" }
+
+  - name: 农业-种业/粮食
+    stocks:
+      - { code: "000998", name: "隆平高科", tier: 1, note: "种业龙头，粮食安全核心" }
+      - { code: "002385", name: "大北农", tier: 2, note: "种业与饲料平台" }
+      - { code: "300087", name: "荃银高科", tier: 2, note: "种业弹性观察" }
+      - { code: "601952", name: "苏垦农发", tier: 2, note: "粮食种植与农垦平台" }
+      - { code: "600598", name: "北大荒", tier: 2, note: "农垦土地资源与粮食安全" }
+
+  - name: 建筑建材-水泥/玻璃
+    stocks:
+      - { code: "600585", name: "海螺水泥", tier: 1, note: "水泥龙头，基建地产链锚" }
+      - { code: "600801", name: "华新水泥", tier: 2, note: "水泥区域龙头" }
+      - { code: "601636", name: "旗滨集团", tier: 2, note: "浮法玻璃与光伏玻璃观察" }
+      - { code: "000012", name: "南玻A", tier: 2, note: "玻璃材料平台" }
+      - { code: "000401", name: "冀东水泥", tier: 2, note: "北方水泥弹性观察" }
+
+  - name: 建筑建材-基建央企
+    stocks:
+      - { code: "601668", name: "中国建筑", tier: 1, note: "建筑央企龙头，中特估权重" }
+      - { code: "601390", name: "中国中铁", tier: 1, note: "铁路基建央企核心" }
+      - { code: "601186", name: "中国铁建", tier: 1, note: "铁路基建央企核心" }
+      - { code: "601800", name: "中国交建", tier: 1, note: "交通基建央企" }
+      - { code: "601669", name: "中国电建", tier: 2, note: "电力工程与新能源基建" }
+      - { code: "601868", name: "中国能建", tier: 2, note: "能源电力基建央企" }
+      - { code: "601117", name: "中国化学", tier: 2, note: "化工工程央企" }
+
+  - name: 石油石化-油气开采/油服
+    stocks:
+      - { code: "600938", name: "中国海油", tier: 1, note: "海上油气龙头，高股息资源核心" }
+      - { code: "601857", name: "中国石油", tier: 1, note: "油气央企与红利权重" }
+      - { code: "601808", name: "中海油服", tier: 2, note: "油服龙头，油气资本开支弹性" }
+      - { code: "600583", name: "海油工程", tier: 2, note: "海洋油气工程服务" }
+      - { code: "002353", name: "杰瑞股份", tier: 2, note: "民营油服设备龙头" }
+
+  - name: 石油石化-炼化/化纤
+    stocks:
+      - { code: "600028", name: "中国石化", tier: 1, note: "炼化央企与红利权重" }
+      - { code: "002493", name: "荣盛石化", tier: 1, note: "民营大炼化龙头" }
+      - { code: "600346", name: "恒力石化", tier: 1, note: "炼化化纤一体化龙头" }
+      - { code: "601233", name: "桐昆股份", tier: 2, note: "涤纶长丝龙头" }
+      - { code: "000703", name: "恒逸石化", tier: 2, note: "炼化与涤纶平台" }
+      - { code: "000301", name: "东方盛虹", tier: 2, note: "炼化新材料平台" }

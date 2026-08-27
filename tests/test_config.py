@@ -109,6 +109,25 @@ def test_requested_sector_groups_and_tiers_are_present():
         "传媒-IP/语料/版权",
         "传媒-影视内容",
         "游戏-AI游戏/互动娱乐",
+        "大金融-证券",
+        "大金融-银行",
+        "大金融-保险",
+        "消费-白酒/食品饮料",
+        "消费-家电",
+        "消费-零售/免税",
+        "消费-旅游酒店",
+        "地产链-开发/物业",
+        "地产链-家居/建材",
+        "红利资产-煤炭",
+        "红利资产-电力/公用事业",
+        "交通运输-航运/港口",
+        "交通运输-航空机场/快递",
+        "农业-养殖/饲料",
+        "农业-种业/粮食",
+        "建筑建材-水泥/玻璃",
+        "建筑建材-基建央企",
+        "石油石化-油气开采/油服",
+        "石油石化-炼化/化纤",
         "医药-创新药",
         "医药-中药",
         "医药-血制品",
@@ -272,6 +291,25 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert {"国产算力-数据库/中间件", "计算机软件-政务/医疗IT"} <= set(
         stocks_by_code["002368"].groups
     )
+    assert stocks_by_code["600030"].group == "大金融-证券"
+    assert stocks_by_code["601398"].group == "大金融-银行"
+    assert stocks_by_code["601318"].group == "大金融-保险"
+    assert stocks_by_code["600519"].group == "消费-白酒/食品饮料"
+    assert stocks_by_code["000333"].group == "消费-家电"
+    assert stocks_by_code["601888"].group == "消费-零售/免税"
+    assert stocks_by_code["300144"].group == "消费-旅游酒店"
+    assert stocks_by_code["600048"].group == "地产链-开发/物业"
+    assert stocks_by_code["002271"].group == "地产链-家居/建材"
+    assert stocks_by_code["601088"].group == "红利资产-煤炭"
+    assert stocks_by_code["600900"].group == "红利资产-电力/公用事业"
+    assert stocks_by_code["601919"].group == "交通运输-航运/港口"
+    assert stocks_by_code["601021"].group == "交通运输-航空机场/快递"
+    assert stocks_by_code["002714"].group == "农业-养殖/饲料"
+    assert stocks_by_code["000998"].group == "农业-种业/粮食"
+    assert stocks_by_code["600585"].group == "建筑建材-水泥/玻璃"
+    assert stocks_by_code["601668"].group == "建筑建材-基建央企"
+    assert stocks_by_code["600938"].group == "石油石化-油气开采/油服"
+    assert stocks_by_code["600028"].group == "石油石化-炼化/化纤"
     assert stocks_by_code["600276"].group == "医药-创新药"
     assert stocks_by_code["600436"].group == "医药-中药"
     assert stocks_by_code["600161"].group == "医药-血制品"
@@ -300,14 +338,30 @@ def test_stock_pool_has_no_default_stars():
 def test_frontend_groups_software_media_game_and_data_security_families():
     app_js = (CONFIG_PATH.parents[1] / "static" / "app.js").read_text(encoding="utf-8")
 
-    assert 'label: "计算机软件"' in app_js
-    assert 'prefixes: ["计算机软件-"]' in app_js
-    assert 'label: "传媒"' in app_js
-    assert 'prefixes: ["传媒-"]' in app_js
-    assert 'label: "游戏"' in app_js
-    assert 'prefixes: ["游戏-"]' in app_js
-    assert 'label: "数据安全"' in app_js
-    assert 'prefixes: ["数据安全-"]' in app_js
+    assert "label: \"计算机软件\"" in app_js
+    assert "prefixes: [\"计算机软件-\"]" in app_js
+    assert "label: \"传媒\"" in app_js
+    assert "prefixes: [\"传媒-\"]" in app_js
+    assert "label: \"游戏\"" in app_js
+    assert "prefixes: [\"游戏-\"]" in app_js
+    assert "label: \"数据安全\"" in app_js
+    assert "prefixes: [\"数据安全-\"]" in app_js
+    assert "label: \"大金融\"" in app_js
+    assert "prefixes: [\"大金融-\"]" in app_js
+    assert "label: \"消费\"" in app_js
+    assert "prefixes: [\"消费-\"]" in app_js
+    assert "label: \"地产链\"" in app_js
+    assert "prefixes: [\"地产链-\"]" in app_js
+    assert "label: \"红利资产\"" in app_js
+    assert "prefixes: [\"红利资产-\"]" in app_js
+    assert "label: \"交通运输\"" in app_js
+    assert "prefixes: [\"交通运输-\"]" in app_js
+    assert "label: \"农业\"" in app_js
+    assert "prefixes: [\"农业-\"]" in app_js
+    assert "label: \"建筑建材\"" in app_js
+    assert "prefixes: [\"建筑建材-\"]" in app_js
+    assert "label: \"石油石化\"" in app_js
+    assert "prefixes: [\"石油石化-\"]" in app_js
 
 
 def test_star_store_basic():
