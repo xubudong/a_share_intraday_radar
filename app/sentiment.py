@@ -467,6 +467,26 @@ def compact_text(value: Any, limit: int = 500) -> str:
     return text
 
 
+GROUP_ALIAS_OVERRIDES: dict[str, tuple[str, ...]] = {
+    "电子元件-PCB": ("PCB",),
+    "电子元件-覆铜板": ("覆铜板",),
+    "电子元件-电子铜箔": ("铜箔", "电子铜箔"),
+    "电子元件-MLCC/被动元件": ("MLCC", "被动元件"),
+    "电子元件-玻璃基板": ("玻璃基板",),
+    "电子元件-玻璃玻纤/电子布": ("玻璃玻纤", "电子布"),
+    "化工-工业气体": ("工业气体",),
+    "半导体芯片-存储": ("存储芯片", "存储"),
+    "先进封装-封测厂": ("先进封装", "封测厂"),
+    "机器人-本体/核心零部件": ("机器人核心", "机器人本体", "核心零部件"),
+    "算力基础设施-液冷": ("液冷核心", "液冷"),
+}
+
+
+def group_alias_terms(group: str) -> list[str]:
+    terms = [group, *GROUP_ALIAS_OVERRIDES.get(group, ())]
+    return list(dict.fromkeys(term for term in terms if term))
+
+
 def build_match_index(pool: list[StockConfig]) -> dict[str, Any]:
     stocks_by_code = {stock.code: stock for stock in pool}
     stock_terms: list[tuple[str, StockConfig, str]] = []
@@ -479,8 +499,8 @@ def build_match_index(pool: list[StockConfig]) -> dict[str, Any]:
             for term in split_note_terms(stock.note):
                 stock_terms.append((term, stock, "备注"))
         for group in stock.groups:
-            if group:
-                group_terms[group] = group
+            for term in group_alias_terms(group):
+                group_terms[term] = group
 
     dedup_stock_terms: dict[tuple[str, str, str], tuple[str, StockConfig, str]] = {}
     for term, stock, reason in stock_terms:
@@ -491,7 +511,7 @@ def build_match_index(pool: list[StockConfig]) -> dict[str, Any]:
     return {
         "stocks_by_code": stocks_by_code,
         "stock_terms": list(dedup_stock_terms.values()),
-        "group_terms": sorted(group_terms),
+        "group_terms": sorted(group_terms.items(), key=lambda item: (-len(item[0]), item[0])),
     }
 
 
@@ -526,10 +546,10 @@ def match_stock_pool(text: str, match_index: dict[str, Any]) -> dict[str, Any]:
             match_reasons.append(f"{reason}命中：{term}")
             matched_groups.update(stock.groups)
 
-    for group in match_index["group_terms"]:
-        if group and group in text:
+    for term, group in match_index["group_terms"]:
+        if term and term in text:
             matched_groups.add(group)
-            match_reasons.append(f"板块命中：{group}")
+            match_reasons.append(f"板块命中：{term}")
 
     return {
         "matched_stocks": sorted(matched_stocks.values(), key=lambda item: item["code"]),

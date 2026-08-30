@@ -27,8 +27,8 @@ def sample_pool():
         StockConfig(
             code="300476",
             name="胜宏科技",
-            group="PCB",
-            groups=("PCB",),
+            group="电子元件-PCB",
+            groups=("电子元件-PCB",),
             note="AI服务器/HPC高阶PCB核心",
             tier=1,
         ),
@@ -118,7 +118,7 @@ def test_raw_payload_derives_timeline_and_market_sections():
     first = data["timeline"][0]
     assert first["auto_matched"] is True
     assert first["matched_stocks"][0]["code"] == "300476"
-    assert "PCB" in first["matched_groups"]
+    assert "电子元件-PCB" in first["matched_groups"]
     assert first["importance_score"] == 3
     assert first["importance_label"] == "重要"
     assert len(data["market_sections"]) == 7
@@ -200,7 +200,7 @@ def test_stock_pool_matching_hits_code_name_group_and_note():
 
     assert by_code["matched_stocks"][0]["code"] == "300476"
     assert by_name["matched_stocks"][0]["name"] == "胜宏科技"
-    assert "PCB" in by_group["matched_groups"]
+    assert "电子元件-PCB" in by_group["matched_groups"]
     assert by_note["matched_stocks"][0]["code"] == "300476"
 
 

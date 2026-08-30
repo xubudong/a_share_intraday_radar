@@ -7,6 +7,7 @@ const tableColumns = [
   { key: "return5d", label: "5日涨幅", cls: "col-return-5d", defaultVisible: true },
   { key: "return20d", label: "20日涨幅", cls: "col-return-20d", defaultVisible: true },
   { key: "sparkline", label: "走势", cls: "col-sparkline", defaultVisible: true },
+  { key: "marketCap", label: "市值(亿)", cls: "col-market-cap", defaultVisible: true },
   { key: "amount", label: "成交额", cls: "col-amount", defaultVisible: true },
   { key: "mainInflow", label: "主力净流入", cls: "col-main-inflow", defaultVisible: true },
   { key: "ma5Pos", label: "MA5", cls: "col-ma5-pos", defaultVisible: true },
@@ -39,21 +40,21 @@ const state = {
 };
 
 const actionableSignals = new Set(["买入"]);
+const FAMILY_ORDER_STORAGE_KEY = "a_share_radar_family_order";
+let draggedFamilyLabel = null;
 const groupFamilies = [
-  {
-    label: "电子元件",
-    groups: ["MLCC（被动元件）", "PCB", "覆铜板", "玻璃基板", "玻璃玻纤 / 电子布"],
-  },
-  { label: "化工", prefixes: ["化工-"], groups: ["工业气体"] },
+  { label: "电子元件", prefixes: ["电子元件-"] },
+  { label: "化工", prefixes: ["化工-"] },
   { label: "有色", prefixes: ["有色-"] },
-  { label: "新能源", prefixes: ["新能源-"], groups: ["铜箔"] },
-  { label: "芯片", prefixes: ["半导体芯片-"], groups: ["存储芯片", "先进封装"] },
+  { label: "新能源", prefixes: ["新能源-"] },
+  { label: "半导体芯片", prefixes: ["半导体芯片-"] },
+  { label: "先进封装", prefixes: ["先进封装-"] },
   { label: "光通信", prefixes: ["光通信-"] },
   { label: "半导体材料", prefixes: ["半导体材料-"] },
   { label: "半导体设备", prefixes: ["半导体设备-"] },
   { label: "电网设备", prefixes: ["电网设备-"] },
-  { label: "机器人", groups: ["机器人核心"] },
-  { label: "算力基础设施", groups: ["液冷核心"] },
+  { label: "机器人", prefixes: ["机器人-"] },
+  { label: "算力基础设施", prefixes: ["算力基础设施-"] },
   { label: "国产算力", prefixes: ["国产算力-"] },
   { label: "计算机软件", prefixes: ["计算机软件-"] },
   { label: "传媒", prefixes: ["传媒-"] },
@@ -437,6 +438,86 @@ function renderRadarPanelState() {
   button.setAttribute("aria-expanded", String(!state.radarCollapsed));
 }
 
+function readFamilyOrder() {
+  try {
+    const raw = window.localStorage.getItem(FAMILY_ORDER_STORAGE_KEY);
+    const parsed = JSON.parse(raw || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveFamilyOrder(labels) {
+  try {
+    window.localStorage.setItem(FAMILY_ORDER_STORAGE_KEY, JSON.stringify(labels));
+  } catch (error) {
+    // localStorage may be unavailable in private or restricted browser contexts.
+  }
+}
+
+function getOrderedGroupFamilies() {
+  const byLabel = new Map(groupFamilies.map((family) => [family.label, family]));
+  const orderedLabels = readFamilyOrder().filter((label) => byLabel.has(label));
+  for (const family of groupFamilies) {
+    if (!orderedLabels.includes(family.label)) orderedLabels.push(family.label);
+  }
+  return orderedLabels.map((label) => byLabel.get(label));
+}
+
+function moveFamilyInOrder(sourceLabel, targetLabel, placeAfter = false) {
+  if (!sourceLabel || !targetLabel || sourceLabel === targetLabel) return;
+  const labels = getOrderedGroupFamilies().map((family) => family.label);
+  const fromIndex = labels.indexOf(sourceLabel);
+  const targetIndex = labels.indexOf(targetLabel);
+  if (fromIndex < 0 || targetIndex < 0) return;
+
+  const [source] = labels.splice(fromIndex, 1);
+  const insertAt = labels.indexOf(targetLabel) + (placeAfter ? 1 : 0);
+  labels.splice(insertAt, 0, source);
+  saveFamilyOrder(labels);
+  renderGroups();
+}
+
+function clearFamilyDropTargets() {
+  document.querySelectorAll("#groupFilter .family-cluster.drop-target").forEach((cluster) => {
+    cluster.classList.remove("drop-target", "drop-after");
+  });
+}
+
+function bindFamilyDragHandlers() {
+  document.querySelectorAll("#groupFilter .family-cluster[data-family-cluster]").forEach((cluster) => {
+    cluster.addEventListener("dragstart", (event) => {
+      draggedFamilyLabel = cluster.dataset.familyCluster;
+      cluster.classList.add("dragging");
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", draggedFamilyLabel);
+    });
+    cluster.addEventListener("dragend", () => {
+      cluster.classList.remove("dragging");
+      draggedFamilyLabel = null;
+      clearFamilyDropTargets();
+    });
+    cluster.addEventListener("dragover", (event) => {
+      if (!draggedFamilyLabel || draggedFamilyLabel === cluster.dataset.familyCluster) return;
+      event.preventDefault();
+      clearFamilyDropTargets();
+      const rect = cluster.getBoundingClientRect();
+      cluster.classList.add("drop-target");
+      cluster.classList.toggle("drop-after", event.clientX > rect.left + rect.width / 2);
+    });
+    cluster.addEventListener("dragleave", () => {
+      cluster.classList.remove("drop-target", "drop-after");
+    });
+    cluster.addEventListener("drop", (event) => {
+      event.preventDefault();
+      const sourceLabel = event.dataTransfer.getData("text/plain") || draggedFamilyLabel;
+      const rect = cluster.getBoundingClientRect();
+      moveFamilyInOrder(sourceLabel, cluster.dataset.familyCluster, event.clientX > rect.left + rect.width / 2);
+    });
+  });
+}
+
 function renderGroups() {
   const savedGroupStats = (state.dashboard && state.dashboard.group_stats) || {};
   const computedGroupStats = computeGroupStatsFromStocks();
@@ -444,13 +525,14 @@ function renderGroups() {
   const allGroups = Array.from(new Set(
     state.stocks.flatMap((stock) => stock.groups?.length ? stock.groups : [stock.group])
   ));
+  const orderedFamilies = getOrderedGroupFamilies();
   const familyStats = Object.fromEntries(
-    groupFamilies.map((family) => [family.label, computeFamilyStats(family)])
+    orderedFamilies.map((family) => [family.label, computeFamilyStats(family)])
   );
   const otherGroups = allGroups
     .filter((group) => !groupFamilies.some((family) => groupMatchesFamily(group, family)))
     .sort();
-  const selections = ["全部", ...groupFamilies.map((family) => family.label), ...allGroups];
+  const selections = ["全部", ...orderedFamilies.map((family) => family.label), ...allGroups];
   if (!selections.includes(state.group)) state.group = "全部";
 
   const groupButton = (group, display = group) => {
@@ -458,7 +540,7 @@ function renderGroups() {
     const avg = gs.avg_pct;
     const avgTag = avg === undefined || avg === null
       ? '<span class="group-pct muted">--</span>'
-      : `<span class="group-pct ${avg > 0 ? 'pos' : avg < 0 ? 'neg' : 'muted'}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}%</span>`;
+      : `<span class="group-pct ${groupPctClass(avg)}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}%</span>`;
     const starred = Boolean(gs.star);
     const starTag = group === "全部"
       ? ""
@@ -471,20 +553,20 @@ function renderGroups() {
     const avg = stats.avg_pct;
     const avgTag = avg === null || avg === undefined
       ? '<span class="group-pct muted">--</span>'
-      : `<span class="group-pct ${avg > 0 ? 'pos' : avg < 0 ? 'neg' : 'muted'}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}%</span>`;
+      : `<span class="group-pct ${groupPctClass(avg)}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}%</span>`;
     const flatText = stats.flat ? `/${stats.flat}平` : "";
     return `${avgTag}<span class="family-breadth">${stats.up}涨/${stats.down}跌${flatText}</span>`;
   };
 
   let html = groupButton("全部");
-  for (const family of groupFamilies) {
+  for (const family of orderedFamilies) {
     const familyGroups = allGroups
       .filter((group) => groupMatchesFamily(group, family))
       .sort((a, b) => groupDisplayForFamily(a, family).localeCompare(groupDisplayForFamily(b, family), "zh-CN"));
     if (!familyGroups.length) continue;
     const stats = familyStats[family.label];
     const familyTitle = `${family.label}：${stats.total}只，${stats.up}涨/${stats.down}跌${stats.flat ? `/${stats.flat}平` : ""}`;
-    html += `<div class="group-cluster"><button class="group-family-btn ${family.label === state.group ? "active" : ""}" data-family="${escapeHtml(family.label)}" title="${escapeHtml(familyTitle)}"><span>${escapeHtml(family.label)}</span>${familyStatsTag(stats)}</button>`;
+    html += `<div class="group-cluster family-cluster" draggable="true" data-family-cluster="${escapeHtml(family.label)}"><button class="group-family-btn ${family.label === state.group ? "active" : ""}" data-family="${escapeHtml(family.label)}" title="${escapeHtml(familyTitle)}"><span>${escapeHtml(family.label)}</span>${familyStatsTag(stats)}</button>`;
     html += familyGroups
       .map((group) => groupButton(group, groupDisplayForFamily(group, family)))
       .join("");
@@ -507,6 +589,7 @@ function renderGroups() {
       selectSector(btn.dataset.family);
     });
   });
+  bindFamilyDragHandlers();
 }
 
 function computeGroupStatsFromStocks() {
@@ -792,6 +875,7 @@ function sortValue(stock, key) {
     pct_chg: quote.pct_chg,
     return_5d: ind.return_5d,
     return_20d: ind.return_20d,
+    market_cap: quote.market_cap,
     amount: quote.amount,
     main_net_inflow: quote.main_net_inflow,
     rsi14: ind.rsi14,
@@ -841,6 +925,7 @@ function stockRow(stock) {
       <td class="col-return-5d ${numClass(stock.indicators?.return_5d)}">${formatPct(stock.indicators?.return_5d)}</td>
       <td class="col-return-20d ${numClass(stock.indicators?.return_20d)}">${formatPct(stock.indicators?.return_20d)}</td>
       <td class="col-sparkline">${sparklineSVG(stock.intraday, pctChg)}</td>
+      <td class="col-market-cap">${formatYi(stock.quote?.market_cap)}</td>
       <td class="col-amount">${formatMoney(stock.quote?.amount)}</td>
       <td class="col-main-inflow ${numClass(stock.quote?.main_net_inflow)}">${formatMoney(stock.quote?.main_net_inflow)}</td>
       <td class="col-ma5-pos ${numClass(stock.indicators?.dev_ma5)}">${formatPct(stock.indicators?.dev_ma5)}</td>
@@ -1153,6 +1238,23 @@ function formatMoney(value) {
   if (Math.abs(n) >= 100000000) return `${(n / 100000000).toFixed(2)}亿`;
   if (Math.abs(n) >= 10000) return `${(n / 10000).toFixed(0)}万`;
   return n.toFixed(0);
+}
+
+function formatYi(value) {
+  if (value === null || value === undefined) return "--";
+  const n = Number(value);
+  if (Number.isNaN(n)) return "--";
+  return (n / 100000000).toFixed(2);
+}
+
+function groupPctClass(value) {
+  const n = Number(value);
+  if (Number.isNaN(n)) return "muted";
+  if (n > 3) return "strong-pos";
+  if (n < -3) return "strong-neg";
+  if (n > 0) return "pos";
+  if (n < 0) return "neg";
+  return "muted";
 }
 
 function numClass(value) {

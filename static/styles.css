@@ -9,6 +9,8 @@
   --amber: #b45309;
   --red: #dc2626;
   --green: #15803d;
+  --purple: #7e22ce;
+  --deep-green: #065f46;
   --slate: #334155;
 }
 
@@ -266,6 +268,16 @@ main {
   font-weight: 700;
 }
 
+.group-pct.strong-pos {
+  color: var(--purple);
+  font-weight: 900;
+}
+
+.group-pct.strong-neg {
+  color: var(--deep-green);
+  font-weight: 900;
+}
+
 .group-cluster {
   display: inline-flex;
   align-items: center;
@@ -276,6 +288,29 @@ main {
   border-radius: 8px;
   background: #f5f8fa;
   margin-left: 4px;
+}
+
+.family-cluster {
+  cursor: grab;
+  transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+
+.family-cluster:active {
+  cursor: grabbing;
+}
+
+.family-cluster.dragging {
+  opacity: 0.55;
+  border-color: var(--teal);
+}
+
+.family-cluster.drop-target {
+  border-color: var(--teal);
+  background: #e6fffb;
+}
+
+.family-cluster.drop-after {
+  box-shadow: inset -3px 0 0 var(--teal);
 }
 
 .group-cluster-label {
@@ -1173,6 +1208,7 @@ tbody tr:hover {
   width: 110px;
 }
 
+.col-market-cap,
 .col-amount,
 .col-main-inflow {
   width: 105px;

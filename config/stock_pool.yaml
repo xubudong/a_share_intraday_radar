@@ -1,5 +1,5 @@
 groups:
-  - name: MLCC（被动元件）
+  - name: 电子元件-MLCC/被动元件
     stocks:
       - { code: "000636", name: "风华高科", tier: 1 }
       - { code: "300408", name: "三环集团", tier: 1 }
@@ -7,20 +7,20 @@ groups:
       - { code: "603678", name: "火炬电子", tier: 2 }
       - { code: "603267", name: "鸿远电子", tier: 2 }
 
-  - name: 玻璃基板
+  - name: 电子元件-玻璃基板
     stocks:
       - { code: "603773", name: "沃格光电", tier: 1 }
       - { code: "600552", name: "凯盛科技", tier: 1 }
       - { code: "600707", name: "彩虹股份", tier: 2 }
 
-  - name: 玻璃玻纤 / 电子布
+  - name: 电子元件-玻璃玻纤/电子布
     stocks:
       - { code: "603256", name: "宏和科技", tier: 1 }
       - { code: "600176", name: "中国巨石", tier: 1 }
       - { code: "002080", name: "中材科技", tier: 2 }
       - { code: "605006", name: "山东玻纤", tier: 2 }
 
-  - name: PCB
+  - name: 电子元件-PCB
     stocks:
       - { code: "300476", name: "胜宏科技", tier: 1, note: "AI服务器/HPC高阶PCB核心" }
       - { code: "002463", name: "沪电股份", tier: 1 }
@@ -40,14 +40,14 @@ groups:
       - { code: "002491", name: "通鼎互联", tier: 3, note: "光纤光缆弹性观察" }
       - { code: "600105", name: "永鼎股份", tier: 3, note: "光纤光缆与通信线缆高弹性观察" }
 
-  - name: 工业气体
+  - name: 化工-工业气体
     stocks:
       - { code: "688146", name: "中船特气", tier: 1 }
       - { code: "002549", name: "凯美特气", tier: 2 }
       - { code: "002971", name: "和远气体", tier: 2 }
       - { code: "002430", name: "杭氧股份", tier: 2 }
 
-  - name: 铜箔
+  - name: 电子元件-电子铜箔
     stocks:
       - { code: "301217", name: "铜冠铜箔", tier: 1 }
       - { code: "301511", name: "德福科技", tier: 1 }
@@ -55,14 +55,14 @@ groups:
       - { code: "002992", name: "宝明科技", watch: true, tier: 3 }
       - { code: "002203", name: "海亮股份", tier: 2 }
 
-  - name: 覆铜板
+  - name: 电子元件-覆铜板
     stocks:
       - { code: "600183", name: "生益科技", tier: 1 }
       - { code: "603186", name: "华正新材", tier: 1 }
       - { code: "002636", name: "金安国纪", tier: 2 }
       - { code: "603002", name: "宏昌电子", tier: 2 }
 
-  - name: 存储芯片
+  - name: 半导体芯片-存储
     stocks:
       - { code: "603986", name: "兆易创新", tier: 1 }
       - { code: "301308", name: "江波龙", tier: 1 }
@@ -121,7 +121,7 @@ groups:
       - { code: "300054", name: "鼎龙股份", tier: 1, note: "抛光垫与CMP材料核心" }
       - { code: "300655", name: "晶瑞电材", tier: 2, note: "电子化学品协同观察" }
 
-  - name: 先进封装
+  - name: 先进封装-封测厂
     stocks:
       - { code: "600584", name: "长电科技", tier: 1 }
       - { code: "002156", name: "通富微电", tier: 1 }
@@ -291,7 +291,7 @@ groups:
       - { code: "688249", name: "晶合集成", tier: 2 }
       - { code: "600460", name: "士兰微", tier: 2, note: "IDM观察" }
 
-  - name: 半导体芯片-设备
+  - name: 半导体设备-前道核心设备
     stocks:
       - { code: "002371", name: "北方华创", tier: 1, note: "平台型设备龙头锚" }
       - { code: "688012", name: "中微公司", tier: 1, note: "刻蚀设备龙头锚" }
@@ -504,7 +504,7 @@ groups:
       - { code: "300073", name: "当升科技", tier: 2, note: "固态正极材料观察" }
       - { code: "301325", name: "曼恩斯特", tier: 2, note: "固态涂布工艺观察" }
 
-  - name: 机器人核心
+  - name: 机器人-本体/核心零部件
     stocks:
       - { code: "300124", name: "汇川技术", tier: 1, note: "工业自动化与伺服控制核心锚" }
       - { code: "002747", name: "埃斯顿", tier: 1, note: "国产工业机器人本体与运动控制" }
@@ -517,7 +517,7 @@ groups:
       - { code: "603662", name: "柯力传感", tier: 2, note: "力传感器与机器人感知" }
       - { code: "688322", name: "奥比中光", tier: 2, note: "3D视觉与机器人感知" }
 
-  - name: 液冷核心
+  - name: 算力基础设施-液冷
     stocks:
       - { code: "002837", name: "英维克", tier: 1, note: "数据中心温控与液冷系统核心锚" }
       - { code: "301018", name: "申菱环境", tier: 1, note: "数据中心空调与液冷温控方案" }

@@ -51,6 +51,41 @@ def test_eastmoney_market_index_quote_chunk_keeps_alpha_codes(monkeypatch):
     assert quotes["N225"]["prev_close"] == 69174.97
 
 
+def test_realtime_quotes_include_market_cap(monkeypatch):
+    monkeypatch.setattr(
+        eastmoney,
+        "request_json",
+        lambda *args, **kwargs: {
+            "data": {
+                "diff": [
+                    {
+                        "f2": 12.34,
+                        "f3": 2.83,
+                        "f4": 0.34,
+                        "f5": 1000,
+                        "f6": 1234000,
+                        "f12": "600001",
+                        "f14": "测试股份",
+                        "f15": 12.50,
+                        "f16": 11.90,
+                        "f17": 12.10,
+                        "f18": 12.00,
+                        "f20": 12345678900,
+                        "f21": 8850000000,
+                        "f62": 1000000,
+                        "f184": 1.2,
+                    }
+                ]
+            }
+        },
+    )
+
+    quotes = eastmoney.fetch_realtime_quotes(["600001"])
+
+    assert quotes["600001"]["market_cap"] == 12345678900
+    assert quotes["600001"]["turnover_market_cap"] == 8850000000
+
+
 def test_parse_tencent_quote_maps_realtime_fields():
     fields = [""] * 86
     fields[1] = "测试股份"
@@ -74,6 +109,7 @@ def test_parse_tencent_quote_maps_realtime_fields():
     assert quote["price"] == 12.34
     assert quote["pct_chg"] == 2.83
     assert quote["amount"] == 1234000
+    assert quote["market_cap"] == 8850000000
     assert quote["turnover_market_cap"] == 8850000000
     assert quote["source"] == "tencent_realtime"
 

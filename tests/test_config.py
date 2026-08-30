@@ -27,13 +27,31 @@ def test_requested_sector_groups_and_tiers_are_present():
 
     assert "300476" in stocks_by_code
     assert stocks_by_code["300476"].name == "胜宏科技"
-    assert stocks_by_code["300476"].group == "PCB"
+    assert stocks_by_code["300476"].group == "电子元件-PCB"
     assert stocks_by_code["300476"].tier == 1
     assert "002962" not in stocks_by_code
     assert stocks_by_code["600105"].group == "光通信-光材料/光纤光缆"
     assert stocks_by_code["600105"].tier == 3
 
+    assert stocks_by_code["000636"].group == "电子元件-MLCC/被动元件"
+    assert stocks_by_code["603773"].group == "电子元件-玻璃基板"
+    assert stocks_by_code["603256"].group == "电子元件-玻璃玻纤/电子布"
+    assert stocks_by_code["301217"].group == "电子元件-电子铜箔"
+    assert stocks_by_code["600183"].group == "电子元件-覆铜板"
+    assert stocks_by_code["603986"].group == "半导体芯片-存储"
+    assert stocks_by_code["600584"].group == "先进封装-封测厂"
+    assert stocks_by_code["002371"].group == "半导体设备-前道核心设备"
+
     expected_groups = {
+        "电子元件-MLCC/被动元件",
+        "电子元件-玻璃基板",
+        "电子元件-玻璃玻纤/电子布",
+        "电子元件-PCB",
+        "电子元件-电子铜箔",
+        "电子元件-覆铜板",
+        "化工-工业气体",
+        "半导体芯片-存储",
+        "先进封装-封测厂",
         "化工-磷化工",
         "化工-氟化工",
         "化工-纯碱氯碱",
@@ -57,7 +75,7 @@ def test_requested_sector_groups_and_tiers_are_present():
         "半导体芯片-AI芯片",
         "半导体芯片-设计",
         "半导体芯片-晶圆制造",
-        "半导体芯片-设备",
+        "半导体设备-前道核心设备",
         "半导体芯片-功率器件",
         "半导体芯片-端侧AI/AIoT",
         "半导体芯片-CIS/视觉感知",
@@ -84,8 +102,8 @@ def test_requested_sector_groups_and_tiers_are_present():
         "新能源-锂电材料-铝箔/结构件",
         "新能源-锂电回收/前驱体",
         "新能源-锂电新技术-固态/半固态",
-        "机器人核心",
-        "液冷核心",
+        "机器人-本体/核心零部件",
+        "算力基础设施-液冷",
         "电网设备-二次设备/数字电网",
         "电网设备-特高压/一次设备",
         "电网设备-变压器/配电",
@@ -164,7 +182,7 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert {"新能源-锂电设备", "新能源-锂电新技术-固态/半固态"} <= set(
         stocks_by_code["300450"].groups
     )
-    assert {"铜箔", "新能源-锂电材料-铜箔/复合集流体"} <= set(stocks_by_code["301217"].groups)
+    assert {"电子元件-电子铜箔", "新能源-锂电材料-铜箔/复合集流体"} <= set(stocks_by_code["301217"].groups)
     assert {"有色-镍", "有色-钴", "新能源-锂电回收/前驱体"} <= set(
         stocks_by_code["603799"].groups
     )
@@ -205,7 +223,7 @@ def test_requested_sector_groups_and_tiers_are_present():
         "603662",
         "688322",
     } <= set(stocks_by_code)
-    assert stocks_by_code["688017"].group == "机器人核心"
+    assert stocks_by_code["688017"].group == "机器人-本体/核心零部件"
     assert stocks_by_code["688017"].tier == 1
     assert stocks_by_code["688322"].tier == 2
     assert {
@@ -220,7 +238,7 @@ def test_requested_sector_groups_and_tiers_are_present():
         "603912",
         "301202",
     } <= set(stocks_by_code)
-    assert stocks_by_code["002837"].group == "液冷核心"
+    assert stocks_by_code["002837"].group == "算力基础设施-液冷"
     assert stocks_by_code["872808"].tier == 1
     assert stocks_by_code["301202"].tier == 2
     assert {
@@ -338,30 +356,40 @@ def test_stock_pool_has_no_default_stars():
 def test_frontend_groups_software_media_game_and_data_security_families():
     app_js = (CONFIG_PATH.parents[1] / "static" / "app.js").read_text(encoding="utf-8")
 
-    assert "label: \"计算机软件\"" in app_js
-    assert "prefixes: [\"计算机软件-\"]" in app_js
-    assert "label: \"传媒\"" in app_js
-    assert "prefixes: [\"传媒-\"]" in app_js
-    assert "label: \"游戏\"" in app_js
-    assert "prefixes: [\"游戏-\"]" in app_js
-    assert "label: \"数据安全\"" in app_js
-    assert "prefixes: [\"数据安全-\"]" in app_js
-    assert "label: \"大金融\"" in app_js
-    assert "prefixes: [\"大金融-\"]" in app_js
-    assert "label: \"消费\"" in app_js
-    assert "prefixes: [\"消费-\"]" in app_js
-    assert "label: \"地产链\"" in app_js
-    assert "prefixes: [\"地产链-\"]" in app_js
-    assert "label: \"红利资产\"" in app_js
-    assert "prefixes: [\"红利资产-\"]" in app_js
-    assert "label: \"交通运输\"" in app_js
-    assert "prefixes: [\"交通运输-\"]" in app_js
-    assert "label: \"农业\"" in app_js
-    assert "prefixes: [\"农业-\"]" in app_js
-    assert "label: \"建筑建材\"" in app_js
-    assert "prefixes: [\"建筑建材-\"]" in app_js
-    assert "label: \"石油石化\"" in app_js
-    assert "prefixes: [\"石油石化-\"]" in app_js
+    expected_families = [
+        "电子元件",
+        "化工",
+        "新能源",
+        "半导体芯片",
+        "先进封装",
+        "半导体材料",
+        "半导体设备",
+        "机器人",
+        "算力基础设施",
+        "计算机软件",
+        "传媒",
+        "游戏",
+        "数据安全",
+        "大金融",
+        "消费",
+        "地产链",
+        "红利资产",
+        "交通运输",
+        "农业",
+        "建筑建材",
+        "石油石化",
+    ]
+    for family in expected_families:
+        assert f'label: "{family}"' in app_js
+        assert f'prefixes: ["{family}-"]' in app_js
+
+    assert "FAMILY_ORDER_STORAGE_KEY" in app_js
+    assert "getOrderedGroupFamilies" in app_js
+    assert "bindFamilyDragHandlers" in app_js
+    assert 'draggable="true"' in app_js
+    assert "function groupPctClass" in app_js
+    assert 'return "strong-pos"' in app_js
+    assert 'return "strong-neg"' in app_js
 
 
 def test_star_store_basic():
@@ -390,15 +418,15 @@ def test_star_store_supports_group_stars(tmp_path):
     store = StarStore(path)
 
     assert store.group_count == 0
-    assert not store.is_group_starred("机器人核心")
-    assert store.toggle_group("机器人核心") is True
-    assert store.is_group_starred("机器人核心")
+    assert not store.is_group_starred("机器人-本体/核心零部件")
+    assert store.toggle_group("机器人-本体/核心零部件") is True
+    assert store.is_group_starred("机器人-本体/核心零部件")
     assert store.group_count == 1
 
     reloaded = StarStore(path)
-    assert reloaded.is_group_starred("机器人核心")
-    assert reloaded.toggle_group("机器人核心") is False
-    assert not reloaded.is_group_starred("机器人核心")
+    assert reloaded.is_group_starred("机器人-本体/核心零部件")
+    assert reloaded.toggle_group("机器人-本体/核心零部件") is False
+    assert not reloaded.is_group_starred("机器人-本体/核心零部件")
 
 
 def test_star_store_supports_holdings(tmp_path):
@@ -491,7 +519,7 @@ def test_dashboard_marks_starred_groups(monkeypatch):
         group_count = 1
 
         def is_group_starred(self, group):
-            return group == "机器人核心"
+            return group == "机器人-本体/核心零部件"
 
     monkeypatch.setattr(service_module, "star_store", FakeStarStore())
 
@@ -503,8 +531,8 @@ def test_dashboard_marks_starred_groups(monkeypatch):
     service.stocks = [
         {
             "code": "688017",
-            "group": "机器人核心",
-            "groups": ["机器人核心"],
+            "group": "机器人-本体/核心零部件",
+            "groups": ["机器人-本体/核心零部件"],
             "tier": 1,
             "quote": {"pct_chg": 1.5},
             "signal": {"signal": "观察"},
@@ -518,7 +546,7 @@ def test_dashboard_marks_starred_groups(monkeypatch):
     dashboard = service.dashboard()
 
     assert dashboard["summary"]["group_stars"] == 1
-    assert dashboard["group_stats"]["机器人核心"]["star"] is True
+    assert dashboard["group_stats"]["机器人-本体/核心零部件"]["star"] is True
 
 
 def test_dashboard_reports_average_pct_by_tier():
