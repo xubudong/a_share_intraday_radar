@@ -109,6 +109,13 @@ function bindEvents() {
       copyCode(copyBtn.dataset.code, copyBtn);
       return;
     }
+    const groupBtn = event.target.closest(".stock-group-link");
+    if (groupBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      selectSector(groupBtn.dataset.group);
+      return;
+    }
     const starBtn = event.target.closest(".star-toggle");
     if (starBtn) {
       event.stopPropagation();
@@ -905,6 +912,8 @@ function stockRow(stock) {
   const hiddenGroups = stockGroups.filter((group) => group !== displayedGroup);
   const groupTooltip = stockGroups.join(" / ");
   const hiddenGroupTooltip = hiddenGroups.join(" / ");
+  const groupLink = (group, cls, label = group) =>
+    `<button type="button" class="${cls} stock-group-link" data-group="${escapeHtml(group)}" title="筛选 ${escapeHtml(group)}">${escapeHtml(label)}</button>`;
   return `
     <tr class="stock-row" data-code="${stock.code}">
       <td class="col-code">
@@ -917,7 +926,8 @@ function stockRow(stock) {
         </div>
       </td>
       <td class="group-cell col-group" title="${escapeHtml(groupTooltip)}">
-        <span class="group-main">${escapeHtml(displayedGroup)}</span>${hiddenGroups.length ? `<span class="group-extra" title="${escapeHtml(hiddenGroupTooltip)}" aria-label="其他分组：${escapeHtml(hiddenGroupTooltip)}">另：${escapeHtml(hiddenGroupTooltip)}</span>` : ""}
+        ${groupLink(displayedGroup, "group-main")}
+        ${hiddenGroups.length ? `<span class="group-extra" title="${escapeHtml(hiddenGroupTooltip)}" aria-label="其他分组：${escapeHtml(hiddenGroupTooltip)}">另：${hiddenGroups.map((group) => groupLink(group, "group-extra-link")).join(" / ")}</span>` : ""}
       </td>
       <td class="col-tier">${tierBadge(stock.tier)}</td>
       <td class="col-price">${formatPrice(stock.price)}</td>

@@ -390,6 +390,8 @@ def test_frontend_groups_software_media_game_and_data_security_families():
     assert "function groupPctClass" in app_js
     assert 'return "strong-pos"' in app_js
     assert 'return "strong-neg"' in app_js
+    assert "stock-group-link" in app_js
+    assert "selectSector(groupBtn.dataset.group)" in app_js
 
 
 def test_star_store_basic():

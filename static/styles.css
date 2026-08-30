@@ -9,8 +9,8 @@
   --amber: #b45309;
   --red: #dc2626;
   --green: #15803d;
-  --purple: #7e22ce;
-  --deep-green: #065f46;
+  --strong-up: #c026d3;
+  --strong-down: #0891b2;
   --slate: #334155;
 }
 
@@ -269,12 +269,12 @@ main {
 }
 
 .group-pct.strong-pos {
-  color: var(--purple);
+  color: var(--strong-up);
   font-weight: 900;
 }
 
 .group-pct.strong-neg {
-  color: var(--deep-green);
+  color: var(--strong-down);
   font-weight: 900;
 }
 
@@ -1297,6 +1297,25 @@ tbody tr:hover {
 .group-main,
 .group-extra {
   display: block;
+}
+
+.group-main,
+.group-extra-link {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.group-main:hover,
+.group-extra-link:hover {
+  color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .group-extra {
