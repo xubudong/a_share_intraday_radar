@@ -27,8 +27,19 @@ def test_requested_sector_groups_and_tiers_are_present():
 
     assert "300476" in stocks_by_code
     assert stocks_by_code["300476"].name == "胜宏科技"
-    assert stocks_by_code["300476"].group == "电子元件-PCB"
+    assert stocks_by_code["300476"].group == "电子元件-PCB/FPC"
     assert stocks_by_code["300476"].tier == 1
+    assert stocks_by_code["002384"].group == "电子元件-PCB/FPC"
+    assert stocks_by_code["002938"].group == "电子元件-PCB/FPC"
+    assert stocks_by_code["301200"].group == "电子元件-PCB设备"
+    assert stocks_by_code["688630"].group == "电子元件-PCB设备"
+    assert stocks_by_code["301377"].group == "电子元件-PCB设备"
+    assert stocks_by_code["300410"].group == "电子元件-PCB设备"
+    assert stocks_by_code["688312"].group == "电子元件-PCB设备"
+    assert stocks_by_code["688519"].group == "电子元件-覆铜板"
+    assert "002992" in stocks_by_code
+    assert stocks_by_code["002992"].group == "新能源-锂电材料-铜箔/复合集流体"
+    assert "电子元件-电子铜箔" not in stocks_by_code["002992"].groups
     assert "002962" not in stocks_by_code
     assert stocks_by_code["600105"].group == "光通信-光材料/光纤光缆"
     assert stocks_by_code["600105"].tier == 3
@@ -46,7 +57,8 @@ def test_requested_sector_groups_and_tiers_are_present():
         "电子元件-MLCC/被动元件",
         "电子元件-玻璃基板",
         "电子元件-玻璃玻纤/电子布",
-        "电子元件-PCB",
+        "电子元件-PCB/FPC",
+        "电子元件-PCB设备",
         "电子元件-电子铜箔",
         "电子元件-覆铜板",
         "化工-工业气体",
@@ -353,36 +365,11 @@ def test_stock_pool_has_no_default_stars():
     assert "star: true" not in CONFIG_PATH.read_text(encoding="utf-8")
 
 
-def test_frontend_groups_software_media_game_and_data_security_families():
+def test_frontend_builds_draggable_families_from_taxonomy():
     app_js = (CONFIG_PATH.parents[1] / "static" / "app.js").read_text(encoding="utf-8")
 
-    expected_families = [
-        "电子元件",
-        "化工",
-        "新能源",
-        "半导体芯片",
-        "先进封装",
-        "半导体材料",
-        "半导体设备",
-        "机器人",
-        "算力基础设施",
-        "计算机软件",
-        "传媒",
-        "游戏",
-        "数据安全",
-        "大金融",
-        "消费",
-        "地产链",
-        "红利资产",
-        "交通运输",
-        "农业",
-        "建筑建材",
-        "石油石化",
-    ]
-    for family in expected_families:
-        assert f'label: "{family}"' in app_js
-        assert f'prefixes: ["{family}-"]' in app_js
-
+    assert "taxonomy.industries" in app_js
+    assert "taxonomyRoot: root.id" in app_js
     assert "FAMILY_ORDER_STORAGE_KEY" in app_js
     assert "getOrderedGroupFamilies" in app_js
     assert "bindFamilyDragHandlers" in app_js

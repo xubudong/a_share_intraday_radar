@@ -33,6 +33,10 @@ class ToggleGroupStarRequest(BaseModel):
     group: str
 
 
+class ToggleScopeStarRequest(BaseModel):
+    scope_id: str
+
+
 class ToggleHoldingRequest(BaseModel):
     code: str
 
@@ -75,6 +79,11 @@ def stocks() -> dict:
     return radar_service.stocks_payload()
 
 
+@app.get("/api/taxonomy")
+def taxonomy() -> dict:
+    return radar_service.taxonomy_payload()
+
+
 @app.post("/api/refresh")
 def refresh(force_history: bool = False) -> dict:
     return radar_service.start_refresh(force_history=force_history)
@@ -90,6 +99,15 @@ def toggle_star(req: ToggleStarRequest) -> dict:
 def toggle_group_star(req: ToggleGroupStarRequest) -> dict:
     new_state = radar_service.toggle_group_star(req.group)
     return {"group": req.group, "star": new_state}
+
+
+@app.post("/api/toggle-scope-star")
+def toggle_scope_star(req: ToggleScopeStarRequest) -> dict:
+    try:
+        new_state = radar_service.toggle_scope_star(req.scope_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"scope_id": req.scope_id, "star": new_state}
 
 
 @app.post("/api/toggle-holding")

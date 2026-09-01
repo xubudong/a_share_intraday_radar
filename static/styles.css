@@ -360,6 +360,119 @@ main {
   color: #ca8a04;
 }
 
+.scope-star-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  border-radius: 4px;
+  color: #b0b8c1;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.scope-star-toggle:hover {
+  background: #fef3c7;
+  color: #ca8a04;
+}
+
+.scope-star-toggle.starred {
+  color: #ca8a04;
+}
+
+.taxonomy-family {
+  flex: 1 1 100%;
+  display: block;
+  margin: 4px 0 0;
+  padding: 8px;
+  border-style: solid;
+  background: #f8fafc;
+}
+
+.taxonomy-family-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+.taxonomy-family .taxonomy-root-btn {
+  height: 32px;
+  padding: 0 10px;
+  border-color: #94a3b8;
+  background: #fff;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.taxonomy-branches {
+  column-count: 2;
+  column-gap: 7px;
+}
+
+.taxonomy-branch {
+  display: inline-block;
+  width: 100%;
+  min-width: 0;
+  margin: 0 0 7px;
+  padding: 6px;
+  border: 1px solid #dbe3e8;
+  border-radius: 7px;
+  background: #fff;
+  break-inside: avoid;
+}
+
+.taxonomy-family .taxonomy-branch-btn {
+  width: 100%;
+  min-height: 25px;
+  height: auto;
+  justify-content: flex-start;
+  padding: 0 6px;
+  border: 0;
+  border-bottom: 1px solid #edf1f3;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.taxonomy-leaves {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-top: 5px;
+}
+
+.taxonomy-family .taxonomy-leaf-btn,
+.tag-cluster .taxonomy-leaf-btn {
+  height: 25px;
+  padding: 0 7px;
+  border-color: #d7e0e5;
+  background: #f8fafc;
+  font-size: 11px;
+}
+
+.taxonomy-family button.active,
+.tag-cluster button.active {
+  border-color: var(--teal);
+  background: #e6fffb;
+  color: var(--teal);
+}
+
+.tag-cluster {
+  flex: 1 1 100%;
+  margin: 4px 0 0;
+  border-style: solid;
+  border-color: #d8dee4;
+  background: #fbfcfd;
+}
+
 .panel {
   margin-bottom: 14px;
 }
@@ -1748,6 +1861,10 @@ tbody tr:hover {
 
   .sector-workspace {
     grid-template-columns: 1fr;
+  }
+
+  .taxonomy-branches {
+    column-count: 1;
   }
 
   .market-layout {

@@ -31,6 +31,7 @@ class StarStore:
         self._path = path
         self._stars: set[str] = set()
         self._groups: set[str] = set()
+        self._scope_stars: set[str] = set()
         self._holdings: set[str] = set()
         self._load()
 
@@ -40,6 +41,7 @@ class StarStore:
                 data = json.loads(self._path.read_text(encoding="utf-8"))
                 self._stars = set(data.get("stars", []))
                 self._groups = set(data.get("groups", []))
+                self._scope_stars = set(data.get("scope_stars", []))
                 self._holdings = set(data.get("holdings", []))
                 return
             except Exception:
@@ -53,6 +55,7 @@ class StarStore:
                 {
                     "stars": sorted(self._stars),
                     "groups": sorted(self._groups),
+                    "scope_stars": sorted(self._scope_stars),
                     "holdings": sorted(self._holdings),
                 },
                 ensure_ascii=False,
@@ -85,6 +88,28 @@ class StarStore:
         self._save()
         return group in self._groups
 
+    def is_scope_starred(self, scope_id: str) -> bool:
+        return scope_id in self._scope_stars
+
+    def toggle_scope(self, scope_id: str) -> bool:
+        """Toggle star for a stable industry or tag scope."""
+        return self.set_scope(scope_id, scope_id not in self._scope_stars)
+
+    def set_scope(
+        self,
+        scope_id: str,
+        starred: bool,
+        remove_legacy_groups: tuple[str, ...] = (),
+    ) -> bool:
+        """Persist a scope star and optionally consume equivalent legacy group stars."""
+        if starred:
+            self._scope_stars.add(scope_id)
+        else:
+            self._scope_stars.discard(scope_id)
+        self._groups.difference_update(remove_legacy_groups)
+        self._save()
+        return scope_id in self._scope_stars
+
     def is_holding(self, code: str) -> bool:
         return code in self._holdings
 
@@ -104,6 +129,18 @@ class StarStore:
     @property
     def group_count(self) -> int:
         return len(self._groups)
+
+    @property
+    def scope_count(self) -> int:
+        return len(self._scope_stars)
+
+    @property
+    def starred_groups(self) -> tuple[str, ...]:
+        return tuple(sorted(self._groups))
+
+    @property
+    def starred_scopes(self) -> tuple[str, ...]:
+        return tuple(sorted(self._scope_stars))
 
     @property
     def holding_count(self) -> int:

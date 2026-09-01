@@ -468,7 +468,8 @@ def compact_text(value: Any, limit: int = 500) -> str:
 
 
 GROUP_ALIAS_OVERRIDES: dict[str, tuple[str, ...]] = {
-    "电子元件-PCB": ("PCB",),
+    "电子元件-PCB/FPC": ("PCB", "FPC", "软板"),
+    "电子元件-PCB设备": ("PCB设备", "PCB装备", "PCB数控", "LDI", "直接成像", "PCB钻针", "FPC测试"),
     "电子元件-覆铜板": ("覆铜板",),
     "电子元件-电子铜箔": ("铜箔", "电子铜箔"),
     "电子元件-MLCC/被动元件": ("MLCC", "被动元件"),

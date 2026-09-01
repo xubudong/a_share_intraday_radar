@@ -20,12 +20,24 @@ groups:
       - { code: "002080", name: "中材科技", tier: 2 }
       - { code: "605006", name: "山东玻纤", tier: 2 }
 
-  - name: 电子元件-PCB
+  - name: 电子元件-PCB/FPC
     stocks:
       - { code: "300476", name: "胜宏科技", tier: 1, note: "AI服务器/HPC高阶PCB核心" }
-      - { code: "002463", name: "沪电股份", tier: 1 }
-      - { code: "002916", name: "深南电路", tier: 1 }
-      - { code: "603228", name: "景旺电子", tier: 2 }
+      - { code: "002463", name: "沪电股份", tier: 1, note: "高速通信与AI服务器PCB龙头锚" }
+      - { code: "002916", name: "深南电路", tier: 1, note: "通信PCB、数据中心与封装基板平台" }
+      - { code: "002938", name: "鹏鼎控股", tier: 1, note: "FPC/SLP/PCB平台龙头，AI服务器与光模块观察" }
+      - { code: "002384", name: "东山精密", tier: 1, note: "FPC/PCB与精密制造平台，AI基础设施链观察" }
+      - { code: "603228", name: "景旺电子", tier: 2, note: "高多层PCB、汽车电子与AI服务器观察" }
+      - { code: "002913", name: "奥士康", tier: 2, note: "服务器、数据存储与高端PCB二线弹性" }
+      - { code: "603920", name: "世运电路", tier: 2, note: "汽车PCB、多层板/HDI与服务器链观察" }
+
+  - name: 电子元件-PCB设备
+    stocks:
+      - { code: "301200", name: "大族数控", tier: 1, note: "PCB钻孔、成型、检测等数智化装备核心" }
+      - { code: "688630", name: "芯碁微装", tier: 1, note: "PCB直接成像/LDI与IC载板曝光设备核心" }
+      - { code: "301377", name: "鼎泰高科", tier: 2, note: "PCB钻针/铣刀等关键加工工具耗材" }
+      - { code: "300410", name: "正业科技", tier: 3, note: "PCB检测设备与X-Ray检测弹性观察" }
+      - { code: "688312", name: "燕麦科技", tier: 3, note: "FPC自动化测试设备与IC载板测试观察" }
 
   - name: 光通信-光材料/光纤光缆
     stocks:
@@ -52,13 +64,13 @@ groups:
       - { code: "301217", name: "铜冠铜箔", tier: 1 }
       - { code: "301511", name: "德福科技", tier: 1 }
       - { code: "600110", name: "诺德股份", tier: 2 }
-      - { code: "002992", name: "宝明科技", watch: true, tier: 3 }
       - { code: "002203", name: "海亮股份", tier: 2 }
 
   - name: 电子元件-覆铜板
     stocks:
       - { code: "600183", name: "生益科技", tier: 1 }
       - { code: "603186", name: "华正新材", tier: 1 }
+      - { code: "688519", name: "南亚新材", tier: 2, note: "高频高速覆铜板、HDI与IC载板材料观察" }
       - { code: "002636", name: "金安国纪", tier: 2 }
       - { code: "603002", name: "宏昌电子", tier: 2 }
 

@@ -24,6 +24,7 @@ from .eastmoney import (
 from .history_store import DailyKlineStore
 from .indicators import compute_indicators
 from .signals import evaluate_signal
+from .taxonomy import build_scope_stats, taxonomy
 
 
 try:
@@ -472,6 +473,15 @@ class RadarService:
                 "indicators": indicators,
                 "data_status": data_status(quote, rows),
             }
+            projection = taxonomy.stock_projection(stock.group, stock.groups)
+            item.update(projection)
+            item["scope_star"] = any(
+                self.is_scope_starred(scope_id)
+                for scope_id in [
+                    *projection["industry_scope_ids"],
+                    *projection["tag_scope_ids"],
+                ]
+            )
             item["signal"] = evaluate_signal(item)
             item["intraday"] = self.intraday.get(stock.code, [])
             items.append(item)
@@ -531,6 +541,11 @@ class RadarService:
         avg_pct = sum(pcts) / len(pcts) if pcts else 0
         avg_pct_main = sum(pcts_main) / len(pcts_main) if pcts_main else 0
         avg_pct_gem = sum(pcts_gem) / len(pcts_gem) if pcts_gem else 0
+        scope_stats = build_scope_stats(
+            self.stocks,
+            taxonomy,
+            is_scope_starred=self.is_scope_starred,
+        )
 
         return {
             "updated_at": self.last_refresh_at,
@@ -547,7 +562,7 @@ class RadarService:
                 "total": len(self.pool),
                 "stars": star_store.count,
                 "holdings": getattr(star_store, "holding_count", 0),
-                "group_stars": star_store.group_count,
+                "group_stars": self.starred_sector_count(),
                 "buy": signal_counts["买入"],
                 "reduce": signal_counts["减仓"],
                 "exit": signal_counts["剔除"],
@@ -571,6 +586,7 @@ class RadarService:
                 }
                 for name, value in group_stats.items()
             },
+            "scope_stats": scope_stats,
             "market_indices": getattr(self, "market_indices", []),
             "radar": radar,
         }
@@ -581,6 +597,30 @@ class RadarService:
             "last_success_at": self.last_success_at,
             "stocks": self.stocks,
         }
+
+    def taxonomy_payload(self) -> dict[str, Any]:
+        return taxonomy.payload(is_scope_starred=self.is_scope_starred)
+
+    def is_scope_starred(self, scope_id: str) -> bool:
+        is_scope_starred = getattr(star_store, "is_scope_starred", None)
+        if is_scope_starred and is_scope_starred(scope_id):
+            return True
+        return any(
+            star_store.is_group_starred(group)
+            for group in taxonomy.legacy_groups_for_scope(scope_id)
+        )
+
+    def starred_sector_count(self) -> int:
+        starred_groups = getattr(star_store, "starred_groups", None)
+        if starred_groups is None:
+            return getattr(star_store, "group_count", 0) + getattr(
+                star_store, "scope_count", 0
+            )
+        scopes = set(getattr(star_store, "starred_scopes", ()))
+        for group in starred_groups:
+            leaf_id = taxonomy.resolve_group(group)
+            scopes.add(f"industry:{leaf_id}" if leaf_id else f"legacy:{group}")
+        return len(scopes)
 
     def toggle_star(self, code: str) -> bool:
         """Toggle star for a stock code. Returns new starred state."""
@@ -600,6 +640,35 @@ class RadarService:
             if group in groups:
                 stock["group_star"] = new_state or any(
                     star_store.is_group_starred(item) for item in groups
+                )
+        return new_state
+
+    def toggle_scope_star(self, scope_id: str) -> bool:
+        """Toggle star for a stable taxonomy scope."""
+        valid_industry = (
+            scope_id.startswith("industry:")
+            and scope_id.removeprefix("industry:") in taxonomy.nodes
+        )
+        valid_tag = (
+            scope_id.startswith("tag:")
+            and scope_id.removeprefix("tag:") in taxonomy.tags
+        )
+        if not (valid_industry or valid_tag):
+            raise ValueError("未知行业或标签")
+        new_state = not self.is_scope_starred(scope_id)
+        new_state = star_store.set_scope(
+            scope_id,
+            new_state,
+            remove_legacy_groups=taxonomy.legacy_groups_for_scope(scope_id),
+        )
+        for stock in self.stocks:
+            stock_scopes = [
+                *(stock.get("industry_scope_ids") or []),
+                *(stock.get("tag_scope_ids") or []),
+            ]
+            if scope_id in stock_scopes:
+                stock["scope_star"] = new_state or any(
+                    self.is_scope_starred(item) for item in stock_scopes
                 )
         return new_state
 
@@ -709,10 +778,13 @@ class RadarService:
         ts = datetime.now(SH_TZ).strftime("%Y%m%dT%H%M%S")
         dashboard = self.dashboard()
         payload = {
+            "schema_version": 2,
+            "taxonomy_version": taxonomy.version,
             "id": ts,
             "created_at": now_iso(),
             "summary": dashboard.get("summary", {}),
             "group_stats": dashboard.get("group_stats", {}),
+            "scope_stats": dashboard.get("scope_stats", {}),
             "stocks": self.stocks,
         }
         path = SNAPSHOTS_DIR / f"{ts}.json"

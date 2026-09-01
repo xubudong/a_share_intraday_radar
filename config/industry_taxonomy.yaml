@@ -1,0 +1,682 @@
+version: 1
+
+industries:
+  - id: semiconductor
+    name: 半导体
+    children:
+      - id: semiconductor.design
+        name: 芯片设计
+        children:
+          - id: semiconductor.design.memory
+            name: 存储芯片
+            aliases: ["半导体芯片-存储"]
+          - id: semiconductor.design.ai_compute
+            name: AI/计算芯片
+            aliases: ["半导体芯片-AI芯片"]
+          - id: semiconductor.design.general
+            name: 通用/综合设计
+            aliases: ["半导体芯片-设计"]
+          - id: semiconductor.design.edge_ai
+            name: MCU/端侧AI
+            aliases: ["半导体芯片-端侧AI/AIoT"]
+          - id: semiconductor.design.cis
+            name: CIS/视觉感知
+            aliases: ["半导体芯片-CIS/视觉感知"]
+          - id: semiconductor.design.analog_rf
+            name: 模拟/RF/PMIC
+            aliases: ["半导体芯片-模拟/RF/PMIC"]
+          - id: semiconductor.design.power_management
+            name: 电源管理芯片
+            aliases: ["半导体芯片-功率/电源管理"]
+          - id: semiconductor.design.network
+            name: 网络/通信芯片
+            aliases: ["半导体芯片-网络通信"]
+      - id: semiconductor.eda_ip
+        name: EDA/IP与定制芯片
+        children:
+          - id: semiconductor.eda_ip.ip_fpga_asic
+            name: IP/FPGA/ASIC
+            aliases: ["半导体芯片-IP/FPGA/ASIC"]
+      - id: semiconductor.manufacturing
+        name: 晶圆制造
+        children:
+          - id: semiconductor.manufacturing.foundry_idm
+            name: 晶圆代工/IDM
+            aliases: ["半导体芯片-晶圆制造"]
+      - id: semiconductor.power
+        name: 功率半导体
+        children:
+          - id: semiconductor.power.devices
+            name: 功率器件
+            aliases: ["半导体芯片-功率器件"]
+      - id: semiconductor.equipment
+        name: 半导体设备
+        children:
+          - id: semiconductor.equipment.front_end
+            name: 前道核心设备
+            aliases: ["半导体设备-前道核心设备"]
+          - id: semiconductor.equipment.metrology
+            name: 检测/量测
+            aliases: ["半导体设备-检测/量测"]
+          - id: semiconductor.equipment.components
+            name: 零部件/工艺系统
+            aliases: ["半导体设备-零部件/工艺系统"]
+          - id: semiconductor.equipment.lithography_track
+            name: 光刻/涂胶显影
+            aliases: ["半导体设备-光刻/涂胶显影配套"]
+      - id: semiconductor.materials
+        name: 半导体材料
+        children:
+          - id: semiconductor.materials.wafer
+            name: 硅片
+            aliases: ["半导体材料-硅片"]
+          - id: semiconductor.materials.photoresist
+            name: 光刻胶
+            aliases: ["半导体材料-光刻胶"]
+          - id: semiconductor.materials.targets
+            name: 溅射靶材
+            aliases: ["半导体材料-溅射靶材"]
+          - id: semiconductor.materials.electronic_gases
+            name: 电子特气
+            aliases: ["半导体材料-电子特气"]
+          - id: semiconductor.materials.packaging
+            name: 封装材料
+            aliases: ["半导体材料-封装材料"]
+          - id: semiconductor.materials.wide_bandgap
+            name: SiC/GaN材料
+            aliases: ["半导体材料-碳化硅/氮化镓"]
+          - id: semiconductor.materials.wet_chemicals
+            name: 湿电子化学品
+            aliases: ["半导体材料-湿电子"]
+          - id: semiconductor.materials.cmp
+            name: CMP/抛光材料
+            aliases: ["半导体材料-CMP/抛光材料"]
+      - id: semiconductor.packaging
+        name: 封装测试
+        children:
+          - id: semiconductor.packaging.osat
+            name: 封测厂
+            aliases: ["先进封装-封测厂"]
+
+  - id: electronics
+    name: 电子
+    children:
+      - id: electronics.passive
+        name: 被动元件
+        children:
+          - id: electronics.passive.mlcc
+            name: MLCC/被动元件
+            aliases: ["电子元件-MLCC/被动元件"]
+      - id: electronics.display_substrate
+        name: 显示与基板
+        children:
+          - id: electronics.display_substrate.glass
+            name: 玻璃基板
+            aliases: ["电子元件-玻璃基板"]
+      - id: electronics.pcb
+        name: PCB产业链
+        children:
+          - id: electronics.pcb.board
+            name: PCB/FPC
+            aliases: ["电子元件-PCB/FPC"]
+          - id: electronics.pcb.equipment
+            name: PCB设备
+            aliases: ["电子元件-PCB设备"]
+          - id: electronics.pcb.copper_foil
+            name: 电子铜箔
+            aliases: ["电子元件-电子铜箔"]
+          - id: electronics.pcb.ccl
+            name: 覆铜板
+            aliases: ["电子元件-覆铜板"]
+          - id: electronics.pcb.glass_fiber
+            name: 电子布/玻纤
+            aliases: ["电子元件-玻璃玻纤/电子布"]
+
+  - id: communications
+    name: 通信
+    children:
+      - id: communications.optical
+        name: 光通信
+        children:
+          - id: communications.optical.material_fiber
+            name: 光材料/光纤光缆
+            aliases: ["光通信-光材料/光纤光缆"]
+          - id: communications.optical.chip
+            name: 光芯片
+            aliases: ["光通信-光芯片"]
+          - id: communications.optical.device
+            name: 光器件/光引擎
+            aliases: ["光通信-光器件/光引擎"]
+          - id: communications.optical.module
+            name: 光模块
+            aliases: ["光通信-光模块整机"]
+          - id: communications.optical.cpo
+            name: CPO/硅光
+            aliases: ["光通信-CPO/硅光"]
+      - id: communications.equipment
+        name: 通信设备
+        children:
+          - id: communications.equipment.high_speed_network
+            name: 高速连接/网络设备
+            aliases: ["光通信-高速连接/网络设备"]
+
+  - id: ai_compute
+    name: AI算力
+    children:
+      - id: ai_compute.hardware
+        name: 算力硬件
+        children:
+          - id: ai_compute.hardware.server
+            name: 服务器整机
+            aliases: ["国产算力-服务器整机"]
+      - id: ai_compute.network
+        name: 算力网络
+        children:
+          - id: ai_compute.network.switch
+            name: 高速网络/交换设备
+            aliases: ["国产算力-高速网络/交换设备"]
+      - id: ai_compute.datacenter
+        name: 数据中心基础设施
+        children:
+          - id: ai_compute.datacenter.cooling
+            name: 液冷
+            aliases: ["算力基础设施-液冷"]
+          - id: ai_compute.datacenter.idc
+            name: IDC/数据中心运营
+            aliases: ["国产算力-IDC/数据中心运营"]
+          - id: ai_compute.datacenter.power
+            name: 电源/UPS
+            aliases: ["国产算力-电源/UPS"]
+      - id: ai_compute.edge
+        name: 边缘算力
+        children:
+          - id: ai_compute.edge.terminal
+            name: 边缘终端/AI硬件
+            aliases: ["国产算力-边缘终端/AI硬件"]
+
+  - id: computer
+    name: 计算机
+    children:
+      - id: computer.foundation
+        name: 基础软件
+        children:
+          - id: computer.foundation.os
+            name: 操作系统/基础软件
+            aliases: ["国产算力-基础软件"]
+          - id: computer.foundation.database
+            name: 数据库/中间件
+            aliases: ["国产算力-数据库/中间件"]
+      - id: computer.security
+        name: 网络与数据安全
+        children:
+          - id: computer.security.network
+            name: 网络安全
+            aliases: ["数据安全-网络安全"]
+      - id: computer.data_ai
+        name: 数据要素与AI应用
+        children:
+          - id: computer.data_ai.data_service
+            name: 数据服务/AI数据
+            aliases: ["数据安全-数据服务/AI数据"]
+          - id: computer.data_ai.office_agent
+            name: 办公软件/企业智能体
+            aliases: ["计算机软件-办公/企业智能体"]
+          - id: computer.data_ai.search
+            name: 搜索/知识管理
+            aliases: ["计算机软件-搜索/知识管理"]
+      - id: computer.enterprise
+        name: 企业与工业软件
+        children:
+          - id: computer.enterprise.software
+            name: 企业软件/工业软件
+            aliases: ["计算机软件-企业软件/工业软件"]
+      - id: computer.industry_apps
+        name: 行业应用
+        children:
+          - id: computer.industry_apps.education
+            name: 教育信息化/AI教育
+            aliases: ["计算机软件-教育信息化/AI教育"]
+          - id: computer.industry_apps.government_healthcare
+            name: 政务/医疗IT
+            aliases: ["计算机软件-政务/医疗IT"]
+          - id: computer.industry_apps.finance
+            name: 金融IT
+            aliases: ["计算机软件-金融IT"]
+
+  - id: media_internet
+    name: 传媒互联网
+    children:
+      - id: media_internet.marketing
+        name: 营销与平台
+        children:
+          - id: media_internet.marketing.advertising
+            name: 营销广告
+            aliases: ["传媒-营销广告"]
+      - id: media_internet.content
+        name: 内容与版权
+        children:
+          - id: media_internet.content.ip
+            name: IP/语料/版权
+            aliases: ["传媒-IP/语料/版权"]
+          - id: media_internet.content.film
+            name: 影视内容
+            aliases: ["传媒-影视内容"]
+      - id: media_internet.games
+        name: 游戏
+        children:
+          - id: media_internet.games.interactive
+            name: 游戏/互动娱乐
+            aliases: ["游戏-AI游戏/互动娱乐"]
+
+  - id: power_equipment
+    name: 电力设备
+    children:
+      - id: power_equipment.grid
+        name: 电网设备
+        children:
+          - id: power_equipment.grid.secondary
+            name: 二次设备/数字电网
+            aliases: ["电网设备-二次设备/数字电网"]
+          - id: power_equipment.grid.uhv
+            name: 特高压/一次设备
+            aliases: ["电网设备-特高压/一次设备"]
+          - id: power_equipment.grid.transformer
+            name: 变压器/配电
+            aliases: ["电网设备-变压器/配电"]
+          - id: power_equipment.grid.meter
+            name: 智能电表/用电侧
+            aliases: ["电网设备-智能电表/用电侧"]
+
+  - id: renewable_energy
+    name: 新能源
+    children:
+      - id: renewable_energy.battery
+        name: 锂电产业链
+        children:
+          - id: renewable_energy.battery.equipment
+            name: 锂电设备
+            aliases: ["新能源-锂电设备"]
+          - id: renewable_energy.battery.cell_storage
+            name: 电芯/储能
+            aliases: ["新能源-锂电电芯/储能"]
+      - id: renewable_energy.materials
+        name: 锂电材料
+        children:
+          - id: renewable_energy.materials.cathode
+            name: 正极材料
+            aliases: ["新能源-锂电材料-正极"]
+          - id: renewable_energy.materials.anode
+            name: 负极材料
+            aliases: ["新能源-锂电材料-负极"]
+          - id: renewable_energy.materials.separator
+            name: 隔膜
+            aliases: ["新能源-锂电材料-隔膜"]
+          - id: renewable_energy.materials.electrolyte
+            name: 电解液
+            aliases: ["新能源-锂电材料-电解液"]
+          - id: renewable_energy.materials.copper_collector
+            name: 锂电铜箔/复合集流体
+            aliases: ["新能源-锂电材料-铜箔/复合集流体"]
+          - id: renewable_energy.materials.aluminum_structure
+            name: 铝箔/结构件
+            aliases: ["新能源-锂电材料-铝箔/结构件"]
+          - id: renewable_energy.materials.precursor_recycle
+            name: 前驱体/回收
+            aliases: ["新能源-锂电回收/前驱体"]
+      - id: renewable_energy.new_technology
+        name: 锂电新技术
+        children:
+          - id: renewable_energy.new_technology.solid_state
+            name: 固态/半固态电池
+            aliases: ["新能源-锂电新技术-固态/半固态"]
+
+  - id: robot
+    name: 机器人
+    children:
+      - id: robot.industry_chain
+        name: 机器人产业链
+        children:
+          - id: robot.industry_chain.mixed
+            name: 本体/核心零部件
+            aliases: ["机器人-本体/核心零部件"]
+
+  - id: chemicals
+    name: 基础化工
+    children:
+      - id: chemicals.gases
+        name: 工业气体
+        children:
+          - id: chemicals.gases.industrial
+            name: 工业气体
+            aliases: ["化工-工业气体"]
+      - id: chemicals.raw
+        name: 化工原料
+        children:
+          - id: chemicals.raw.phosphorus
+            name: 磷化工
+            aliases: ["化工-磷化工"]
+          - id: chemicals.raw.fluorine
+            name: 氟化工
+            aliases: ["化工-氟化工"]
+          - id: chemicals.raw.chlor_alkali
+            name: 纯碱/氯碱
+            aliases: ["化工-纯碱氯碱"]
+          - id: chemicals.raw.coal
+            name: 煤化工
+            aliases: ["化工-煤化工"]
+      - id: chemicals.materials
+        name: 化工材料
+        children:
+          - id: chemicals.materials.titanium_dioxide
+            name: 钛白粉
+            aliases: ["化工-钛白粉"]
+      - id: chemicals.advanced_materials
+        name: 化工新材料
+        children:
+          - id: chemicals.advanced_materials.resin
+            name: 电子树脂/合成树脂
+            aliases: ["化工-电子树脂/合成树脂"]
+
+  - id: nonferrous
+    name: 有色金属
+    children:
+      - id: nonferrous.base
+        name: 基本金属
+        children:
+          - id: nonferrous.base.copper
+            name: 铜
+            aliases: ["有色-铜"]
+          - id: nonferrous.base.aluminum
+            name: 铝
+            aliases: ["有色-铝"]
+      - id: nonferrous.precious
+        name: 贵金属
+        children:
+          - id: nonferrous.precious.gold_silver
+            name: 黄金/白银
+            aliases: ["有色-贵金属"]
+      - id: nonferrous.energy
+        name: 能源金属
+        children:
+          - id: nonferrous.energy.nickel
+            name: 镍
+            aliases: ["有色-镍"]
+          - id: nonferrous.energy.lithium
+            name: 锂
+            aliases: ["有色-锂矿"]
+          - id: nonferrous.energy.cobalt
+            name: 钴
+            aliases: ["有色-钴"]
+      - id: nonferrous.minor
+        name: 小金属
+        children:
+          - id: nonferrous.minor.tungsten
+            name: 钨
+            aliases: ["有色-钨"]
+          - id: nonferrous.minor.tin_antimony
+            name: 锡/锑
+            aliases: ["有色-锡锑"]
+          - id: nonferrous.minor.molybdenum
+            name: 钼
+            aliases: ["有色-钼"]
+          - id: nonferrous.minor.scarce
+            name: 综合稀缺资源
+            aliases: ["有色-稀缺资源"]
+          - id: nonferrous.minor.gallium_germanium_indium
+            name: 镓/锗/铟
+            aliases: ["有色-镓锗铟"]
+      - id: nonferrous.rare_earth
+        name: 稀土
+        children:
+          - id: nonferrous.rare_earth.resource
+            name: 稀土资源
+            aliases: ["有色-稀土资源"]
+          - id: nonferrous.rare_earth.magnet
+            name: 稀土永磁
+            aliases: ["有色-稀土永磁"]
+
+  - id: medicine
+    name: 医药
+    children:
+      - id: medicine.pharma
+        name: 制药
+        children:
+          - id: medicine.pharma.innovative
+            name: 创新药
+            aliases: ["医药-创新药"]
+          - id: medicine.pharma.tcm
+            name: 中药
+            aliases: ["医药-中药"]
+          - id: medicine.pharma.api
+            name: 原料药
+            aliases: ["医药-原料药"]
+      - id: medicine.biologics
+        name: 生物制品
+        children:
+          - id: medicine.biologics.blood
+            name: 血制品
+            aliases: ["医药-血制品"]
+          - id: medicine.biologics.vaccine
+            name: 疫苗
+            aliases: ["医药-疫苗"]
+      - id: medicine.outsourcing
+        name: 医药外包服务
+        children:
+          - id: medicine.outsourcing.cxo
+            name: CXO
+            aliases: ["医药-CXO"]
+      - id: medicine.devices
+        name: 医疗器械
+        children:
+          - id: medicine.devices.general
+            name: 医疗器械
+            aliases: ["医药-医疗器械"]
+          - id: medicine.devices.ivd
+            name: IVD
+            aliases: ["医药-IVD"]
+      - id: medicine.services
+        name: 医疗服务
+        children:
+          - id: medicine.services.general
+            name: 医疗服务
+            aliases: ["医药-医疗服务"]
+      - id: medicine.commerce
+        name: 医药商业
+        children:
+          - id: medicine.commerce.pharmacy_distribution
+            name: 药店/医药流通
+            aliases: ["医药-药店/医药商业"]
+      - id: medicine.consumer_health
+        name: 消费医疗
+        children:
+          - id: medicine.consumer_health.aesthetics
+            name: 医美
+            aliases: ["医药-医美"]
+      - id: medicine.life_science
+        name: 生命科学服务
+        children:
+          - id: medicine.life_science.tools
+            name: 科研试剂/生命科学工具
+            aliases: ["医药-生命科学上游"]
+
+  - id: finance
+    name: 大金融
+    children:
+      - id: finance.nonbank
+        name: 非银金融
+        children:
+          - id: finance.nonbank.securities
+            name: 证券
+            aliases: ["大金融-证券"]
+          - id: finance.nonbank.insurance
+            name: 保险
+            aliases: ["大金融-保险"]
+      - id: finance.bank
+        name: 银行
+        children:
+          - id: finance.bank.commercial
+            name: 银行
+            aliases: ["大金融-银行"]
+
+  - id: consumer
+    name: 消费
+    children:
+      - id: consumer.food_beverage
+        name: 食品饮料
+        children:
+          - id: consumer.food_beverage.mixed
+            name: 白酒/食品饮料
+            aliases: ["消费-白酒/食品饮料"]
+      - id: consumer.appliance
+        name: 家用电器
+        children:
+          - id: consumer.appliance.general
+            name: 家电
+            aliases: ["消费-家电"]
+      - id: consumer.retail
+        name: 商贸零售
+        children:
+          - id: consumer.retail.duty_free
+            name: 零售/免税
+            aliases: ["消费-零售/免税"]
+      - id: consumer.services
+        name: 社会服务
+        children:
+          - id: consumer.services.travel_hotel
+            name: 旅游/酒店
+            aliases: ["消费-旅游酒店"]
+
+  - id: real_estate
+    name: 房地产
+    children:
+      - id: real_estate.development_service
+        name: 房地产开发与服务
+        children:
+          - id: real_estate.development_service.mixed
+            name: 开发/物业
+            aliases: ["地产链-开发/物业"]
+      - id: real_estate.home_building_materials
+        name: 家居与建材（待拆分）
+        children:
+          - id: real_estate.home_building_materials.mixed
+            name: 家居/建材（待拆分）
+            aliases: ["地产链-家居/建材"]
+
+  - id: coal
+    name: 煤炭
+    children:
+      - id: coal.mining
+        name: 煤炭开采
+        children:
+          - id: coal.mining.mixed
+            name: 动力煤/焦煤
+            aliases: ["红利资产-煤炭"]
+
+  - id: utilities
+    name: 公用事业
+    children:
+      - id: utilities.power
+        name: 电力运营
+        children:
+          - id: utilities.power.mixed
+            name: 水电/核电/火电/新能源运营
+            aliases: ["红利资产-电力/公用事业"]
+
+  - id: transportation
+    name: 交通运输
+    children:
+      - id: transportation.shipping_port
+        name: 水运与港口
+        children:
+          - id: transportation.shipping_port.mixed
+            name: 航运/港口
+            aliases: ["交通运输-航运/港口"]
+      - id: transportation.aviation_logistics
+        name: 航空机场与物流
+        children:
+          - id: transportation.aviation_logistics.mixed
+            name: 航空/机场/快递
+            aliases: ["交通运输-航空机场/快递"]
+
+  - id: agriculture
+    name: 农林牧渔
+    children:
+      - id: agriculture.breeding_feed
+        name: 养殖与饲料
+        children:
+          - id: agriculture.breeding_feed.mixed
+            name: 生猪/禽类/饲料
+            aliases: ["农业-养殖/饲料"]
+      - id: agriculture.planting_seed
+        name: 种植与种业
+        children:
+          - id: agriculture.planting_seed.mixed
+            name: 种业/粮食种植
+            aliases: ["农业-种业/粮食"]
+
+  - id: construction
+    name: 建筑建材
+    children:
+      - id: construction.materials
+        name: 建筑材料
+        children:
+          - id: construction.materials.cement_glass
+            name: 水泥/玻璃
+            aliases: ["建筑建材-水泥/玻璃"]
+      - id: construction.engineering
+        name: 建筑施工
+        children:
+          - id: construction.engineering.central_enterprise
+            name: 基建央企
+            aliases: ["建筑建材-基建央企"]
+
+  - id: petrochemical
+    name: 石油石化
+    children:
+      - id: petrochemical.oil_gas
+        name: 油气产业链
+        children:
+          - id: petrochemical.oil_gas.exploration_service
+            name: 油气开采/油服
+            aliases: ["石油石化-油气开采/油服"]
+      - id: petrochemical.refining_fiber
+        name: 炼化与化纤
+        children:
+          - id: petrochemical.refining_fiber.mixed
+            name: 炼化/化纤
+            aliases: ["石油石化-炼化/化纤"]
+
+tags:
+  - id: advanced_packaging
+    name: 先进封装
+    aliases: ["Chiplet", "2.5D/3D封装"]
+    legacy_groups: ["先进封装-封测厂"]
+  - id: domestic_compute
+    name: 国产算力
+    legacy_groups:
+      - "国产算力-服务器整机"
+      - "国产算力-高速网络/交换设备"
+      - "国产算力-IDC/数据中心运营"
+      - "国产算力-电源/UPS"
+      - "国产算力-基础软件"
+      - "国产算力-数据库/中间件"
+      - "国产算力-边缘终端/AI硬件"
+  - id: ai_application
+    name: AI应用
+    legacy_groups:
+      - "数据安全-数据服务/AI数据"
+      - "计算机软件-办公/企业智能体"
+      - "计算机软件-搜索/知识管理"
+      - "计算机软件-教育信息化/AI教育"
+  - id: cpo
+    name: CPO/硅光
+    legacy_groups: ["光通信-CPO/硅光"]
+  - id: solid_state_battery
+    name: 固态电池
+    legacy_groups: ["新能源-锂电新技术-固态/半固态"]
+  - id: dividend
+    name: 红利
+    legacy_groups: ["红利资产-煤炭", "红利资产-电力/公用事业"]
+  - id: ai_game
+    name: AI游戏
+    legacy_groups: ["游戏-AI游戏/互动娱乐"]

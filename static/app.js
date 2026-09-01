@@ -25,6 +25,7 @@ const tableColumns = [
 
 const state = {
   dashboard: null,
+  taxonomy: null,
   stocks: [],
   group: "全部",
   expanded: null,
@@ -42,34 +43,7 @@ const state = {
 const actionableSignals = new Set(["买入"]);
 const FAMILY_ORDER_STORAGE_KEY = "a_share_radar_family_order";
 let draggedFamilyLabel = null;
-const groupFamilies = [
-  { label: "电子元件", prefixes: ["电子元件-"] },
-  { label: "化工", prefixes: ["化工-"] },
-  { label: "有色", prefixes: ["有色-"] },
-  { label: "新能源", prefixes: ["新能源-"] },
-  { label: "半导体芯片", prefixes: ["半导体芯片-"] },
-  { label: "先进封装", prefixes: ["先进封装-"] },
-  { label: "光通信", prefixes: ["光通信-"] },
-  { label: "半导体材料", prefixes: ["半导体材料-"] },
-  { label: "半导体设备", prefixes: ["半导体设备-"] },
-  { label: "电网设备", prefixes: ["电网设备-"] },
-  { label: "机器人", prefixes: ["机器人-"] },
-  { label: "算力基础设施", prefixes: ["算力基础设施-"] },
-  { label: "国产算力", prefixes: ["国产算力-"] },
-  { label: "计算机软件", prefixes: ["计算机软件-"] },
-  { label: "传媒", prefixes: ["传媒-"] },
-  { label: "游戏", prefixes: ["游戏-"] },
-  { label: "数据安全", prefixes: ["数据安全-"] },
-  { label: "医药", prefixes: ["医药-"] },
-  { label: "大金融", prefixes: ["大金融-"] },
-  { label: "消费", prefixes: ["消费-"] },
-  { label: "地产链", prefixes: ["地产链-"] },
-  { label: "红利资产", prefixes: ["红利资产-"] },
-  { label: "交通运输", prefixes: ["交通运输-"] },
-  { label: "农业", prefixes: ["农业-"] },
-  { label: "建筑建材", prefixes: ["建筑建材-"] },
-  { label: "石油石化", prefixes: ["石油石化-"] },
-];
+let groupFamilies = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   renderColumnToggles();
@@ -135,6 +109,13 @@ function bindEvents() {
       toggleGroupStar(groupStarBtn.dataset.group, groupStarBtn);
       return;
     }
+    const scopeStarBtn = event.target.closest(".scope-star-toggle");
+    if (scopeStarBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleScopeStar(scopeStarBtn.dataset.scope, scopeStarBtn);
+      return;
+    }
   });
   document.querySelectorAll("th[data-sort]").forEach((th) => {
     th.addEventListener("click", () => {
@@ -177,12 +158,18 @@ async function bootstrap() {
 }
 
 async function loadData() {
-  const [dashboard, stocks] = await Promise.all([
+  const [dashboard, stocks, taxonomy] = await Promise.all([
     fetchJson("/api/dashboard"),
     fetchJson("/api/stocks"),
+    fetchJson("/api/taxonomy"),
   ]);
   state.dashboard = dashboard;
-  state.stocks = stocks.stocks || [];
+  state.taxonomy = taxonomy;
+  groupFamilies = (taxonomy.industries || []).map((root) => ({
+    label: root.name,
+    taxonomyRoot: root.id,
+  }));
+  state.stocks = (stocks.stocks || []).map(hydrateStockScopes);
   render();
   return dashboard;
 }
@@ -525,21 +512,127 @@ function bindFamilyDragHandlers() {
   });
 }
 
+function flattenTaxonomyNodes(nodes = state.taxonomy?.industries || []) {
+  const result = [];
+  for (const node of nodes) {
+    result.push(node);
+    result.push(...flattenTaxonomyNodes(node.children || []));
+  }
+  return result;
+}
+
+function taxonomyNodeById(nodeId) {
+  return flattenTaxonomyNodes().find((node) => node.id === nodeId) || null;
+}
+
+function hydrateStockScopes(stock) {
+  if (!state.taxonomy) return stock;
+  const groups = stock.groups?.length ? stock.groups : [stock.group];
+  const industryScopeIds = new Set(stock.industry_scope_ids || []);
+  const tagScopeIds = new Set(stock.tag_scope_ids || []);
+  for (const group of groups) {
+    for (const scopeId of state.taxonomy.legacy_group_scopes?.[group] || []) {
+      industryScopeIds.add(scopeId);
+    }
+    for (const scopeId of state.taxonomy.legacy_group_tags?.[group] || []) {
+      tagScopeIds.add(scopeId);
+    }
+  }
+  stock.industry_scope_ids = Array.from(industryScopeIds);
+  stock.tag_scope_ids = Array.from(tagScopeIds);
+  return stock;
+}
+
+function scopeDisplayName(scopeId) {
+  if (scopeId === "全部" || scopeId === "all") return "全部";
+  if (!scopeId.startsWith("industry:")) {
+    return state.taxonomy?.scope_names?.[scopeId] || scopeId;
+  }
+  const node = taxonomyNodeById(scopeId.slice("industry:".length));
+  if (!node) return state.taxonomy?.scope_names?.[scopeId] || scopeId;
+  const names = [node.name];
+  let parentId = node.parent_id;
+  while (parentId) {
+    const parent = taxonomyNodeById(parentId);
+    if (!parent) break;
+    names.unshift(parent.name);
+    parentId = parent.parent_id;
+  }
+  return names.join(" / ");
+}
+
+function computeScopeStatsFromStocks() {
+  const rawStats = {};
+  for (const stock of state.stocks) {
+    const scopeIds = Array.from(new Set([
+      ...(stock.industry_scope_ids || []),
+      ...(stock.tag_scope_ids || []),
+    ]));
+    const pct = stock.quote?.pct_chg;
+    for (const scopeId of scopeIds) {
+      if (!rawStats[scopeId]) {
+        rawStats[scopeId] = { total: 0, up: 0, down: 0, flat: 0, pcts: [] };
+      }
+      const stats = rawStats[scopeId];
+      stats.total += 1;
+      if (pct === null || pct === undefined) {
+        stats.flat += 1;
+      } else if (pct > 0) {
+        stats.up += 1;
+        stats.pcts.push(pct);
+      } else if (pct < 0) {
+        stats.down += 1;
+        stats.pcts.push(pct);
+      } else {
+        stats.flat += 1;
+        stats.pcts.push(pct);
+      }
+    }
+  }
+  return Object.fromEntries(Object.entries(rawStats).map(([scopeId, stats]) => [
+    scopeId,
+    {
+      total: stats.total,
+      up: stats.up,
+      down: stats.down,
+      flat: stats.flat,
+      avg_pct: stats.pcts.length
+        ? Number((stats.pcts.reduce((sum, pct) => sum + pct, 0) / stats.pcts.length).toFixed(2))
+        : null,
+    },
+  ]));
+}
+
 function renderGroups() {
   const savedGroupStats = (state.dashboard && state.dashboard.group_stats) || {};
   const computedGroupStats = computeGroupStatsFromStocks();
   const groupStats = { ...computedGroupStats, ...savedGroupStats };
+  const savedScopeStats = (state.dashboard && state.dashboard.scope_stats) || {};
+  const computedScopeStats = computeScopeStatsFromStocks();
+  const scopeStats = { ...computedScopeStats, ...savedScopeStats };
   const allGroups = Array.from(new Set(
     state.stocks.flatMap((stock) => stock.groups?.length ? stock.groups : [stock.group])
   ));
+  const taxonomyLegacyGroups = new Set(
+    Object.keys(state.taxonomy?.legacy_group_scopes || {})
+  );
+  const legacyGroups = allGroups.filter((group) => !taxonomyLegacyGroups.has(group));
   const orderedFamilies = getOrderedGroupFamilies();
   const familyStats = Object.fromEntries(
     orderedFamilies.map((family) => [family.label, computeFamilyStats(family)])
   );
-  const otherGroups = allGroups
+  const otherGroups = legacyGroups
     .filter((group) => !groupFamilies.some((family) => groupMatchesFamily(group, family)))
     .sort();
-  const selections = ["全部", ...orderedFamilies.map((family) => family.label), ...allGroups];
+  const taxonomyScopes = flattenTaxonomyNodes().map((node) => node.scope_id);
+  const tagScopes = (state.taxonomy?.tags || []).map((tag) => tag.scope_id);
+  const selections = [
+    "全部",
+    ...orderedFamilies.map((family) => family.label),
+    ...legacyGroups,
+    ...taxonomyScopes,
+    ...tagScopes,
+  ];
   if (!selections.includes(state.group)) state.group = "全部";
 
   const groupButton = (group, display = group) => {
@@ -565,9 +658,51 @@ function renderGroups() {
     return `${avgTag}<span class="family-breadth">${stats.up}涨/${stats.down}跌${flatText}</span>`;
   };
 
+  const scopeButton = (node, cls, showBreadth = false) => {
+    const scopeId = node.scope_id;
+    const stats = scopeStats[scopeId] || {};
+    const avg = stats.avg_pct;
+    const avgTag = avg === undefined || avg === null
+      ? '<span class="group-pct muted">--</span>'
+      : `<span class="group-pct ${groupPctClass(avg)}">${avg >= 0 ? "+" : ""}${avg.toFixed(2)}%</span>`;
+    const breadth = showBreadth && stats.total
+      ? `<span class="family-breadth">${stats.up || 0}涨/${stats.down || 0}跌${stats.flat ? `/${stats.flat}平` : ""}</span>`
+      : "";
+    const starred = Boolean(stats.star ?? node.star);
+    const starTag = `<span class="scope-star-toggle ${starred ? "starred" : ""}" data-scope="${escapeHtml(scopeId)}" title="${starred ? "取消星标" : "加星标"}" aria-label="${starred ? "取消星标" : "加星标"}">${starred ? "★" : "☆"}</span>`;
+    const title = `${scopeDisplayName(scopeId)}：${stats.total || 0}只`;
+    return `<button class="${cls} ${scopeId === state.group ? "active" : ""}" data-scope="${escapeHtml(scopeId)}" title="${escapeHtml(title)}"><span>${escapeHtml(node.name)}</span>${avgTag}${breadth}${starTag}</button>`;
+  };
+
+  const taxonomyFamily = (family, root) => {
+    let result = `<div class="group-cluster family-cluster taxonomy-family" draggable="true" data-family-cluster="${escapeHtml(family.label)}">`;
+    result += `<div class="taxonomy-family-head">${scopeButton(root, "taxonomy-root-btn", true)}</div>`;
+    result += '<div class="taxonomy-branches">';
+    for (const branch of root.children || []) {
+      const leaves = [...(branch.children || [])].sort((left, right) => {
+        const leftStats = scopeStats[left.scope_id] || {};
+        const rightStats = scopeStats[right.scope_id] || {};
+        return Number(Boolean(rightStats.star ?? right.star)) - Number(Boolean(leftStats.star ?? left.star))
+          || (rightStats.avg_pct ?? -Infinity) - (leftStats.avg_pct ?? -Infinity)
+          || left.name.localeCompare(right.name, "zh-CN");
+      });
+      result += '<section class="taxonomy-branch">';
+      result += scopeButton(branch, "taxonomy-branch-btn", true);
+      result += `<div class="taxonomy-leaves">${leaves.map((leaf) => scopeButton(leaf, "taxonomy-leaf-btn")).join("")}</div>`;
+      result += "</section>";
+    }
+    result += "</div></div>";
+    return result;
+  };
+
   let html = groupButton("全部");
   for (const family of orderedFamilies) {
-    const familyGroups = allGroups
+    if (family.taxonomyRoot) {
+      const root = taxonomyNodeById(family.taxonomyRoot);
+      if (root) html += taxonomyFamily(family, root);
+      continue;
+    }
+    const familyGroups = legacyGroups
       .filter((group) => groupMatchesFamily(group, family))
       .sort((a, b) => groupDisplayForFamily(a, family).localeCompare(groupDisplayForFamily(b, family), "zh-CN"));
     if (!familyGroups.length) continue;
@@ -577,6 +712,11 @@ function renderGroups() {
     html += familyGroups
       .map((group) => groupButton(group, groupDisplayForFamily(group, family)))
       .join("");
+    html += "</div>";
+  }
+  if (state.taxonomy?.tags?.length) {
+    html += '<div class="group-cluster tag-cluster"><span class="group-cluster-label">关注主题</span>';
+    html += state.taxonomy.tags.map((tag) => scopeButton(tag, "taxonomy-leaf-btn tag-scope-btn")).join("");
     html += "</div>";
   }
   if (otherGroups.length) {
@@ -589,6 +729,18 @@ function renderGroups() {
   document.querySelectorAll("#groupFilter button[data-group]").forEach((btn) => {
     btn.addEventListener("click", () => {
       selectSector(btn.dataset.group);
+    });
+  });
+  document.querySelectorAll("#groupFilter .scope-star-toggle").forEach((star) => {
+    star.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleScopeStar(star.dataset.scope, star);
+    });
+  });
+  document.querySelectorAll("#groupFilter button[data-scope]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      selectSector(btn.dataset.scope);
     });
   });
   document.querySelectorAll("#groupFilter button[data-family]").forEach((btn) => {
@@ -628,8 +780,13 @@ function computeGroupStatsFromStocks() {
 function computeFamilyStats(family) {
   const stats = { total: 0, up: 0, down: 0, flat: 0, pcts: [] };
   for (const stock of state.stocks) {
+    if (family.taxonomyRoot) {
+      const rootScope = `industry:${family.taxonomyRoot}`;
+      if (!(stock.industry_scope_ids || []).includes(rootScope)) continue;
+    } else {
     const groups = stock.groups?.length ? stock.groups : [stock.group];
     if (!groups.some((group) => groupMatchesFamily(group, family))) continue;
+    }
     stats.total += 1;
     const pct = stock.quote?.pct_chg;
     if (pct === null || pct === undefined) {
@@ -682,7 +839,7 @@ async function loadSectorNotes(scope) {
   const requestedScope = scope;
   const title = document.getElementById("noteScopeTitle");
   const timeline = document.getElementById("noteTimeline");
-  title.textContent = scope;
+  title.textContent = scopeDisplayName(scope);
   timeline.innerHTML = '<div class="note-empty">加载笔记...</div>';
   setNoteStatus("");
   try {
@@ -801,8 +958,17 @@ function renderTable() {
     const stockGroups = stock.groups?.length ? stock.groups : [stock.group];
     if (state.group !== "全部") {
       const family = groupFamilies.find((item) => item.label === state.group);
-      if (family && !stockGroups.some((group) => groupMatchesFamily(group, family))) return false;
-      if (!family && !stockGroups.includes(state.group)) return false;
+      if (family?.taxonomyRoot) {
+        if (!(stock.industry_scope_ids || []).includes(`industry:${family.taxonomyRoot}`)) return false;
+      } else if (family) {
+        if (!stockGroups.some((group) => groupMatchesFamily(group, family))) return false;
+      } else if (state.group.startsWith("industry:")) {
+        if (!(stock.industry_scope_ids || []).includes(state.group)) return false;
+      } else if (state.group.startsWith("tag:")) {
+        if (!(stock.tag_scope_ids || []).includes(state.group)) return false;
+      } else if (!stockGroups.includes(state.group)) {
+        return false;
+      }
     }
     if (starOnly && !stock.star) return false;
     if (holdingOnly && !stock.holding) return false;
@@ -1376,6 +1542,32 @@ async function toggleGroupStar(group, button) {
   }
 }
 
+async function toggleScopeStar(scopeId, button) {
+  try {
+    const res = await fetch("/api/toggle-scope-star", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scope_id: scopeId }),
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    const data = await res.json();
+    if (state.dashboard?.scope_stats?.[scopeId]) {
+      state.dashboard.scope_stats[scopeId].star = data.star;
+    }
+    const node = flattenTaxonomyNodes().find((item) => item.scope_id === scopeId);
+    if (node) node.star = data.star;
+    const tag = (state.taxonomy?.tags || []).find((item) => item.scope_id === scopeId);
+    if (tag) tag.star = data.star;
+    if (button) {
+      button.textContent = data.star ? "★" : "☆";
+      button.classList.toggle("starred", data.star);
+    }
+    renderGroups();
+  } catch (err) {
+    if (button) button.title = `操作失败：${err.message}`;
+  }
+}
+
 // ── Snapshots ──
 
 async function openSnapshotPanel() {
@@ -1457,11 +1649,12 @@ async function loadSnapshotView(snapshotId) {
     }
     const data = await fetchJson(`/api/snapshots/${snapshotId}`);
     state.viewingSnapshot = snapshotId;
-    state.stocks = data.stocks || [];
+    state.stocks = (data.stocks || []).map(hydrateStockScopes);
     state.dashboard = {
       ...state.dashboard,
       summary: data.summary || {},
       group_stats: data.group_stats || {},
+      scope_stats: data.scope_stats || {},
     };
     render();
     // Update header to show snapshot mode
