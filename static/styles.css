@@ -383,41 +383,114 @@ main {
   color: #ca8a04;
 }
 
-.taxonomy-family {
+.starred-scope-bar {
+  position: sticky;
+  top: 94px;
+  z-index: 8;
   flex: 1 1 100%;
   display: flex;
-  align-items: flex-start;
-  gap: 5px;
-  margin: 2px 0 0;
-  padding: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 38px;
+  margin-bottom: 3px;
+  padding: 5px 8px;
+  border: 1px solid #d7e0e6;
+  border-left: 4px solid #ca8a04;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(6px);
+}
+
+.starred-scope-label {
+  margin-right: 3px;
+  color: #7c5b12;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.starred-scope-empty {
+  color: #8a98a5;
+  font-size: 11.5px;
+}
+
+.starred-scope-bar .starred-scope-btn {
+  height: 25px;
+  padding: 0 5px;
+  border: 1px solid #ead39b;
+  border-radius: 6px;
+  background: #fffaf0;
+  color: #4b5b6b;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.starred-scope-bar .starred-scope-btn.active {
+  border-color: var(--teal);
+  background: #e6fffb;
+  color: var(--teal);
+}
+
+.taxonomy-family {
+  flex: 1 1 100%;
+  display: block;
+  margin: 4px 0 0;
+  padding: 0;
   border-style: solid;
-  background: #f8fafc;
+  border-color: #d7e0e6;
+  overflow: hidden;
+  background: #fff;
 }
 
 .taxonomy-family-head {
   display: flex;
   align-items: center;
-  flex: 0 0 auto;
   margin: 0;
-  padding: 0;
+  padding: 3px 7px;
   border: 0;
+  border-left: 4px solid #64748b;
+  border-bottom: 1px solid #dce4ea;
+  background: #eef3f7;
 }
 
-.taxonomy-family .taxonomy-root-btn {
+.segmented .taxonomy-family .taxonomy-root-btn {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
   height: 27px;
-  padding: 0 7px;
-  border-color: #94a3b8;
-  background: #fff;
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 900;
+  justify-content: flex-start;
+  padding: 0 2px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #273444;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.taxonomy-family .taxonomy-root-btn > span:first-child {
+  font-weight: 800;
+}
+
+.taxonomy-family .taxonomy-root-btn .group-pct {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.taxonomy-family .taxonomy-root-btn .family-breadth {
+  color: #718096;
+  font-weight: 400;
 }
 
 .taxonomy-branches {
-  flex: 1 1 auto;
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 2px 10px;
+  padding: 2px 7px 3px;
 }
 
 .taxonomy-branch {
@@ -427,42 +500,84 @@ main {
   max-width: 100%;
   min-width: 0;
   margin: 0;
-  padding: 2px 4px;
-  border: 1px solid #dbe3e8;
-  border-radius: 7px;
-  background: #fff;
+  padding: 2px 8px 2px 2px;
+  border: 0;
+  border-right: 1px dotted #dce4e9;
+  border-radius: 0;
+  background: transparent;
   break-inside: avoid;
 }
 
-.taxonomy-family .taxonomy-branch-btn {
+.segmented .taxonomy-family .taxonomy-branch-btn {
+  display: inline-flex;
+  align-items: center;
   width: auto;
+  min-width: 0;
   min-height: 23px;
   height: 23px;
   justify-content: flex-start;
-  padding: 0 5px 0 2px;
+  padding: 0 7px 0 6px;
   border: 0;
-  border-right: 1px solid #edf1f3;
-  border-radius: 0;
-  background: transparent;
-  color: var(--text);
-  font-size: 12px;
-  font-weight: 850;
+  border-left: 3px solid #94a3b8;
+  border-radius: 2px;
+  background: #edf2f6;
+  color: #435365;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.taxonomy-family .taxonomy-branch-btn > span:first-child {
+  font-weight: 700;
+}
+
+.taxonomy-family .taxonomy-branch-btn .family-breadth {
+  color: #8793a1;
+  font-weight: 400;
+}
+
+.taxonomy-family .taxonomy-branch-btn .group-pct {
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .taxonomy-leaves {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
-  padding: 0 0 0 4px;
+  padding: 0 0 0 7px;
 }
 
 .taxonomy-family .taxonomy-leaf-btn,
 .tag-cluster .taxonomy-leaf-btn {
   height: 25px;
   padding: 0 5px;
-  border-color: #d7e0e5;
-  background: #f8fafc;
-  font-size: 11px;
+  border-color: #e0e6eb;
+  background: #fff;
+  color: #4b5b6b;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.taxonomy-family .scope-star-toggle:not(.starred) {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.taxonomy-family button:hover .scope-star-toggle,
+.taxonomy-family button:focus-visible .scope-star-toggle {
+  opacity: 1;
+}
+
+.taxonomy-family .taxonomy-leaf-btn > span:first-child,
+.tag-cluster .taxonomy-leaf-btn > span:first-child {
+  font-weight: 500;
+}
+
+.taxonomy-family .taxonomy-leaf-btn .group-pct,
+.tag-cluster .taxonomy-leaf-btn .group-pct {
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .taxonomy-family button.active,
@@ -472,15 +587,54 @@ main {
   color: var(--teal);
 }
 
+.segmented .taxonomy-family .taxonomy-root-btn.active,
+.segmented .taxonomy-family .taxonomy-branch-btn.active {
+  border-color: transparent;
+  color: #0f766e;
+  font-weight: inherit;
+}
+
+.segmented .taxonomy-family .taxonomy-root-btn.active {
+  background: transparent;
+}
+
+.segmented .taxonomy-family .taxonomy-branch-btn.active {
+  border-left-color: var(--teal);
+  background: #dff8f4;
+}
+
 .taxonomy-family.scope-container-active {
   border-color: var(--teal);
-  background: #e6fffb;
+  background: #f2fffc;
   box-shadow: inset 3px 0 0 var(--teal);
+}
+
+.taxonomy-family.scope-container-active .taxonomy-family-head {
+  border-left-color: var(--teal);
+  background: #dff8f4;
+}
+
+.taxonomy-branch.scope-container-starred {
+  border-radius: 5px;
+  background: #fff8dc;
+  box-shadow: inset 0 0 0 1px #e8c96f;
+}
+
+.taxonomy-branch.scope-container-starred .taxonomy-branch-btn {
+  border-left-color: #ca8a04;
+  background: #fff3c4;
 }
 
 .taxonomy-branch.scope-container-active {
   border-color: var(--teal);
+  border-radius: 5px;
   background: #e6fffb;
+  box-shadow: none;
+}
+
+.taxonomy-branch.scope-container-active .taxonomy-branch-btn {
+  border-left-color: var(--teal);
+  background: #dff8f4;
 }
 
 .tag-cluster {
@@ -1886,7 +2040,16 @@ tbody tr:hover {
   }
 
   .taxonomy-family {
-    flex-direction: column;
+    display: block;
+  }
+
+  .taxonomy-branch {
+    max-width: 100%;
+  }
+
+  .segmented .taxonomy-family .taxonomy-branch-btn {
+    min-width: 0;
+    border-right: 0;
   }
 
   .market-layout {

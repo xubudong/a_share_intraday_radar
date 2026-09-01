@@ -7,7 +7,7 @@ from app.taxonomy import Taxonomy, build_scope_stats
 def test_taxonomy_maps_all_legacy_leaf_groups():
     taxonomy = Taxonomy()
 
-    assert len(taxonomy.alias_to_leaf) == 123
+    assert len(taxonomy.alias_to_leaf) == 124
     assert len(taxonomy.children[None]) == 21
     assert taxonomy.resolve_group("半导体材料-电子特气") == (
         "semiconductor.materials.electronic_gases"
@@ -19,6 +19,14 @@ def test_taxonomy_maps_all_legacy_leaf_groups():
     )
     assert taxonomy.resolve_group("先进封装-封测厂") == (
         "semiconductor.packaging.osat"
+    )
+    assert taxonomy.resolve_group("国产算力-算力租赁/智算运营") == (
+        "ai_compute.services.rental"
+    )
+    assert taxonomy.path_names("ai_compute.services.rental") == (
+        "AI算力",
+        "算力运营与服务",
+        "算力租赁/智算运营",
     )
 
 
@@ -104,6 +112,9 @@ def test_frontend_contains_three_level_scope_filters():
     app_js = (
         __import__("pathlib").Path(__file__).parents[1] / "static" / "app.js"
     ).read_text(encoding="utf-8")
+    index_html = (
+        __import__("pathlib").Path(__file__).parents[1] / "static" / "index.html"
+    ).read_text(encoding="utf-8")
 
     assert "taxonomy.industries" in app_js
     assert "taxonomyRoot: root.id" in app_js
@@ -112,6 +123,18 @@ def test_frontend_contains_three_level_scope_filters():
     assert "taxonomy-leaf-btn" in app_js
     assert "taxonomy-family-head" in app_js
     assert "scope-container-active" in app_js
+    assert "scope-container-starred" in app_js
+    assert 'class="starred-scope-bar"' in index_html
+    assert 'getElementById("starredScopeBar")' in app_js
+    assert "node.level === 3" in app_js
+    assert "关注主题" not in app_js
+    assert "tag-cluster" not in app_js
+    assert 'key: "mainInflow", label: "主力净流入", cls: "col-main-inflow", defaultVisible: false' in app_js
+    assert 'COLUMN_VISIBILITY_STORAGE_KEY = "a_share_radar_column_visibility"' in app_js
+    assert "function readColumnVisibility" in app_js
+    assert "function saveColumnVisibility" in app_js
+    assert "localStorage.getItem(COLUMN_VISIBILITY_STORAGE_KEY)" in app_js
+    assert "localStorage.setItem(" in app_js
     assert 'state.group.startsWith("industry:")' in app_js
     assert 'state.group.startsWith("tag:")' in app_js
     assert 'fetch("/api/toggle-scope-star"' in app_js

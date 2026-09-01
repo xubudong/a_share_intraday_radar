@@ -9,7 +9,7 @@ const tableColumns = [
   { key: "sparkline", label: "走势", cls: "col-sparkline", defaultVisible: true },
   { key: "marketCap", label: "市值(亿)", cls: "col-market-cap", defaultVisible: true },
   { key: "amount", label: "成交额", cls: "col-amount", defaultVisible: true },
-  { key: "mainInflow", label: "主力净流入", cls: "col-main-inflow", defaultVisible: true },
+  { key: "mainInflow", label: "主力净流入", cls: "col-main-inflow", defaultVisible: false },
   { key: "ma5Pos", label: "MA5", cls: "col-ma5-pos", defaultVisible: true },
   { key: "ma10Pos", label: "MA10", cls: "col-ma10-pos", defaultVisible: true },
   { key: "ma20Pos", label: "MA20", cls: "col-ma20-pos", defaultVisible: true },
@@ -22,6 +22,39 @@ const tableColumns = [
   { key: "signalDetail", label: "信号说明", cls: "col-signal-detail", defaultVisible: false },
   { key: "action", label: "动作", cls: "col-action", defaultVisible: false },
 ];
+
+const COLUMN_VISIBILITY_STORAGE_KEY = "a_share_radar_column_visibility";
+
+function defaultColumnVisibility() {
+  return Object.fromEntries(
+    tableColumns.map((column) => [column.key, column.defaultVisible]),
+  );
+}
+
+function readColumnVisibility() {
+  const defaults = defaultColumnVisibility();
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(COLUMN_VISIBILITY_STORAGE_KEY) || "null");
+    if (!stored || typeof stored !== "object" || Array.isArray(stored)) return defaults;
+    return Object.fromEntries(tableColumns.map((column) => [
+      column.key,
+      typeof stored[column.key] === "boolean" ? stored[column.key] : column.defaultVisible,
+    ]));
+  } catch (error) {
+    return defaults;
+  }
+}
+
+function saveColumnVisibility() {
+  try {
+    window.localStorage.setItem(
+      COLUMN_VISIBILITY_STORAGE_KEY,
+      JSON.stringify(state.visibleColumns),
+    );
+  } catch (error) {
+    // localStorage may be unavailable in private or restricted browser contexts.
+  }
+}
 
 const state = {
   dashboard: null,
@@ -37,7 +70,7 @@ const state = {
   sectorNotes: [],
   stockNotes: {},
   radarCollapsed: true,
-  visibleColumns: Object.fromEntries(tableColumns.map((column) => [column.key, column.defaultVisible])),
+  visibleColumns: readColumnVisibility(),
 };
 
 const actionableSignals = new Set(["买入"]);
@@ -141,6 +174,7 @@ function renderColumnToggles() {
   container.querySelectorAll("input[data-column-key]").forEach((input) => {
     input.addEventListener("change", (event) => {
       state.visibleColumns[event.target.dataset.columnKey] = event.target.checked;
+      saveColumnVisibility();
       renderTable();
     });
   });
@@ -625,13 +659,15 @@ function renderGroups() {
     .filter((group) => !groupFamilies.some((family) => groupMatchesFamily(group, family)))
     .sort();
   const taxonomyScopes = flattenTaxonomyNodes().map((node) => node.scope_id);
-  const tagScopes = (state.taxonomy?.tags || []).map((tag) => tag.scope_id);
+  const starredLeaves = flattenTaxonomyNodes().filter((node) => {
+    const stats = scopeStats[node.scope_id] || {};
+    return node.level === 3 && Boolean(stats.star ?? node.star);
+  });
   const selections = [
     "全部",
     ...orderedFamilies.map((family) => family.label),
     ...legacyGroups,
     ...taxonomyScopes,
-    ...tagScopes,
   ];
   if (!selections.includes(state.group)) state.group = "全部";
 
@@ -680,6 +716,8 @@ function renderGroups() {
     result += `<div class="taxonomy-family-head">${scopeButton(root, "taxonomy-root-btn", true)}</div>`;
     result += '<div class="taxonomy-branches">';
     for (const branch of root.children || []) {
+      const branchStats = scopeStats[branch.scope_id] || {};
+      const branchStarred = Boolean(branchStats.star ?? branch.star);
       const branchActive = state.group === branch.scope_id
         || (branch.children || []).some((leaf) => state.group === leaf.scope_id);
       const leaves = [...(branch.children || [])].sort((left, right) => {
@@ -689,8 +727,8 @@ function renderGroups() {
           || (rightStats.avg_pct ?? -Infinity) - (leftStats.avg_pct ?? -Infinity)
           || left.name.localeCompare(right.name, "zh-CN");
       });
-      result += `<section class="taxonomy-branch ${branchActive ? "scope-container-active" : ""}">`;
-      result += scopeButton(branch, "taxonomy-branch-btn", true);
+      result += `<section class="taxonomy-branch ${branchStarred ? "scope-container-starred" : ""} ${branchActive ? "scope-container-active" : ""}">`;
+      result += scopeButton(branch, "taxonomy-branch-btn");
       result += `<div class="taxonomy-leaves">${leaves.map((leaf) => scopeButton(leaf, "taxonomy-leaf-btn")).join("")}</div>`;
       result += "</section>";
     }
@@ -698,6 +736,11 @@ function renderGroups() {
     return result;
   };
 
+  const starredBar = document.getElementById("starredScopeBar");
+  starredBar.innerHTML = '<span class="starred-scope-label">星标细分</span>';
+  starredBar.innerHTML += starredLeaves.length
+    ? starredLeaves.map((leaf) => scopeButton(leaf, "taxonomy-leaf-btn starred-scope-btn")).join("")
+    : '<span class="starred-scope-empty">给三级行业加星后，会自动显示在这里</span>';
   let html = groupButton("全部");
   for (const family of orderedFamilies) {
     if (family.taxonomyRoot) {
@@ -717,11 +760,6 @@ function renderGroups() {
       .join("");
     html += "</div>";
   }
-  if (state.taxonomy?.tags?.length) {
-    html += '<div class="group-cluster tag-cluster"><span class="group-cluster-label">关注主题</span>';
-    html += state.taxonomy.tags.map((tag) => scopeButton(tag, "taxonomy-leaf-btn tag-scope-btn")).join("");
-    html += "</div>";
-  }
   if (otherGroups.length) {
     html += '<div class="group-cluster"><span class="group-cluster-label">其他</span>';
     html += otherGroups.map((group) => groupButton(group)).join("");
@@ -734,14 +772,14 @@ function renderGroups() {
       selectSector(btn.dataset.group);
     });
   });
-  document.querySelectorAll("#groupFilter .scope-star-toggle").forEach((star) => {
+  document.querySelectorAll("#groupFilter .scope-star-toggle, #starredScopeBar .scope-star-toggle").forEach((star) => {
     star.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
       toggleScopeStar(star.dataset.scope, star);
     });
   });
-  document.querySelectorAll("#groupFilter button[data-scope]").forEach((btn) => {
+  document.querySelectorAll("#groupFilter button[data-scope], #starredScopeBar button[data-scope]").forEach((btn) => {
     btn.addEventListener("click", () => {
       selectSector(btn.dataset.scope);
     });

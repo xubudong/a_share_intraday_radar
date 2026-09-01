@@ -123,6 +123,7 @@ def test_requested_sector_groups_and_tiers_are_present():
         "国产算力-服务器整机",
         "国产算力-高速网络/交换设备",
         "国产算力-IDC/数据中心运营",
+        "国产算力-算力租赁/智算运营",
         "国产算力-电源/UPS",
         "国产算力-基础软件",
         "国产算力-数据库/中间件",
@@ -281,6 +282,10 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert stocks_by_code["603019"].group == "国产算力-服务器整机"
     assert stocks_by_code["000063"].group == "国产算力-高速网络/交换设备"
     assert stocks_by_code["603881"].group == "国产算力-IDC/数据中心运营"
+    assert stocks_by_code["300846"].group == "国产算力-算力租赁/智算运营"
+    assert stocks_by_code["300846"].tier == 1
+    assert stocks_by_code["603220"].group == "国产算力-算力租赁/智算运营"
+    assert stocks_by_code["603220"].tier == 2
     assert stocks_by_code["002335"].group == "国产算力-电源/UPS"
     assert stocks_by_code["600536"].group == "国产算力-基础软件"
     assert stocks_by_code["002368"].group == "国产算力-数据库/中间件"
@@ -295,6 +300,16 @@ def test_requested_sector_groups_and_tiers_are_present():
     assert {"国产算力-IDC/数据中心运营", "国产算力-数据库/中间件"} <= set(
         stocks_by_code["600845"].groups
     )
+    assert {
+        "国产算力-IDC/数据中心运营",
+        "国产算力-算力租赁/智算运营",
+    } <= set(stocks_by_code["300738"].groups)
+    for code in ("603881", "300383", "300442"):
+        assert {
+            "国产算力-IDC/数据中心运营",
+            "国产算力-算力租赁/智算运营",
+        } <= set(stocks_by_code[code].groups)
+    assert "国产算力-算力租赁/智算运营" not in stocks_by_code["600845"].groups
     assert stocks_by_code["600588"].group == "计算机软件-办公/企业智能体"
     assert stocks_by_code["300170"].group == "计算机软件-企业软件/工业软件"
     assert stocks_by_code["300229"].group == "计算机软件-搜索/知识管理"

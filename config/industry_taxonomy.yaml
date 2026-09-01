@@ -187,6 +187,12 @@ industries:
           - id: ai_compute.datacenter.power
             name: 电源/UPS
             aliases: ["国产算力-电源/UPS"]
+      - id: ai_compute.services
+        name: 算力运营与服务
+        children:
+          - id: ai_compute.services.rental
+            name: 算力租赁/智算运营
+            aliases: ["国产算力-算力租赁/智算运营"]
       - id: ai_compute.edge
         name: 边缘算力
         children:
@@ -657,6 +663,7 @@ tags:
       - "国产算力-服务器整机"
       - "国产算力-高速网络/交换设备"
       - "国产算力-IDC/数据中心运营"
+      - "国产算力-算力租赁/智算运营"
       - "国产算力-电源/UPS"
       - "国产算力-基础软件"
       - "国产算力-数据库/中间件"

@@ -588,10 +588,19 @@ groups:
   - name: 国产算力-IDC/数据中心运营
     stocks:
       - { code: "603881", name: "数据港", tier: 1, note: "数据中心运营与云厂商配套" }
-      - { code: "300738", name: "奥飞数据", tier: 2, note: "IDC与算力租赁观察" }
+      - { code: "300738", name: "奥飞数据", tier: 2, note: "IDC主业与数据中心运营" }
       - { code: "300383", name: "光环新网", tier: 2, note: "IDC与云服务运营" }
       - { code: "300442", name: "润泽科技", tier: 1, note: "大型数据中心运营核心" }
       - { code: "600845", name: "宝信软件", tier: 1, note: "IDC与工业软件双主线" }
+
+  - name: 国产算力-算力租赁/智算运营
+    stocks:
+      - { code: "300846", name: "首都在线", tier: 1, note: "智算云与算力调度运营，年报披露超2万片算力集群" }
+      - { code: "300383", name: "光环新网", tier: 1, note: "部署算力硬件与异构算力调度平台，提供训练、推理等算力服务" }
+      - { code: "300442", name: "润泽科技", tier: 1, note: "AIDC智算基础设施集群运营，持续丰富算力服务" }
+      - { code: "603220", name: "中贝通信", tier: 2, note: "IaaS算力服务向云服务、MaaS延伸，传统通信业务仍占重要比重" }
+      - { code: "300738", name: "奥飞数据", tier: 2, note: "已签算力租赁项目推进，算力运营第二增长曲线观察" }
+      - { code: "603881", name: "数据港", tier: 2, note: "通算主业基础上拓展智算增值服务，作为智算转型观察" }
 
   - name: 国产算力-电源/UPS
     stocks:
