@@ -675,10 +675,13 @@ function renderGroups() {
   };
 
   const taxonomyFamily = (family, root) => {
-    let result = `<div class="group-cluster family-cluster taxonomy-family" draggable="true" data-family-cluster="${escapeHtml(family.label)}">`;
+    const familyActive = state.group === root.scope_id;
+    let result = `<div class="group-cluster family-cluster taxonomy-family ${familyActive ? "scope-container-active" : ""}" draggable="true" data-family-cluster="${escapeHtml(family.label)}">`;
     result += `<div class="taxonomy-family-head">${scopeButton(root, "taxonomy-root-btn", true)}</div>`;
     result += '<div class="taxonomy-branches">';
     for (const branch of root.children || []) {
+      const branchActive = state.group === branch.scope_id
+        || (branch.children || []).some((leaf) => state.group === leaf.scope_id);
       const leaves = [...(branch.children || [])].sort((left, right) => {
         const leftStats = scopeStats[left.scope_id] || {};
         const rightStats = scopeStats[right.scope_id] || {};
@@ -686,7 +689,7 @@ function renderGroups() {
           || (rightStats.avg_pct ?? -Infinity) - (leftStats.avg_pct ?? -Infinity)
           || left.name.localeCompare(right.name, "zh-CN");
       });
-      result += '<section class="taxonomy-branch">';
+      result += `<section class="taxonomy-branch ${branchActive ? "scope-container-active" : ""}">`;
       result += scopeButton(branch, "taxonomy-branch-btn", true);
       result += `<div class="taxonomy-leaves">${leaves.map((leaf) => scopeButton(leaf, "taxonomy-leaf-btn")).join("")}</div>`;
       result += "</section>";

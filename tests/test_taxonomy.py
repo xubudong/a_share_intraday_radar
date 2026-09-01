@@ -110,6 +110,8 @@ def test_frontend_contains_three_level_scope_filters():
     assert "function computeScopeStatsFromStocks" in app_js
     assert "taxonomy-branch-btn" in app_js
     assert "taxonomy-leaf-btn" in app_js
+    assert "taxonomy-family-head" in app_js
+    assert "scope-container-active" in app_js
     assert 'state.group.startsWith("industry:")' in app_js
     assert 'state.group.startsWith("tag:")' in app_js
     assert 'fetch("/api/toggle-scope-star"' in app_js
